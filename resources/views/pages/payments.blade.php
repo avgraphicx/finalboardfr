@@ -9,10 +9,10 @@
 @section('content')
     <div class="page-header-breadcrumb mb-3">
         <div class="d-flex align-center justify-content-between flex-wrap">
-            <h1 class="page-title fw-medium fs-18 mb-0">{{ __('messages.payments_page_label') }}</h1>
+            <h1 class="page-title fw-medium fs-18 mb-0">Payments</h1>
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="javascript:void(0);">{{ __('messages.dashboard') }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ __('messages.payments_page_label') }}</li>
+                <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Payments</li>
             </ol>
         </div>
     </div>
@@ -21,11 +21,11 @@
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-3">
-                    <div class="card-title">{{ __('messages.payments_list') }}</div>
+                    <div class="card-title">Payments List</div>
                     <div class="d-flex flex-wrap gap-2">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#uploadPaymentModal">
-                            <i class="ri-add-line"></i> {{ __('messages.add_payment') }}
+                            <i class="ri-add-line"></i> Add Payment
                         </button>
                     </div>
                 </div>
@@ -34,22 +34,22 @@
                         <table class="table table-hover" id="payments-table">
                             <thead>
                                 <tr>
-                                    <th>{{ __('messages.table_driver') }}</th>
-                                    <th>{{ __('messages.table_week') }}</th>
-                                    <th>{{ __('messages.table_total_invoice') }}</th>
-                                    <th>{{ __('messages.table_parcels') }}</th>
-                                    <th>{{ __('messages.table_rental_price') }}</th>
-                                    <th>{{ __('messages.table_broker_percent') }}</th>
-                                    <th>{{ __('messages.table_bonus') }}</th>
-                                    <th>{{ __('messages.table_cash_advance') }}</th>
-                                    <th>{{ __('messages.table_final_amount') }}</th>
-                                    <th>{{ __('messages.table_actions') }}</th>
+                                    <th>Driver</th>
+                                    <th>Week #</th>
+                                    <th>Total Invoice</th>
+                                    <th>Parcels</th>
+                                    <th>Rental Price</th>
+                                    <th>Broker %</th>
+                                    <th>Bonus</th>
+                                    <th>Cash Advance</th>
+                                    <th>Final Amount</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($payments as $payment)
                                     <tr>
-                                        <td>{{ $payment->driver->full_name ?? __('messages.not_available_short') }}</td>
+                                        <td>{{ $payment->driver->full_name ?? 'N/A' }}</td>
                                         <td>{{ $payment->week_number }}</td>
                                         <td>${{ number_format($payment->total_invoice, 2) }}</td>
                                         <td>{{ $payment->parcel_rows_count }}</td>
@@ -61,18 +61,16 @@
                                         <td>
                                             <div class="hstack gap-2 fs-15">
                                                 <a href="{{ route('payments.show', $payment->id) }}"
-                                                    class="btn btn-icon btn-sm btn-primary"
-                                                    title="{{ __('messages.btn_view') }}">
+                                                    class="btn btn-icon btn-sm btn-primary" title="View">
                                                     <i class="ri-eye-line"></i>
                                                 </a>
                                                 <a href="{{ route('payments.edit', $payment->id) }}"
-                                                    class="btn btn-icon btn-sm btn-warning"
-                                                    title="{{ __('messages.btn_edit') }}">
+                                                    class="btn btn-icon btn-sm btn-warning" title="Edit">
                                                     <i class="ri-edit-line"></i>
                                                 </a>
                                                 <a href="javascript:void(0);" data-id="{{ $payment->id }}"
                                                     class="btn btn-icon btn-sm btn-danger delete-payment-btn"
-                                                    title="{{ __('messages.btn_delete') }}">
+                                                    title="Delete">
                                                     <i class="ri-delete-bin-line"></i>
                                                 </a>
                                             </div>
@@ -81,7 +79,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="10" class="text-center text-muted py-4">
-                                            {{ __('messages.no_payments_found') }}
+                                            No payments found
                                         </td>
                                     </tr>
                                 @endforelse
@@ -103,23 +101,22 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="uploadPaymentModalLabel">{{ __('messages.payment_upload_title') }}
-                </h1>
+                <h1 class="modal-title fs-5" id="uploadPaymentModalLabel">Upload Payment</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="uploadPaymentForm" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="paymentFile" class="form-label">{{ __('messages.select_file_label') }}</label>
+                        <label for="paymentFile" class="form-label">Select File</label>
                         <input type="file" class="form-control" id="paymentFile" name="pdf_path" accept=".pdf"
                             required>
-                        <small class="text-muted">{{ __('messages.pdf_format_text') }}</small>
+                        <small class="text-muted">Accepted format: PDF</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary form-control">
-                        <i class="ri-upload-cloud-line"></i> {{ __('messages.upload') }}
+                        <i class="ri-upload-cloud-line"></i> Upload
                     </button>
                 </div>
             </form>
@@ -144,11 +141,27 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        const d = data.data;
+
                         Swal.fire({
-                            title: '{{ __('messages.success') }}!',
-                            text: data.message,
+                            title: 'Payment Recorded Successfully!',
+                            html: `
+                                <div class="text-start">
+                                    <p><strong>Driver ID:</strong> ${d.driver_id}</p>
+                                    <p><strong>Week Number:</strong> ${d.week_number}</p>
+                                    <p><strong>Total Invoice:</strong> $${d.total_invoice.toFixed(2)}</p>
+                                    <p><strong>Total Parcels:</strong> ${d.total_parcels}</p>
+                                    <p><strong>Parcel Rows Count:</strong> ${d.parcel_rows_count}</p>
+                                    <p><strong>Rental Price:</strong> $${d.vehicule_rental_price.toFixed(2)}</p>
+                                    <p><strong>Broker Percentage:</strong> ${d.broker_percentage}%</p>
+                                    <hr>
+                                    <p><strong>Broker Van Cut:</strong> ${d.parcel_rows_count} × $${d.vehicule_rental_price.toFixed(2)} = $${d.broker_van_cut.toFixed(2)}</p>
+                                    <p><strong>Broker Pay Cut:</strong> $${d.total_invoice.toFixed(2)} × ${d.broker_percentage}% = $${d.broker_pay_cut.toFixed(2)}</p>
+                                    <p><strong>Final Amount:</strong> $${d.total_invoice.toFixed(2)} - $${d.broker_van_cut.toFixed(2)} - $${d.broker_pay_cut.toFixed(2)} = $${d.final_amount.toFixed(2)}</p>
+                                </div>
+                            `,
                             icon: 'success',
-                            confirmButtonText: '{{ __('messages.confirm') }}'
+                            confirmButtonText: 'OK'
                         }).then(() => {
                             document.getElementById('uploadPaymentForm').reset();
                             const modal = bootstrap.Modal.getInstance(document.getElementById(
@@ -158,20 +171,20 @@
                         });
                     } else {
                         Swal.fire({
-                            title: '{{ __('messages.not_available') }}',
+                            title: 'Error',
                             text: data.message,
                             icon: 'error',
-                            confirmButtonText: '{{ __('messages.confirm') }}'
+                            confirmButtonText: 'OK'
                         });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     Swal.fire({
-                        title: '{{ __('messages.not_available') }}',
-                        text: '{{ __('messages.error_processing_response') }}',
+                        title: 'Error',
+                        text: 'An error occurred while processing the PDF',
                         icon: 'error',
-                        confirmButtonText: '{{ __('messages.confirm') }}'
+                        confirmButtonText: 'OK'
                     });
                 });
         });
