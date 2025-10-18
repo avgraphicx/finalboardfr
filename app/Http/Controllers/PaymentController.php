@@ -31,13 +31,15 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'pdf_path' => ['required', 'file', 'mimes:pdf'],
+        $validated = $request->validate([
+            'pdf_path' => ['required', 'file', 'mimes:pdf', 'max:25600'],
         ]);
+
+        $previewOnly = $request->input('preview_only') === '1';
 
         try {
             // Parse PDF via service
-            $pdfData = $this->parser->parse($request->file('pdf_path'));
+            $pdfData = $this->parser->parse($validated['pdf_path']);
 
             if (!$pdfData['success']) {
                 return response()->json([
@@ -60,6 +62,10 @@ class PaymentController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => __('messages.driver_not_found', ['driver_id' => $driverId]),
+                    'data' => [
+                        'driver_id' => $driverId,
+                        'week_number' => $weekNumber,
+                    ],
                 ], 404);
             }
 
@@ -72,8 +78,29 @@ class PaymentController extends Controller
             $brokerPayCut = (float)($totalInvoice * ($defaultPercentage / 100));
             $finalAmount = (float)($totalInvoice - $brokerVanCut - $brokerPayCut);
 
+            // If preview_only mode, don't save to database - just return the data
+            if ($previewOnly) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('messages.payment_extracted_success'),
+                    'data' => [
+                        'driver_id' => $driverId,
+                        'driver_full_name' => $driver->full_name,
+                        'week_number' => $weekNumber,
+                        'total_invoice' => $totalInvoice,
+                        'total_parcels' => $totalParcels,
+                        'parcel_rows_count' => $parcelRowsCount,
+                        'vehicule_rental_price' => $defaultRentalPrice,
+                        'broker_percentage' => $defaultPercentage,
+                        'broker_van_cut' => $brokerVanCut,
+                        'broker_pay_cut' => $brokerPayCut,
+                        'final_amount' => $finalAmount,
+                    ],
+                ], 200);
+            }
+
             // Store PDF file
-            $storedPdfPath = $request->file('pdf_path')->store('payments', 'public');
+            $storedPdfPath = $validated['pdf_path']->store('payments', 'public');
 
             // Create payment record
             $payment = Payment::create([
@@ -95,6 +122,7 @@ class PaymentController extends Controller
             // Prepare display data
             $displayData = [
                 'driver_id' => $driverId,
+                'driver_full_name' => $driver->full_name,
                 'week_number' => $weekNumber,
                 'total_invoice' => $totalInvoice,
                 'total_parcels' => $totalParcels,
@@ -115,7 +143,8 @@ class PaymentController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => __('messages.payment_validation_error') . implode(', ', array_merge(...array_values($e->errors()))),
+                'message' => __('messages.payment_validation_error'),
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             \Log::error('Error processing payment PDF', [
@@ -175,6 +204,32 @@ class PaymentController extends Controller
         }
     }
 
+    public function markPaid(Payment $payment)
+    {
+        try {
+            $payment->update([
+                'paid' => true,
+                'paid_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('messages.payment_marked_paid'),
+            ], 200);
+        } catch (\Exception $e) {
+            \Log::error('Error marking payment as paid', [
+                'payment_id' => $payment->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error marking payment as paid: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     private function validatePayment(Request $request, $ignoreId = null)
     {
         return $request->validate([
@@ -193,4 +248,21 @@ class PaymentController extends Controller
             'pdf_path' => ['nullable', 'string'],
         ]);
     }
+    public function markPaidBulk(Request $request)
+{
+    $paymentIds = $request->input('payment_ids', []);
+
+    if (empty($paymentIds)) {
+        return response()->json(['success' => false, 'message' => 'No payments selected.']);
+    }
+
+    // Update all payments in one go
+    \App\Models\Payment::whereIn('id', $paymentIds)->update(['paid' => true]);
+
+    return response()->json([
+        'success' => true,
+        'message' => count($paymentIds) . ' payments marked as paid successfully.'
+    ]);
+}
+
 }

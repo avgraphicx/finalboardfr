@@ -14,6 +14,7 @@ return [
     'searchdriverpage'      => 'Rechercher',
     'yes'                   => 'Oui',
     'no'                    => 'Non',
+    'ok'                    => 'OK',
     'close'                 => 'Fermer',
     'save'                  => 'Enregistrer',
     'cancel'                => 'Annuler',
@@ -227,7 +228,7 @@ return [
     'edit'                   => 'Modifier',
     'reset'                  => 'Réinitialiser',
     'edit_calculation_title' => 'Modifier le calcul',
-    'broker_percentage'      => 'Pourcentage du courtier',
+    'broker_percentage'      => 'Pourcentage du broker',
     'vehicule_rental_price'  => 'Prix de location du véhicule',
     'vehicle_rental_price'   => 'Prix de location du véhicule',
     'percentage'             => 'Pourcentage (%)',
@@ -283,7 +284,7 @@ return [
     'save_failed'                     => 'Échec de l\'enregistrement',
     'saved_final_amount'              => 'Enregistré. Montant final : ',
     'error_saving_calculation'        => 'Erreur lors de l\'enregistrement du calcul.',
-    'enter_broker_percentage'         => 'Entrez le pourcentage du courtier (ex. 20)',
+    'enter_broker_percentage'         => 'Entrez le pourcentage du broker (ex. 20)',
 
     /*
     |--------------------------------------------------------------------------
@@ -315,7 +316,7 @@ return [
     'table_total_invoice'             => 'Facture Totale',
     'table_parcels'                   => 'Colis',
     'table_rental_price'              => 'Prix de Location',
-    'table_broker_percent'            => 'Courtier %',
+    'table_broker_percent'            => 'Broker %',
     'table_bonus'                     => 'Prime',
     'table_cash_advance'              => 'Avance',
     'table_final_amount'              => 'Montant Final',
@@ -324,6 +325,47 @@ return [
     'btn_edit'                        => 'Modifier',
     'btn_delete'                      => 'Supprimer',
     'not_available_short'             => 'N/A',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tableau des Paiements du Chauffeur
+    |--------------------------------------------------------------------------
+    */
+    'driver_payments'                 => 'Paiements du Chauffeur',
+    'table_checkbox'                  => 'Sélectionner',
+    'table_week_number'               => 'Semaine #',
+    'table_total_invoice'             => 'Facture Totale',
+    'table_parcel_rows'               => 'Jours',
+    'table_benefit'                   => 'Bénéfice',
+    'table_final_amount'              => 'Montant Final',
+    'table_actions'                   => 'Actions',
+    'btn_view'                        => 'Voir',
+    'btn_edit'                        => 'Modifier',
+    'btn_delete'                      => 'Supprimer',
+    'btn_mark_paid'                   => 'Marquer comme Payé',
+    'mark_as_paid'                    => 'Marquer comme Payé',
+    'payment_marked_paid'             => 'Le paiement a été marqué comme payé avec succès.',
+    'no_payments_found'               => 'Aucun paiement trouvé',
+    'error_marking_payments_paid'     => 'Erreur lors du marquage des paiements comme payés',
+    'error_bulk_request'              => 'Erreur lors du traitement de la demande en masse',
+    'upload_only_pdf'                 => 'Seuls les fichiers PDF sont autorisés',
+    'drivers_found'                   => 'chauffeurs trouvés',
+    'drivers_not_found'               => 'Chauffeur non trouvé',
+    'confirm_upload_title'            => 'Confirmer le téléchargement',
+    'confirm_upload_text'             => 'Enregistrer :count enregistrements de paiement dans la base de données ?',
+    'confirm_yes_save'                => 'Oui, Enregistrer',
+    'confirm_no_cancel'               => 'Annuler',
+    'saving_title'                    => 'Enregistrement...',
+    'saving_text'                     => 'Veuillez patienter pendant que nous enregistrons vos enregistrements de paiement.',
+    'success_title'                   => 'Succès!',
+    'success_text'                    => ':count enregistrements de paiement ont été enregistrés.',
+    'partially_saved_title'           => 'Partiellement enregistré',
+    'partially_saved_text'            => ':saved enregistré, :failed échoué.',
+    'go_to_drivers_page'              => 'Aller à la page des chauffeurs',
+    'no_data_to_save'                 => 'Aucune donnée à enregistrer',
+    'upload_title_invoices'           => 'Téléchargement de :count factures',
+    'proceed_with_count'              => 'Continuer avec :count chauffeurs',
+    'upload_invoices'              => 'Téléversement de factures',
 
     /*
     |--------------------------------------------------------------------------

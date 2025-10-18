@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -55,5 +56,13 @@ class User extends Authenticatable
             'password'           => 'hashed',
             'joined_date'        => 'date',
         ];
+    }
+
+    /**
+     * Get the broker associated with the user.
+     */
+    public function broker(): HasOne
+    {
+        return $this->hasOne(Broker::class);
     }
 }

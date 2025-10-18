@@ -26,6 +26,8 @@ class Payment extends Model
         'cash_advance',
         'final_amount',
         'pdf_path',
+        'paid',
+        'paid_at',
     ];
 
     /**
@@ -44,6 +46,8 @@ class Payment extends Model
             'bonus' => 'decimal:2',
             'cash_advance' => 'decimal:2',
             'final_amount' => 'decimal:2',
+            'paid' => 'boolean',
+            'paid_at' => 'datetime',
         ];
     }
 

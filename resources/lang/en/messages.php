@@ -14,6 +14,7 @@ return [
     'searchdriverpage'       => 'Search anything',
     'yes'                    => 'Yes',
     'no'                     => 'No',
+    'ok'                     => 'OK',
     'close'                  => 'Close',
     'save'                   => 'Save',
     'cancel'                 => 'Cancel',
@@ -324,6 +325,47 @@ return [
     'btn_edit'                        => 'Edit',
     'btn_delete'                      => 'Delete',
     'not_available_short'             => 'N/A',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Driver Payments Table
+    |--------------------------------------------------------------------------
+    */
+    'driver_payments'                 => 'Driver Payments',
+    'table_checkbox'                  => 'Select',
+    'table_week_number'               => 'Week #',
+    'table_total_invoice'             => 'Total Invoice',
+    'table_parcel_rows'               => 'Days',
+    'table_benefit'                   => 'Benefit',
+    'table_final_amount'              => 'Final Amount',
+    'table_actions'                   => 'Actions',
+    'btn_view'                        => 'View',
+    'btn_edit'                        => 'Edit',
+    'btn_delete'                      => 'Delete',
+    'btn_mark_paid'                   => 'Mark as Paid',
+    'mark_as_paid'                    => 'Mark as Paid',
+    'payment_marked_paid'             => 'Payment marked as paid successfully.',
+    'no_payments_found'               => 'No payments found',
+    'error_marking_payments_paid'     => 'Error marking payments as paid',
+    'error_bulk_request'              => 'Error processing bulk request',
+    'upload_only_pdf'                 => 'Only PDF files are allowed',
+    'drivers_found'                   => 'drivers found',
+    'drivers_not_found'               => 'Driver Not Found',
+    'confirm_upload_title'            => 'Confirm Upload',
+    'confirm_upload_text'             => 'Save :count payment records to database?',
+    'confirm_yes_save'                => 'Yes, Save',
+    'confirm_no_cancel'               => 'Cancel',
+    'saving_title'                    => 'Saving...',
+    'saving_text'                     => 'Please wait while we save your payment records.',
+    'success_title'                   => 'Success!',
+    'success_text'                    => ':count payment records have been saved.',
+    'partially_saved_title'           => 'Partially Saved',
+    'partially_saved_text'            => ':saved saved, :failed failed.',
+    'go_to_drivers_page'              => 'Go to the drivers page',
+    'no_data_to_save'                 => 'No data to save',
+    'upload_title_invoices'           => 'Uploading :count invoices',
+    'proceed_with_count'              => 'Proceed with :count drivers',
+    'upload_invoices'              => 'Upload invoices',
 
     /*
     |--------------------------------------------------------------------------
