@@ -115,7 +115,6 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button> --}}
                     <button type="submit" class="btn btn-primary form-control">
                         <i class="ri-upload-cloud-line"></i> Upload
                     </button>
@@ -142,16 +141,39 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        document.getElementById('uploadPaymentForm').reset();
-                        const modal = bootstrap.Modal.getInstance(document.getElementById(
-                            'uploadPaymentModal'));
-                        modal.hide();
-                        location.reload();
+                        const d = data.data;
+
+                        Swal.fire({
+                            title: 'Payment Recorded Successfully!',
+                            html: `
+                                <div class="text-start">
+                                    <p><strong>Driver ID:</strong> ${d.driver_id}</p>
+                                    <p><strong>Week Number:</strong> ${d.week_number}</p>
+                                    <p><strong>Total Invoice:</strong> $${d.total_invoice.toFixed(2)}</p>
+                                    <p><strong>Total Parcels:</strong> ${d.total_parcels}</p>
+                                    <p><strong>Parcel Rows Count:</strong> ${d.parcel_rows_count}</p>
+                                    <p><strong>Rental Price:</strong> $${d.vehicule_rental_price.toFixed(2)}</p>
+                                    <p><strong>Broker Percentage:</strong> ${d.broker_percentage}%</p>
+                                    <hr>
+                                    <p><strong>Broker Van Cut:</strong> ${d.parcel_rows_count} × $${d.vehicule_rental_price.toFixed(2)} = $${d.broker_van_cut.toFixed(2)}</p>
+                                    <p><strong>Broker Pay Cut:</strong> $${d.total_invoice.toFixed(2)} × ${d.broker_percentage}% = $${d.broker_pay_cut.toFixed(2)}</p>
+                                    <p><strong>Final Amount:</strong> $${d.total_invoice.toFixed(2)} - $${d.broker_van_cut.toFixed(2)} - $${d.broker_pay_cut.toFixed(2)} = $${d.final_amount.toFixed(2)}</p>
+                                </div>
+                            `,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            document.getElementById('uploadPaymentForm').reset();
+                            const modal = bootstrap.Modal.getInstance(document.getElementById(
+                                'uploadPaymentModal'));
+                            modal.hide();
+                            location.reload();
+                        });
                     } else {
                         Swal.fire({
-                            icon: 'error',
                             title: 'Error',
                             text: data.message,
+                            icon: 'error',
                             confirmButtonText: 'OK'
                         });
                     }
@@ -159,9 +181,9 @@
                 .catch(error => {
                     console.error('Error:', error);
                     Swal.fire({
-                        icon: 'error',
                         title: 'Error',
                         text: 'An error occurred while processing the PDF',
+                        icon: 'error',
                         confirmButtonText: 'OK'
                     });
                 });
