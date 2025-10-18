@@ -59,7 +59,7 @@ class PaymentController extends Controller
             if (!$driver) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Driver with ID '{$driverId}' not found in database.",
+                    'message' => __('messages.driver_not_found', ['driver_id' => $driverId]),
                 ], 404);
             }
 
@@ -108,14 +108,14 @@ class PaymentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Payment data extracted and saved successfully!',
+                'message' => __('messages.payment_extracted_success'),
                 'data' => $displayData,
             ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation error: ' . implode(', ', array_merge(...array_values($e->errors()))),
+                'message' => __('messages.payment_validation_error') . implode(', ', array_merge(...array_values($e->errors()))),
             ], 422);
         } catch (\Exception $e) {
             \Log::error('Error processing payment PDF', [
@@ -127,7 +127,7 @@ class PaymentController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error processing PDF: ' . $e->getMessage(),
+                'message' => __('messages.payment_error_processing') . $e->getMessage(),
             ], 500);
         }
     }
@@ -159,7 +159,7 @@ class PaymentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Payment deleted successfully.',
+                'message' => __('messages.payment_deleted_success'),
             ], 200);
         } catch (\Exception $e) {
             \Log::error('Error deleting payment', [
@@ -170,7 +170,7 @@ class PaymentController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error deleting payment: ' . $e->getMessage(),
+                'message' => __('messages.payment_delete_error') . $e->getMessage(),
             ], 500);
         }
     }

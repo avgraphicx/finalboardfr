@@ -287,6 +287,46 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Messages de Paiement
+    |--------------------------------------------------------------------------
+    */
+    'payment_extracted_success'       => 'Les données de paiement ont été extraites et enregistrées avec succès !',
+    'payment_pdf_error'               => 'Impossible d\'extraire les données requises du PDF. Veuillez vérifier le fichier.',
+    'payment_validation_error'        => 'Erreur de validation : ',
+    'payment_error_processing'        => 'Erreur lors du traitement du PDF : ',
+    'driver_not_found'                => 'Le chauffeur avec l\'ID \':driver_id\' n\'a pas été trouvé dans la base de données.',
+    'payment_deleted_success'         => 'Paiement supprimé avec succès.',
+    'payment_delete_error'            => 'Erreur lors de la suppression du paiement : ',
+    'payment_upload_title'            => 'Télécharger le Paiement',
+    'select_file_label'               => 'Sélectionner le Fichier',
+    'pdf_format_text'                 => 'Format accepté : PDF',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Étiquettes de la Page de Paiement
+    |--------------------------------------------------------------------------
+    */
+    'payments_page_label'             => 'Paiements',
+    'payments_list'                   => 'Liste des Paiements',
+    'add_payment'                     => 'Ajouter un Paiement',
+    'no_payments_found'               => 'Aucun paiement trouvé',
+    'table_driver'                    => 'Chauffeur',
+    'table_week'                      => 'Semaine #',
+    'table_total_invoice'             => 'Facture Totale',
+    'table_parcels'                   => 'Colis',
+    'table_rental_price'              => 'Prix de Location',
+    'table_broker_percent'            => 'Courtier %',
+    'table_bonus'                     => 'Prime',
+    'table_cash_advance'              => 'Avance',
+    'table_final_amount'              => 'Montant Final',
+    'table_actions'                   => 'Actions',
+    'btn_view'                        => 'Voir',
+    'btn_edit'                        => 'Modifier',
+    'btn_delete'                      => 'Supprimer',
+    'not_available_short'             => 'N/A',
+
+    /*
+    |--------------------------------------------------------------------------
     | Navigation Footer / Tabs
     |--------------------------------------------------------------------------
     */

@@ -287,9 +287,50 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Navigation (Footer / Tabs)
+    | Payment Messages
     |--------------------------------------------------------------------------
     */
+    'payment_extracted_success'       => 'Payment data extracted and saved successfully!',
+    'payment_pdf_error'               => 'Could not extract required data from the PDF. Please check the file.',
+    'payment_validation_error'        => 'Validation error: ',
+    'payment_error_processing'        => 'Error processing PDF: ',
+    'driver_not_found'                => 'Driver with ID \':driver_id\' not found in database.',
+    'payment_deleted_success'         => 'Payment deleted successfully.',
+    'payment_delete_error'            => 'Error deleting payment: ',
+    'payment_upload_title'            => 'Upload Payment',
+    'select_file_label'               => 'Select File',
+    'pdf_format_text'                 => 'Accepted format: PDF',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Page Labels
+    |--------------------------------------------------------------------------
+    */
+    'payments_page_label'             => 'Payments',
+    'payments_list'                   => 'Payments List',
+    'add_payment'                     => 'Add Payment',
+    'no_payments_found'               => 'No payments found',
+    'table_driver'                    => 'Driver',
+    'table_week'                      => 'Week #',
+    'table_total_invoice'             => 'Total Invoice',
+    'table_parcels'                   => 'Parcels',
+    'table_rental_price'              => 'Rental Price',
+    'table_broker_percent'            => 'Broker %',
+    'table_bonus'                     => 'Bonus',
+    'table_cash_advance'              => 'Cash Advance',
+    'table_final_amount'              => 'Final Amount',
+    'table_actions'                   => 'Actions',
+    'btn_view'                        => 'View',
+    'btn_edit'                        => 'Edit',
+    'btn_delete'                      => 'Delete',
+    'not_available_short'             => 'N/A',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Navigation / Common
+    |--------------------------------------------------------------------------
+    */
+    'dashboard'                       => 'Dashboard',
     'pays'                   => 'Pays',
     'stats'                  => 'Stats',
     'settings'               => 'Settings',
