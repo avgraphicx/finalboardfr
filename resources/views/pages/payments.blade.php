@@ -88,7 +88,7 @@
         const pond = FilePond.create(
             document.getElementById('pdfInvoices'), {
                 allowMultiple: true,
-                maxFiles: 10,
+                maxFiles: 9999,
                 maxFileSize: '25MB',
                 labelIdle: '{{ __('messages.drag_and_drop') }} <span class="filepond--label-action">{{ __('messages.browse') }}</span>',
                 onaddfile: (error, file) => {
