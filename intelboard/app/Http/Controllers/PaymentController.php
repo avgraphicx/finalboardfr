@@ -51,6 +51,9 @@ class PaymentController extends Controller
             // Extract parsed values
             $driverId = $pdfData['driver_id'];
             $weekNumber = (int)$pdfData['week_number'];
+            // Compose week string in YYYY-WW format
+            $year = isset($pdfData['year']) ? (int)$pdfData['year'] : now()->year;
+            $weekString = sprintf('%04d-%02d', $year, $weekNumber);
             $totalInvoice = (float)$pdfData['total_invoice'];
             $totalParcels = (int)$pdfData['total_parcels'];
             $parcelRowsCount = (int)$pdfData['parcel_rows_count'];
@@ -64,7 +67,7 @@ class PaymentController extends Controller
                     'message' => __('messages.driver_not_found', ['driver_id' => $driverId]),
                     'data' => [
                         'driver_id' => $driverId,
-                        'week_number' => $weekNumber,
+                        'week_number' => $weekString,
                     ],
                 ], 404);
             }
@@ -86,7 +89,7 @@ class PaymentController extends Controller
                     'data' => [
                         'driver_id' => $driverId,
                         'driver_full_name' => $driver->full_name,
-                        'week_number' => $weekNumber,
+                        'week_number' => $weekString,
                         'total_invoice' => $totalInvoice,
                         'total_parcels' => $totalParcels,
                         'parcel_rows_count' => $parcelRowsCount,
@@ -105,7 +108,7 @@ class PaymentController extends Controller
             // Create payment record
             $payment = Payment::create([
                 'driver_id' => $driver->id,
-                'week_number' => $weekNumber,
+                'week_number' => $weekString,
                 'total_invoice' => $totalInvoice,
                 'total_parcels' => $totalParcels,
                 'parcel_rows_count' => $parcelRowsCount,
@@ -123,7 +126,7 @@ class PaymentController extends Controller
             $displayData = [
                 'driver_id' => $driverId,
                 'driver_full_name' => $driver->full_name,
-                'week_number' => $weekNumber,
+                'week_number' => $weekString,
                 'total_invoice' => $totalInvoice,
                 'total_parcels' => $totalParcels,
                 'parcel_rows_count' => $parcelRowsCount,
@@ -265,4 +268,20 @@ class PaymentController extends Controller
     ]);
 }
 
+    public function checkExists(Request $request)
+    {
+        // driver_id from request is the driver code, not PK
+        $driverCode = $request->input('driver_id');
+        $week = $request->input('week_number');
+        // Find the driver record by its code
+        $driver = Driver::where('driver_id', $driverCode)->first();
+        if (!$driver) {
+            return response()->json(['exists' => false]);
+        }
+        // Check payments by foreign key
+        $exists = Payment::where('driver_id', $driver->id)
+                         ->where('week_number', $week)
+                         ->exists();
+        return response()->json(['exists' => $exists]);
+    }
 }

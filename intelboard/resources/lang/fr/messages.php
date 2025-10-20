@@ -444,6 +444,7 @@ return [
     'actions'               => 'Actions',
     'week'                  => 'Semaine',
     'weekno'                => 'Semaine n°',
+    'upload_more_invoices' => 'Téléverser plus de factures',
 
 
 ];

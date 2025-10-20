@@ -433,4 +433,5 @@ return [
     'showing_entries' => 'Showing :start to :end of :total entries', // Note: Needs variables in footer code
     'upgrade_to_pro' => 'Upgrade To Pro',
     'stock_low' => 'stock dropped below threshold.',
+    'upload_more_invoices' => 'Upload more invoices',
 ];

@@ -9,7 +9,9 @@
 @section('content')
     <div class="page-header-breadcrumb mb-3">
         <div class="d-flex align-center justify-content-between flex-wrap">
-            <h1 class="page-title fw-medium fs-18 mb-0">{{ __('messages.drivers') }}</h1>
+            <h1 class="page-title fw-medium fs-18 mb-0">
+                <i class="bi bi-car-front-fill side-menu__icon me-1"></i>{{ __('messages.drivers') }}
+            </h1>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="javascript:void(0);">{{ __('messages.dashboard_menu') }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ __('messages.drivers') }}</li>
@@ -29,7 +31,7 @@
                         </button>
 
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-driver-modal">
-                            <i class="ri-add-line me-1 fw-medium align-middle"></i>{{ __('messages.add_driver_btn') }}
+                            <i class="bi bi-car-front-fill side-menu__icon me-1"></i>{{ __('messages.add_driver_btn') }}
                         </button>
                     </div>
                 </div>

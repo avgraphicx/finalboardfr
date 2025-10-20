@@ -63,6 +63,8 @@ Route::middleware(['auth', 'role:admin,broker,supervisor'])->group(function () {
     // Custom routes must be defined BEFORE the resource route
     Route::post('payments/mark-paid-bulk', [PaymentController::class, 'markPaidBulk'])->name('payments.markPaidBulk');
     Route::post('payments/{payment}/mark-paid', [PaymentController::class, 'markPaid'])->name('payments.markPaid');
+    // Check if payment exists for given driver and week
+    Route::post('payments/check-exists', [PaymentController::class, 'checkExists'])->name('payments.checkExists');
     Route::resource('payments', PaymentController::class);
 
 

@@ -82,6 +82,8 @@
         let uploadedData = [];
         let driversFound = [];
         let driversNotFound = [];
+        let driversExists = [];
+        let driversToInsert = [];
         let filesMap = {}; // Store file objects by driver_id+week_number
 
         // Initialize FilePond
@@ -232,17 +234,78 @@
             document.getElementById('progressContainer').setAttribute('aria-valuenow', Math.round(percentage));
         }
 
-        function showCompletionScreen() {
+        async function showCompletionScreen() {
             document.getElementById('progressDiv').style.display = 'none';
             document.getElementById('completeDiv').style.display = 'block';
 
             let content = `<div class="mb-4">`;
 
-            // Drivers found section
-            content += `<h5 class="mb-3">${driversFound.length} {{ __('messages.drivers_found') }}</h5>`;
-            if (driversFound.length > 0) {
+            // Check existing payments
+            // Reset existing and insert lists
+            driversExists = [];
+            driversToInsert = [];
+            // Detect duplicate invoices in this upload batch (same driver and week)
+            let seenBatch = {};
+            let batchDuplicates = [];
+            let uniqueBatch = [];
+            driversFound.forEach(driver => {
+                const key = `${driver.driver_id}_${driver.week_number}`;
+                if (seenBatch[key]) {
+                    batchDuplicates.push(driver);
+                } else {
+                    seenBatch[key] = true;
+                    uniqueBatch.push(driver);
+                }
+            });
+            // Show duplicates found in the batch
+            if (batchDuplicates.length > 0) {
+                content += `<h5 class="mb-3">${batchDuplicates.length} Duplicate invoice(s) in upload batch:</h5>`;
+                content += `<div class="alert alert-warning mb-4"><ul class="mb-0">`;
+                batchDuplicates.forEach(driver => {
+                    content +=
+                        `<li>Duplicate invoice for driver ${driver.driver_id} - ${driver.driver_full_name}, week ${driver.week_number}</li>`;
+                });
+                content += `</ul></div>`;
+            }
+            // Use only unique entries for further checks
+            driversFound = uniqueBatch;
+
+            await Promise.all(driversFound.map(async driver => {
+                const resp = await fetch('{{ route('payments.checkExists') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                            .content,
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        driver_id: driver.driver_id,
+                        week_number: driver.week_number
+                    })
+                });
+                const json = await resp.json();
+                if (json.exists) driversExists.push(driver);
+                else driversToInsert.push(driver);
+            }));
+
+            // Existing invoices alert
+            if (driversExists.length > 0) {
+                content +=
+                    `<h5 class="mb-3">${driversExists.length} {{ __('messages.pay_exists_for_driver') }}${driversExists.length !== 1 ? 's' : ''}:</h5>`;
+                content += `<div class="alert alert-danger mb-4"><ul class="mb-0">`;
+                driversExists.forEach(driver => {
+                    content +=
+                        `<li>An invoice already exists for the driver ${driver.driver_id} - ${driver.driver_full_name} for the week : ${driver.week_number}, this invoice will not be inserted</li>`;
+                });
+                content += `</ul></div>`;
+            }
+
+            // Drivers to insert section
+            if (driversToInsert.length > 0) {
+                content += `<h5 class="mb-3">${driversToInsert.length} {{ __('messages.drivers_found') }}</h5>`;
                 content += `<div class="alert alert-success mb-4">`;
-                driversFound.forEach(driver => {
+                driversToInsert.forEach(driver => {
                     content += `<div>${driver.driver_id} - ${driver.driver_full_name}</div>`;
                 });
                 content += `</div>`;
@@ -262,7 +325,7 @@
 
             content += `</div>`;
             content += `<button class="btn btn-success form-control" onclick="confirmAndSave()">
-                <i class="ri-check-line"></i> {{ __('messages.proceed_with_count', ['count' => '']) }} ${driversFound.length}
+                <i class="ri-check-line"></i> {{ __('messages.proceed_with_count', ['count' => '']) }} ${driversToInsert.length}
             </button>`;
 
             document.getElementById('completeContent').innerHTML = content;
@@ -288,6 +351,9 @@
         }
 
         function saveToDatabase() {
+            // Use driversToInsert instead of driversFound
+            const toProcess = driversToInsert || [];
+
             // Show loading state
             Swal.fire({
                 title: '{{ __('messages.saving_title') }}',
@@ -304,7 +370,7 @@
             let saveCount = 0;
             let failCount = 0;
 
-            driversFound.forEach((driverData, index) => {
+            toProcess.forEach((driverData, index) => {
                 // Get the file from filesMap using the same key
                 const fileKey = `${driverData.driver_id}_${driverData.week_number}`;
                 const file = filesMap[fileKey];
@@ -333,27 +399,27 @@
                             }
 
                             // Check if all files are saved
-                            if (saveCount + failCount === driversFound.length) {
+                            if (saveCount + failCount === toProcess.length) {
                                 showSaveResult(saveCount, failCount);
                             }
                         })
                         .catch(err => {
                             failCount++;
 
-                            if (saveCount + failCount === driversFound.length) {
+                            if (saveCount + failCount === toProcess.length) {
                                 showSaveResult(saveCount, failCount);
                             }
                         });
                 } else {
                     failCount++;
-                    if (saveCount + failCount === driversFound.length) {
+                    if (saveCount + failCount === toProcess.length) {
                         showSaveResult(saveCount, failCount);
                     }
                 }
             });
 
             // If no files to process, show error
-            if (driversFound.length === 0) {
+            if (toProcess.length === 0) {
                 Swal.fire({
                     title: '{{ __('messages.no_data_to_save') }}',
                     icon: 'error',
@@ -363,26 +429,34 @@
         }
 
         function showSaveResult(saveCount, failCount) {
-            if (failCount === 0) {
-                Swal.fire({
-                    title: '{{ __('messages.success_title') }}',
-                    text: `{{ __('messages.success_text', ['count' => '']) }}`.replace(':count', saveCount),
-                    icon: 'success',
-                    confirmButtonText: '{{ __('messages.go_to_drivers_page') }}'
-                }).then(() => {
+            // Show results with two options: go to drivers or upload more invoices
+            var titleText = failCount === 0 ?
+                '{{ __('messages.success_title') }}' :
+                '{{ __('messages.partially_saved_title') }}';
+            var bodyText = failCount === 0 ?
+                `{{ __('messages.success_text', ['count' => '']) }}`.replace(':count', saveCount) :
+                `{{ __('messages.partially_saved_text', ['saved' => '', 'failed' => '']) }}`.replace(':saved', saveCount)
+                .replace(':failed', failCount);
+            var iconType = failCount === 0 ? 'success' : 'warning';
+            Swal.fire({
+                title: titleText,
+                text: bodyText,
+                icon: iconType,
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-car-front-fill side-menu__icon"></i> {{ __('messages.go_to_drivers_page') }}',
+                cancelButtonText: '<i class="bi bi-receipt side-menu__icon"></i> {{ __('messages.upload_more_invoices') }}',
+                buttonsStyling: false,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-warning'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
                     window.location.href = '{{ route('drivers.index') }}';
-                });
-            } else {
-                Swal.fire({
-                    title: '{{ __('messages.partially_saved_title') }}',
-                    text: `{{ __('messages.partially_saved_text', ['saved' => '', 'failed' => '']) }}`.replace(
-                        ':saved', saveCount).replace(':failed', failCount),
-                    icon: 'warning',
-                    confirmButtonText: '{{ __('messages.go_to_drivers_page') }}'
-                }).then(() => {
-                    window.location.href = '{{ route('drivers.index') }}';
-                });
-            }
+                } else {
+                    window.location.href = '{{ route('payments.index') }}';
+                }
+            });
         }
 
         function resetUpload() {
