@@ -27,3 +27,6 @@
 
 <!-- Auto Complete CSS -->
 <link rel="stylesheet" href="{{ asset('build/assets/libs/@tarekraafat/autocomplete.js/css/autoComplete.css') }}">
+
+<!-- Switcher CSS -->
+<link rel="stylesheet" href="{{ asset('build/assets/bootstrap-switch.min.css') }}">

@@ -145,6 +145,15 @@ public function store(Request $request)
         $validatedData = $this->validateDriver($request, $driver->id);
         $driver->update($validatedData);
 
+        // For AJAX (inline) edit, return JSON
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('messages.driver_updated_success'),
+                'driver'  => $driver,
+            ], 200);
+        }
+
         return redirect()->route('drivers.index')->with('success', __('messages.driver_updated_success'));
     }
 

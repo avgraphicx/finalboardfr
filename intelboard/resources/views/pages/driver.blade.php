@@ -20,7 +20,7 @@
 
     <div class="row mb-5">
         <div class="col-xl-3">
-            <div class="card custom-card">
+            <div class="card custom-card dashboard-main-card primary">
                 <div class="card-body text-center p-4">
                     @php
                         $nameParts = explode(' ', trim($driver->full_name));
@@ -38,8 +38,18 @@
                             class="badge rounded-pill  @if ($driver->active == 0) bg-danger @endif
                             @if ($driver->active == 1) bg-success @endif avatar-badge"></span>
                     </span>
-
-                    <h6 class="fw-semibold mt-3 mb-1">{{ $driver->driver_id }} - {{ $driver->full_name }}</h6>
+                    <h6 class="fw-semibold mt-3 mb-1">{{ $driver->driver_id }} - {{ $driver->full_name }}
+                        <span class="p-1">
+                            <a href="#" id="editDriverBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#ffffff"
+                                    viewBox="0 0 256 256">
+                                    <path
+                                        d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z">
+                                    </path>
+                                </svg>
+                            </a>
+                        </span>
+                    </h6>
 
                     <ul class="nav nav-tabs flex-column nav-tabs-header mb-0 mail-sesttings-tab" role="tablist">
                         <li class="nav-item m-1 text-success" id="protab">
@@ -82,7 +92,7 @@
         </div>
 
         <div class="col-xl-9" id="latestPays">
-            <div class="card custom-card">
+            <div class="card custom-card dashboard-main-card success">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.driver_payments') }}</div>
                 </div>
@@ -168,7 +178,6 @@
         </div>
     </div>
 @endsection
-
 
 @section('scripts')
     <script>
@@ -290,56 +299,139 @@
                         .catch(() => Swal.fire('{{ __('messages.not_available') }}',
                             'Error marking as paid', 'error'));
                 });
-            });
 
-            // === BULK MARK AS PAID ===
-            bulkButton.addEventListener('click', function() {
-                const selectedIds = Array.from(paymentCheckboxes)
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.dataset.paymentId);
+                // === BULK MARK AS PAID ===
+                bulkButton.addEventListener('click', function() {
+                    const selectedIds = Array.from(paymentCheckboxes)
+                        .filter(cb => cb.checked)
+                        .map(cb => cb.dataset.paymentId);
 
-                if (selectedIds.length === 0) return;
+                    if (selectedIds.length === 0) return;
 
-                Swal.fire({
-                    title: '{{ __('messages.confirm') }}?',
-                    text: `Mark ${selectedIds.length} payments as paid?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: '{{ __('messages.mark_as_paid') }}',
-                    cancelButtonText: '{{ __('messages.cancel') }}',
-                    confirmButtonColor: '#198754',
-                    cancelButtonColor: '#6c757d'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch('{{ route('payments.markPaidBulk') }}', {
+                    Swal.fire({
+                        title: '{{ __('messages.confirm') }}?',
+                        text: `Mark ${selectedIds.length} payments as paid?`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: '{{ __('messages.mark_as_paid') }}',
+                        cancelButtonText: '{{ __('messages.cancel') }}',
+                        confirmButtonColor: '#198754',
+                        cancelButtonColor: '#6c757d'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch('{{ route('payments.markPaidBulk') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').content,
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        payment_ids: selectedIds
+                                    })
+                                })
+                                .then(r => r.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        Swal.fire('{{ __('messages.success') }}!', data
+                                            .message,
+                                            'success').then(() => location.reload());
+                                    } else {
+                                        Swal.fire('{{ __('messages.not_available') }}',
+                                            data
+                                            .message ||
+                                            '{{ __('messages.error_marking_payments_paid') }}',
+                                            'error');
+                                    }
+                                })
+                                .catch(() => Swal.fire(
+                                    '{{ __('messages.not_available') }}',
+                                    '{{ __('messages.error_bulk_request') }}', 'error'
+                                ));
+                        }
+                    });
+                });
+
+                // === EDIT DRIVER INLINE ===
+                document.getElementById('editDriverBtn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const driverData = @json($driver);
+                    const updateUrl = '{{ route('drivers.update', $driver->id) }}';
+                    const container = document.querySelector('.card-body.text-center');
+                    container.classList.remove('text-center');
+                    container.innerHTML = `
+        <form id="editDriverForm" action="${updateUrl}" method="POST" class="p-4">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="_method" value="PUT">
+
+            <!-- Active Status Checkbox -->
+            <div class="form-check mb-3">
+                <input type="hidden" name="active" value="0">
+                <input type="checkbox" id="driverActiveToggle" name="active" value="1"
+                class="form-check-input form-checked-success" ${driverData.active ? 'checked' : ''}>
+                <label class="form-check-label ms-2" for="driverActiveToggle">
+                    ${driverData.active ? "{{ __('messages.active') }}" : "{{ __('messages.inactive') }}"}
+                </label>
+            </div>
+
+    <div class="mb-3"><label>Full Name</label><input type="text" name="full_name" class="form-control"
+            value="${driverData.full_name}">
+    </div>
+    <div class="mb-3"><label>Driver ID</label><input type="text" name="driver_id" class="form-control"
+            value="${driverData.driver_id}" maxlength="5">
+        <div id="inputHelp" class="form-text">Format : X1111</div>
+    </div>
+    <div class="mb-3"><label>Phone Number</label><input type="text" name="phone_number" class="form-control"
+            value="${driverData.phone_number}" pattern="\\d{10}" minlength="10" maxlength="10">
+        <div id="inputHelp" class="form-text">Format : 1234567890</div>
+    </div>
+    <div class="mb-3"><label>License Number</label><input type="text" name="license_number" class="form-control"
+            value="${driverData.license_number}">
+    </div>
+    <div class="mb-3"><label>SSN</label><input type="text" name="ssn" class="form-control"
+            value="${driverData.ssn}" pattern="\\d{9}" minlength="9" maxlength="9">
+        <div id="inputHelp" class="form-text">Format : 123456789</div>
+    </div>
+    <div class="mb-3"><label>Default Percentage</label><input type="number" name="default_percentage"
+            class="form-control" value="${driverData.default_percentage}" min="1" max="999">
+    </div>
+    <div class="mb-3"><label>Default Rental Price</label><input type="number" name="default_rental_price"
+            class="form-control" value="${driverData.default_rental_price}" min="1" max="999">
+    </div>            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+                `;
+
+
+                    // Attach AJAX submit handler
+                    const editForm = document.getElementById('editDriverForm');
+                    editForm.addEventListener('submit', function(ev) {
+                        ev.preventDefault();
+                        const formData = new FormData(editForm);
+                        fetch(editForm.action, {
                                 method: 'POST',
                                 headers: {
-                                    'X-CSRF-TOKEN': document.querySelector(
-                                        'meta[name="csrf-token"]').content,
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'Content-Type': 'application/json'
+                                    'X-Requested-With': 'XMLHttpRequest'
                                 },
-                                body: JSON.stringify({
-                                    payment_ids: selectedIds
-                                })
+                                body: formData
                             })
-                            .then(r => r.json())
+                            .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    Swal.fire('{{ __('messages.success') }}!', data.message,
-                                        'success').then(() => location.reload());
+                                    Swal.fire('Success', data.message, 'success').then(
+                                        () => location.reload());
                                 } else {
-                                    Swal.fire('{{ __('messages.not_available') }}', data
-                                        .message ||
-                                        '{{ __('messages.error_marking_payments_paid') }}',
+                                    Swal.fire('Error', data.message || 'Update failed',
                                         'error');
                                 }
                             })
-                            .catch(() => Swal.fire('{{ __('messages.not_available') }}',
-                                '{{ __('messages.error_bulk_request') }}', 'error'));
-                    }
+                            .catch(() => Swal.fire('Error', 'Unexpected error occurred',
+                                'error'));
+                    });
                 });
             });
+
         });
+        {{-- close DOMContentLoaded listener --}}
     </script>
 @endsection

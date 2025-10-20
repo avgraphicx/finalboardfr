@@ -77,7 +77,9 @@
         @yield('modals')
 
     </div>
-
+    <div class="scrollToTop" style="display: flex;">
+        <span class="arrow lh-1"><i class="ti ti-arrow-big-up fs-18"></i></span>
+    </div>
     <!-- Scripts -->
     @include('layouts.components.scripts')
 

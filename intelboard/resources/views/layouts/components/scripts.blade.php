@@ -34,4 +34,7 @@
 <!-- Date & Time Picker JS -->
 <script src="{{ asset('build/assets/libs/flatpickr/flatpickr.min.js') }}"></script>
 
+<!-- Switcher -->
+<script src="{{ asset('build/assets/bootstrap-switch.min.js') }}"></script>
+
 @yield('scripts')
