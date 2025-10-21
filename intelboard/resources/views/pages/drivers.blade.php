@@ -191,10 +191,8 @@
         </div>
     </div>
 @endsection
-
 @section('scripts')
     <script>
-        // ✅ Add CSRF token to all AJAX requests globally
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -202,108 +200,130 @@
         });
 
         $(document).ready(function() {
-            const table = $('#drivers-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('drivers.data') }}",
-                columns: [{
-                        data: 'checkbox',
-                        name: 'checkbox',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'driver_name',
-                        name: 'driver_name',
-                        orderable: false
-                    },
-                    {
-                        data: 'default_percentage',
-                        name: 'default_percentage',
-                        orderable: false
-                    },
-                    {
-                        data: 'default_rental_price',
-                        name: 'default_rental_price',
-                        orderable: false
-                    },
-                    {
-                        data: 'added_by_name',
-                        name: 'added_by_name',
-                        orderable: false
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    },
-                ],
-                columnDefs: [{
-                        targets: 0,
-                        className: 'text-center'
-                    },
-                    {
-                        targets: [1, 2, 3, 4, 5],
-                        className: 'align-middle'
+            let currentPage = 1;
+            const limit = 10;
+            let searchTerm = '';
+            const tableBody = $('#drivers-table tbody');
+
+            // === LOAD DRIVERS ===
+            function loadDrivers(page = 1) {
+                $.get("{{ route('drivers.data') }}", {
+                    page: page,
+                    limit: limit,
+                    search: searchTerm
+                }, function(response) {
+                    const {
+                        data,
+                        total
+                    } = response;
+                    tableBody.empty();
+
+                    if (data.length === 0) {
+                        tableBody.append(
+                            `<tr><td colspan="6" class="text-center text-muted py-4">No drivers found</td></tr>`
+                            );
+                    } else {
+                        data.forEach(driver => {
+                            const row = `
+                        <tr>
+                            <td><input class="form-check-input select-driver-checkbox" type="checkbox" value="${driver.id}"></td>
+                            <td>
+                                <div class="fw-bold">${driver.full_name}</div>
+                                <div class="text-muted fs-11">${driver.driver_id}</div>
+                            </td>
+                            <td>${driver.default_percentage}%</td>
+                            <td>$${Number(driver.default_rental_price).toFixed(2)}</td>
+                            <td>${driver.added_by_name}</td>
+                            <td>
+                                <div class="hstack gap-2 fs-15">
+                                    <a href="/drivers/${driver.id}" class="btn btn-icon btn-sm btn-primary"><i class="ri-eye-line"></i></a>
+                                    <a href="javascript:void(0);" data-id="${driver.id}" class="btn btn-icon btn-sm btn-warning edit-driver-btn"><i class="ri-edit-line"></i></a>
+                                    <a href="javascript:void(0);" data-id="${driver.id}" class="btn btn-icon btn-sm btn-danger delete-driver-btn"><i class="ri-delete-bin-line"></i></a>
+                                </div>
+                            </td>
+                        </tr>`;
+                            tableBody.append(row);
+                        });
                     }
-                ],
-                order: [
-                    [1, 'asc']
-                ],
-                dom: 't',
-                paging: false,
-                info: false,
-                searching: false
-            });
 
-            // Custom search
-            $('#custom-search-input').on('keyup', function() {
-                table.search(this.value).draw();
-            });
-
-            // Custom pagination
-            $('#tableFooterpagination').on('click', '.page-link', function(e) {
-                e.preventDefault();
-                const pageLink = $(this);
-                if (pageLink.attr('aria-label') === 'Previous') {
-                    table.page('previous').draw('page');
-                } else if (pageLink.attr('aria-label') === 'Next') {
-                    table.page('next').draw('page');
-                } else {
-                    const page = parseInt(pageLink.text());
-                    if (!isNaN(page)) {
-                        table.page(page - 1).draw('page');
-                    }
-                }
-            });
-
-            // Select all checkboxes
-            $('#selectAllDrivers').on('change', function() {
-                const isChecked = $(this).is(':checked');
-                $('.select-driver-checkbox').prop('checked', isChecked);
-                toggleDeleteSelectedButton();
-            });
-
-            // Toggle delete button visibility
-            $('#drivers-table').on('change', '.select-driver-checkbox', function() {
-                toggleDeleteSelectedButton();
-            });
-
-            function toggleDeleteSelectedButton() {
-                const selectedCount = $('.select-driver-checkbox:checked').length;
-                $('#selected-count').text(selectedCount);
-                if (selectedCount > 0) {
-                    $('#delete-selected-btn').removeClass('d-none');
-                } else {
-                    $('#delete-selected-btn').addClass('d-none');
-                }
+                    renderPagination(total, page);
+                });
             }
 
-            // Edit button functionality
+            // === PAGINATION RENDER ===
+            function renderPagination(total, currentPage) {
+                const totalPages = Math.ceil(total / limit);
+                const pagination = $('#pagenums ul');
+                pagination.empty();
+
+                pagination.append(`
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="javascript:void(0);" aria-label="Previous"><i class="bx bx-chevron-left"></i></a>
+                </li>
+            `);
+
+                for (let i = 1; i <= totalPages; i++) {
+                    pagination.append(`
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="javascript:void(0);">${i}</a>
+                    </li>
+                `);
+                }
+
+                pagination.append(`
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="javascript:void(0);" aria-label="Next"><i class="bx bx-chevron-right"></i></a>
+                </li>
+            `);
+            }
+
+            // === PAGINATION HANDLER ===
+            $('#pagenums').on('click', '.page-link', function() {
+                const label = $(this).attr('aria-label');
+                const active = $('#pagenums .page-item.active a').text();
+                let page = parseInt(active);
+
+                if (label === 'Previous' && page > 1) page--;
+                else if (label === 'Next') page++;
+                else if (!isNaN($(this).text())) page = parseInt($(this).text());
+
+                currentPage = page;
+                loadDrivers(page);
+            });
+
+            // === SEARCH INPUT ===
+            let searchTimer = null;
+            $('#custom-search-input').on('keyup', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => {
+                    searchTerm = $(this).val().trim();
+                    currentPage = 1;
+                    loadDrivers(currentPage);
+                }, 400); // debounce 400ms
+            });
+
+            // === CREATE DRIVER ===
+            $('#create-driver-form').on('submit', function(e) {
+                e.preventDefault();
+                const formData = $(this).serialize();
+
+                $.post('{{ route('drivers.store') }}', formData)
+                    .done(function(response) {
+                        Swal.fire('Success!', response.message, 'success');
+                        $('#create-driver-modal').modal('hide');
+                        loadDrivers(currentPage);
+                    })
+                    .fail(function(xhr) {
+                        const errors = xhr.responseJSON?.errors || {};
+                        let msg = Object.values(errors).flat().join('\n') || 'Unexpected error.';
+                        Swal.fire('Error!', msg, 'error');
+                    });
+            });
+
+            // === EDIT MODAL ===
             $('#drivers-table').on('click', '.edit-driver-btn', function() {
                 const driverId = $(this).data('id');
-                $.get(`{{ url('drivers') }}/${driverId}/edit`, function(data) {
+                $.get(`/drivers/${driverId}/edit`, function(data) {
                     $('#edit-driver-name').val(data.full_name);
                     $('#edit-driver-id').val(data.driver_id);
                     $('#edit-driver-phone').val(data.phone_number);
@@ -316,59 +336,52 @@
                 });
             });
 
-            // Create driver functionality
-            $('#create-driver-form').on('submit', function(e) {
-                e.preventDefault();
-                const formData = $(this).serialize();
-                $.post('{{ route('drivers.store') }}', formData, function(response) {
-                    Swal.fire('Success!', response.message, 'success');
-                    $('#create-driver-modal').modal('hide');
-                    table.ajax.reload();
-                }).fail(function(xhr) {
-                    const errors = xhr.responseJSON?.errors;
-                    let errorMessage = '';
-                    if (errors) {
-                        for (const key in errors) {
-                            if (errors.hasOwnProperty(key)) {
-                                errorMessage += errors[key][0] + '\n';
-                            }
-                        }
-                    } else {
-                        errorMessage = 'Unexpected error occurred.';
-                    }
-                    Swal.fire('Error!', errorMessage, 'error');
-                });
-            });
-
-            // Delete button functionality
+            // === DELETE DRIVER ===
             $('#drivers-table').on('click', '.delete-driver-btn', function() {
                 const driverId = $(this).data('id');
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: 'You won\'t be able to revert this!',
+                    text: 'This action cannot be undone.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
                     confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
+                }).then(result => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: `{{ url('drivers') }}/${driverId}`,
+                            url: `/drivers/${driverId}`,
                             type: 'DELETE',
                             success: function(response) {
                                 Swal.fire('Deleted!', response.message, 'success');
-                                table.ajax.reload();
+                                loadDrivers(currentPage);
                             },
                             error: function() {
-                                Swal.fire('Error!',
-                                    'There was an error deleting the driver.',
-                                    'error');
+                                Swal.fire('Error!', 'Could not delete driver.',
+                                'error');
                             }
                         });
                     }
                 });
             });
+
+            // === SELECT ALL CHECKBOXES ===
+            $('#selectAllDrivers').on('change', function() {
+                const checked = $(this).is(':checked');
+                $('.select-driver-checkbox').prop('checked', checked);
+                toggleDeleteSelectedButton();
+            });
+
+            $('#drivers-table').on('change', '.select-driver-checkbox', toggleDeleteSelectedButton);
+
+            function toggleDeleteSelectedButton() {
+                const count = $('.select-driver-checkbox:checked').length;
+                $('#selected-count').text(count);
+                $('#delete-selected-btn').toggleClass('d-none', count === 0);
+            }
+
+            // === INITIAL LOAD ===
+            loadDrivers(currentPage);
         });
     </script>
 @endsection
