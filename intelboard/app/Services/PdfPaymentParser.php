@@ -2,15 +2,20 @@
 
 namespace App\Services;
 
-use Smalot\PdfParser\Parser;
+use App\DataTransferObjects\PaymentExtraction;
+use App\Exceptions\PaymentImportException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
+use Smalot\PdfParser\Parser;
 
 class PdfPaymentParser
 {
     /**
      * Parse Intelcom driver payment PDF and extract data.
+     *
+     * @throws PaymentImportException
      */
-    public function parse($file): array
+    public function parse(UploadedFile $file): PaymentExtraction
     {
         try {
             $parser = new Parser();
@@ -18,46 +23,60 @@ class PdfPaymentParser
             $text = $this->normalize($pdf->getText());
 
             if (empty($text)) {
-                return $this->fail('Could not extract text from PDF.');
+                throw new PaymentImportException('Could not extract text from PDF.');
             }
 
-            // --- Extraction ---
             $driverId = $this->extractDriverId($text);
-            $weekNumber = $this->extractWeekNumber($text);
+            if (!$driverId) {
+                throw new PaymentImportException('Could not extract Driver ID.');
+            }
+
+            $weekDetails = $this->extractWeekDetails($text);
+            if (!$weekDetails) {
+                throw new PaymentImportException('Could not extract Week Number.');
+            }
+
             $totalInvoice = $this->extractTotalInvoice($text);
+            if ($totalInvoice === null) {
+                throw new PaymentImportException('Could not extract Total Invoice.');
+            }
+
             $totalParcels = $this->extractTotalParcels($text);
             $parcelRowsCount = $this->extractParcelRowsCount($text);
 
-            if (!$driverId) return $this->fail('Could not extract Driver ID.');
-            if (!$weekNumber) return $this->fail('Could not extract Week Number.');
-            if ($totalInvoice === 0.0) return $this->fail('Could not extract Total Invoice.');
+            // Warehouse from filename (preferred) or text
+            $warehouse = $this->extractWarehouseFromFilename($file) ?? $this->extractWarehouseFromText($text);
 
-            // --- Optional debug logging ---
             if (config('app.env') !== 'production') {
                 Log::debug('Parsed PDF Summary', [
                     'driver_id' => $driverId,
-                    'week_number' => $weekNumber,
+                    'week_number' => $weekDetails['week'],
+                    'year' => $weekDetails['year'],
                     'total_invoice' => $totalInvoice,
                     'total_parcels' => $totalParcels,
                     'parcel_rows_count' => $parcelRowsCount,
+                    'warehouse' => $warehouse,
                 ]);
             }
 
-            return [
-                'success' => true,
-                'driver_id' => $driverId,
-                'week_number' => $weekNumber,
-                'total_invoice' => $totalInvoice,
-                'total_parcels' => $totalParcels,
-                'parcel_rows_count' => $parcelRowsCount,
-            ];
-
-        } catch (\Exception $e) {
+            return new PaymentExtraction(
+                driverId: $driverId,
+                weekNumber: $weekDetails['week'],
+                year: $weekDetails['year'],
+                totalInvoice: $totalInvoice,
+                totalParcels: $totalParcels,
+                parcelRowsCount: $parcelRowsCount,
+                warehouse: $warehouse
+            );
+        } catch (PaymentImportException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
             Log::error('PDF parsing error', [
                 'error' => $e->getMessage(),
                 'file' => $file->getClientOriginalName(),
             ]);
-            return $this->fail('Error parsing PDF: ' . $e->getMessage());
+
+            throw new PaymentImportException('Error parsing PDF.', 500);
         }
     }
 
@@ -80,72 +99,86 @@ class PdfPaymentParser
     }
 
     /**
-     * Extract Week Number (WW from YYYY-WW). Prioritize the "Week reference" label.
+     * Extract week number and optional year information.
      *
-     * Strategy:
-     * 1. Look for explicit "Week reference" (or "Week ref") label and capture YYYY-WW.
-     * 2. Fallback: collect all YYYY-WW patterns and pick best candidate:
-     *    - prefer week-part in 1..53 and >12 (less likely a month)
-     *    - otherwise prefer the match appearing near the top (first/last heuristics)
+     * @return array{week:int, year:?int}|null
      */
-    private function extractWeekNumber(string $text): ?int
+    private function extractWeekDetails(string $text): ?array
     {
-        // 1) Try to find explicit "Week reference:" (common label in the invoices)
-        if (preg_match('/Week\s*(?:reference|ref)?\s*[:\-]?\s*(\d{4})-(\d{2})/i', $text, $m)) {
-            $week = (int)$m[2];
-            if ($week >= 1 && $week <= 53) {
-                return $week;
-            }
-        }
+        $patterns = [
+            '/Week\s*(?:reference|ref)?\s*[:\-]?\s*(\d{4})-(\d{2})/i',
+            '/Week\s*(?:reference|ref)?\s*[\:\-]?\s*\n?\s*(\d{4})-(\d{2})/i',
+        ];
 
-        // 2) Another possible label form: "Week reference" followed by newline and the value
-        if (preg_match('/Week\s*(?:reference|ref)?\s*[\:\-]?\s*\n?\s*(\d{4})-(\d{2})/i', $text, $m2)) {
-            $week = (int)$m2[2];
-            if ($week >= 1 && $week <= 53) {
-                return $week;
-            }
-        }
-
-        // 3) Fallback: find all YYYY-WW occurrences and choose the most likely week
-        preg_match_all('/\b(\d{4})-(\d{2})\b/', $text, $allMatches, PREG_SET_ORDER);
-
-        if (empty($allMatches)) {
-            return null;
-        }
-
-        // If there's only one match, return it (if valid)
-        if (count($allMatches) === 1) {
-            $week = (int)$allMatches[0][2];
-            return ($week >= 1 && $week <= 53) ? $week : null;
-        }
-
-        // Prefer any match where the week part is > 12 (unlikely to be a month)
-        foreach ($allMatches as $match) {
-            $candidateWeek = (int)$match[2];
-            if ($candidateWeek >= 1 && $candidateWeek <= 53 && $candidateWeek > 12) {
-                return $candidateWeek;
-            }
-        }
-
-        // If none > 12, prefer a match that appears before the "From:" date
-        $fromPos = stripos($text, 'From:');
-        if ($fromPos !== false) {
-            foreach ($allMatches as $match) {
-                $matchPos = stripos($text, $match[0]);
-                if ($matchPos !== false && $matchPos < $fromPos) {
-                    $candidateWeek = (int)$match[2];
-                    if ($candidateWeek >= 1 && $candidateWeek <= 53) {
-                        return $candidateWeek;
-                    }
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $text, $match)) {
+                $week = (int) $match[2];
+                if ($week >= 1 && $week <= 53) {
+                    return [
+                        'year' => (int) $match[1],
+                        'week' => $week,
+                    ];
                 }
             }
         }
 
-        // As a last resort, take the last match that is a valid week
-        for ($i = count($allMatches) - 1; $i >= 0; $i--) {
-            $candidateWeek = (int)$allMatches[$i][2];
-            if ($candidateWeek >= 1 && $candidateWeek <= 53) {
-                return $candidateWeek;
+        preg_match_all('/\b(\d{4})-(\d{2})\b/', $text, $allMatches, PREG_SET_ORDER);
+        if (empty($allMatches)) {
+            return null;
+        }
+
+        $candidates = array_values(array_filter($allMatches, function ($match) {
+            $week = (int) $match[2];
+            return $week >= 1 && $week <= 53;
+        }));
+
+        if (empty($candidates)) {
+            return null;
+        }
+
+        foreach ($candidates as $match) {
+            if ((int) $match[2] > 12) {
+                return [
+                    'year' => (int) $match[1],
+                    'week' => (int) $match[2],
+                ];
+            }
+        }
+
+        $fromPos = stripos($text, 'From:');
+        if ($fromPos !== false) {
+            foreach ($candidates as $match) {
+                $matchPos = stripos($text, $match[0]);
+                if ($matchPos !== false && $matchPos < $fromPos) {
+                    return [
+                        'year' => (int) $match[1],
+                        'week' => (int) $match[2],
+                    ];
+                }
+            }
+        }
+
+        $last = end($candidates);
+
+        return [
+            'year' => (int) $last[1],
+            'week' => (int) $last[2],
+        ];
+    }
+
+    /**
+     * Extract total invoice amount (Total invoice or Total Invoice)
+     */
+    private function extractTotalInvoice(string $text): ?float
+    {
+        $patterns = [
+            '/Total\s+invoice\s*\$?\s*([\d,]+\.?\d*)/i',
+            '/Total\s+Invoice\s*\$?\s*([\d,]+\.?\d*)/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $text, $match)) {
+                return (float) str_replace(',', '', $match[1]);
             }
         }
 
@@ -153,36 +186,22 @@ class PdfPaymentParser
     }
 
     /**
-     * Extract total invoice amount (Total invoice or Total Invoice)
-     */
-    private function extractTotalInvoice(string $text): float
-    {
-        if (preg_match('/Total\s+invoice\s*\$?\s*([\d,]+\.?\d*)/i', $text, $m)) {
-            return (float) str_replace(',', '', $m[1]);
-        }
-
-        // fallback to other variants
-        if (preg_match('/Total\s+Invoice\s*\$?\s*([\d,]+\.?\d*)/i', $text, $m2)) {
-            return (float) str_replace(',', '', $m2[1]);
-        }
-
-        return 0.0;
-    }
-
-    /**
      * Extract total parcels value from the "Total" row in transaction summary.
      */
     private function extractTotalParcels(string $text): int
     {
-        if (preg_match('/Total\s+\d+\s+(\d+)/i', $text, $m)) {
-            return (int)$m[1];
+        if (preg_match('/Total\s+\d+\s+(\d+)/i', $text, $match)) {
+            return (int) $match[1];
         }
 
-        // fallback: try to find line "Total" followed by number in same block
-        if (preg_match('/Transaction\s+summary(.*?)(?:Fuel\s+Surcharge|Manual\s+Fees|Total\s+Cancellation|Total\s+invoice)/is', $text, $mblock)) {
-            $block = $mblock[1];
-            if (preg_match('/Total\s+[^\n]*?(\d{2,})/i', $block, $m2)) {
-                return (int)$m2[1];
+        if (preg_match(
+            '/Transaction\s+summary(.*?)(?:Fuel\s+Surcharge|Manual\s+Fees|Total\s+Cancellation|Total\s+invoice)/is',
+            $text,
+            $blockMatch
+        )) {
+            $block = $blockMatch[1];
+            if (preg_match('/Total\s+[^\n]*?(\d{2,})/i', $block, $match)) {
+                return (int) $match[1];
             }
         }
 
@@ -194,25 +213,23 @@ class PdfPaymentParser
      */
     private function extractParcelRowsCount(string $text): int
     {
-        // Capture everything between "Transaction summary" and "Fuel Surcharge" or similar section headers.
         if (!preg_match(
             '/Transaction\s+summary(.*?)(?:Fuel\s+Surcharge|Manual\s+Fees|Total\s+Cancellation|Total\s+invoice)/is',
             $text,
-            $m
+            $match
         )) {
             return 0;
         }
 
-        $summary = trim($m[1]);
+        $summary = trim($match[1]);
         $lines = preg_split('/\n+/', $summary);
         $count = 0;
 
         foreach ($lines as $line) {
             $line = trim(preg_replace('/\s+/', ' ', $line));
 
-            // Match "YYYY-MM-DD stopQty parcelQty ..."
             if (preg_match('/^(\d{4}-\d{2}-\d{2})\s+\d+\s+(\d+)/', $line, $matches)) {
-                $parcelQty = (int)$matches[2];
+                $parcelQty = (int) $matches[2];
                 if ($parcelQty > 20) {
                     $count++;
                 }
@@ -229,11 +246,32 @@ class PdfPaymentParser
         return $count;
     }
 
-    private function fail(string $message): array
+    /**
+     * Extract warehouse from file name (last dash/underscore token).
+     * Example: 2025-39-C0V4000-Z0X1231-RIDP.pdf -> RIDP
+     */
+    private function extractWarehouseFromFilename(UploadedFile $file): ?string
     {
-        return [
-            'success' => false,
-            'message' => $message,
-        ];
+        $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $parts = preg_split('/[-_]/', strtoupper($name));
+        $last = $parts ? trim(end($parts)) : null;
+
+        if ($last && preg_match('/^[A-Z0-9]{3,6}$/', $last)) {
+            return $last;
+        }
+
+        return null;
+    }
+
+    /**
+     * Fallback: try to find warehouse in PDF text, like "Warehouse: RIDP"
+     */
+    private function extractWarehouseFromText(string $text): ?string
+    {
+        if (preg_match('/Warehouse\s*[:\-]?\s*([A-Z0-9]{3,6})/i', $text, $m)) {
+            return strtoupper($m[1]);
+        }
+
+        return null;
     }
 }

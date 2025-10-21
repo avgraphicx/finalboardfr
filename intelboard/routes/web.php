@@ -28,44 +28,40 @@ Route::get('register/complete', function () {
     return view('auth.register-complete');
 })->name('register.complete');
 
-
-
 /******** Language Switcher (Unprotected) ********/
 Route::get('/lang/{locale}', function (string $locale) {
     if (in_array($locale, ['en', 'fr'])) {
-        // Supported languages
         Session::put('locale', $locale);
     }
     return back();
 })->name('set.locale');
 
 /******** Protected Application Routes ********/
-// All users (admin, broker, supervisor) must be authenticated and have a valid role
 Route::middleware(['auth', 'role:admin,broker,supervisor'])->group(function () {
     /******** Default Route ********/
     Route::get('/', function () {
-        return view('pages.empty'); // points to resources/views/pages/empty.blade.php
+        return view('pages.empty');
     })->name('index');
-
-    // Fallback if directly accessing /
-    // Route::get('/', [DashboardsController::class, 'index']);
 
     /******** Drivers ********/
     Route::get('drivers/data', [DriverController::class, 'getData'])->name('drivers.data');
-
-    // 2. Resource Routes
     Route::resource('drivers', DriverController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
-
-    // 3. Bulk Delete Route
     Route::delete('drivers/bulk-destroy', [DriverController::class, 'bulkDestroy'])->name('drivers.bulkDestroy');
 
     /******** Payments ********/
-    // Custom routes must be defined BEFORE the resource route
+    // Make payments.index show the Import form
+    Route::get('payments', [PaymentController::class, 'importForm'])->name('payments.index');
+
+    // Preview/Import flow (no JS business logic in Blade)
+    Route::get('payments/import', [PaymentController::class, 'importForm'])->name('payments.importForm');
+    Route::post('payments/preview', [PaymentController::class, 'previewBatch'])->name('payments.previewBatch');
+    Route::post('payments/import-batch', [PaymentController::class, 'importBatch'])->name('payments.importBatch');
+
+    // Custom routes
     Route::post('payments/mark-paid-bulk', [PaymentController::class, 'markPaidBulk'])->name('payments.markPaidBulk');
     Route::post('payments/{payment}/mark-paid', [PaymentController::class, 'markPaid'])->name('payments.markPaid');
-    // Check if payment exists for given driver and week
     Route::post('payments/check-exists', [PaymentController::class, 'checkExists'])->name('payments.checkExists');
-    Route::resource('payments', PaymentController::class);
 
-
+    // Payments resource (exclude index so our custom payments.index above is used)
+    Route::resource('payments', PaymentController::class)->except(['index']);
 });

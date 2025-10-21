@@ -169,6 +169,7 @@ return [
     'network_error'                  => 'Erreur réseau.',
     'search_here'                    => 'Rechercher ici...',
     'preparing_upload'               => 'Préparation du téléversement...',
+    'pay_exists_for_driver'          => 'Une facture existe déjà pour ce chauffeur et cette semaine.',
 
     /*
     |--------------------------------------------------------------------------
@@ -294,7 +295,7 @@ return [
     'payment_extracted_success'       => 'Les données de paiement ont été extraites et enregistrées avec succès !',
     'payment_pdf_error'               => 'Impossible d\'extraire les données requises du PDF. Veuillez vérifier le fichier.',
     'payment_validation_error'        => 'Erreur de validation : ',
-    'payment_error_processing'        => 'Erreur lors du traitement du PDF : ',
+    'payment_error_processing'        => 'Erreur lors du traitement du PDF.',
     'driver_not_found'                => 'Le chauffeur avec l\'ID \':driver_id\' n\'a pas été trouvé dans la base de données.',
     'payment_deleted_success'         => 'Paiement supprimé avec succès.',
     'payment_delete_error'            => 'Erreur lors de la suppression du paiement : ',

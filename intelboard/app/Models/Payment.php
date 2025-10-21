@@ -15,6 +15,7 @@ class Payment extends Model
     protected $fillable = [
         'driver_id',
         'week_number',
+        'warehouse',
         'total_invoice',
         'total_parcels',
         'parcel_rows_count',

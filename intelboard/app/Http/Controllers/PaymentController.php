@@ -3,164 +3,83 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
-use App\Models\Driver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\PdfPaymentParser;
+use App\Exceptions\PaymentImportException;
+use App\Models\Driver;
+use App\Services\PaymentImportService;
 
 class PaymentController extends Controller
 {
-    protected PdfPaymentParser $parser;
+    public function __construct(private readonly PaymentImportService $paymentImportService)
+    {}
 
-    public function __construct(PdfPaymentParser $parser)
-    {
-        $this->parser = $parser;
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
+    // Kept for completeness (index not used if routes point to importForm)
     public function index()
     {
         $payments = Payment::with('driver')->paginate(15);
         return view('pages.payments', compact('payments'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function importForm()
+    {
+        return view('pages.payments.import');
+    }
+
+    public function previewBatch(Request $request)
     {
         $validated = $request->validate([
-            'pdf_path' => ['required', 'file', 'mimes:pdf', 'max:25600'],
+            'pdfs' => ['required', 'array', 'min:1', 'max:1000'],
+            'pdfs.*' => ['file', 'mimes:pdf', 'max:25600'],
         ]);
 
-        $previewOnly = $request->input('preview_only') === '1';
-
+        $files = $request->file('pdfs', []);
         try {
-            // Parse PDF via service
-            $pdfData = $this->parser->parse($validated['pdf_path']);
+            $preview = $this->paymentImportService->previewBatch($files);
 
-            if (!$pdfData['success']) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $pdfData['message'],
-                ], 422);
-            }
-
-            // Extract parsed values
-            $driverId = $pdfData['driver_id'];
-            $weekNumber = (int)$pdfData['week_number'];
-            // Compose week string in YYYY-WW format
-            $year = isset($pdfData['year']) ? (int)$pdfData['year'] : now()->year;
-            $weekString = sprintf('%04d-%02d', $year, $weekNumber);
-            $totalInvoice = (float)$pdfData['total_invoice'];
-            $totalParcels = (int)$pdfData['total_parcels'];
-            $parcelRowsCount = (int)$pdfData['parcel_rows_count'];
-
-            // Find driver by driver_id
-            $driver = Driver::where('driver_id', $driverId)->first();
-
-            if (!$driver) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('messages.driver_not_found', ['driver_id' => $driverId]),
-                    'data' => [
-                        'driver_id' => $driverId,
-                        'week_number' => $weekString,
-                    ],
-                ], 404);
-            }
-
-            // Default driver settings
-            $defaultRentalPrice = (float)($driver->default_rental_price ?? 0);
-            $defaultPercentage = (float)($driver->default_percentage ?? 0);
-
-            // Calculations
-            $brokerVanCut = (float)($parcelRowsCount * $defaultRentalPrice);
-            $brokerPayCut = (float)($totalInvoice * ($defaultPercentage / 100));
-            $finalAmount = (float)($totalInvoice - $brokerVanCut - $brokerPayCut);
-
-            // If preview_only mode, don't save to database - just return the data
-            if ($previewOnly) {
-                return response()->json([
-                    'success' => true,
-                    'message' => __('messages.payment_extracted_success'),
-                    'data' => [
-                        'driver_id' => $driverId,
-                        'driver_full_name' => $driver->full_name,
-                        'week_number' => $weekString,
-                        'total_invoice' => $totalInvoice,
-                        'total_parcels' => $totalParcels,
-                        'parcel_rows_count' => $parcelRowsCount,
-                        'vehicule_rental_price' => $defaultRentalPrice,
-                        'broker_percentage' => $defaultPercentage,
-                        'broker_van_cut' => $brokerVanCut,
-                        'broker_pay_cut' => $brokerPayCut,
-                        'final_amount' => $finalAmount,
-                    ],
-                ], 200);
-            }
-
-            // Store PDF file
-            $storedPdfPath = $validated['pdf_path']->store('payments', 'public');
-
-            // Create payment record
-            $payment = Payment::create([
-                'driver_id' => $driver->id,
-                'week_number' => $weekString,
-                'total_invoice' => $totalInvoice,
-                'total_parcels' => $totalParcels,
-                'parcel_rows_count' => $parcelRowsCount,
-                'vehicule_rental_price' => $defaultRentalPrice,
-                'broker_percentage' => $defaultPercentage,
-                'broker_van_cut' => $brokerVanCut,
-                'broker_pay_cut' => $brokerPayCut,
-                'bonus' => 0,
-                'cash_advance' => 0,
-                'final_amount' => $finalAmount,
-                'pdf_path' => $storedPdfPath,
+            return view('pages.payments.preview', [
+                'token' => $preview['token'],
+                'items' => $preview['items'],
             ]);
-
-            // Prepare display data
-            $displayData = [
-                'driver_id' => $driverId,
-                'driver_full_name' => $driver->full_name,
-                'week_number' => $weekString,
-                'total_invoice' => $totalInvoice,
-                'total_parcels' => $totalParcels,
-                'parcel_rows_count' => $parcelRowsCount,
-                'vehicule_rental_price' => $defaultRentalPrice,
-                'broker_percentage' => $defaultPercentage,
-                'broker_van_cut' => $brokerVanCut,
-                'broker_pay_cut' => $brokerPayCut,
-                'final_amount' => $finalAmount,
-            ];
-
-            return response()->json([
-                'success' => true,
-                'message' => __('messages.payment_extracted_success'),
-                'data' => $displayData,
-            ], 200);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __('messages.payment_validation_error'),
-                'errors' => $e->errors(),
-            ], 422);
-        } catch (\Exception $e) {
-            \Log::error('Error processing payment PDF', [
+        } catch (\Throwable $e) {
+            \Log::error('Error previewing payment PDFs', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => __('messages.payment_error_processing') . $e->getMessage(),
-            ], 500);
+            return back()->withErrors(['pdfs' => __('messages.payment_error_processing')])->withInput();
+        }
+    }
+
+    public function importBatch(Request $request)
+    {
+        $validated = $request->validate([
+            'token' => ['required', 'string'],
+            'selected' => ['array'],
+            'selected.*' => ['string'],
+        ]);
+
+        $selected = $validated['selected'] ?? [];
+
+        try {
+            $result = $this->paymentImportService->importBatch($validated['token'], $selected);
+
+            return redirect()
+                ->route('payments.index')
+                ->with('success', __('messages.success_text', ['count' => $result['saved']]) . ' ' . ($result['failed'] > 0 ? __('messages.partially_saved_text', ['saved' => $result['saved'], 'failed' => $result['failed']]) : ''));
+        } catch (PaymentImportException $e) {
+            return redirect()
+                ->route('payments.importForm')
+                ->withErrors(['token' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            \Log::error('Error importing payment batch', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()
+                ->route('payments.importForm')
+                ->withErrors(['token' => __('messages.payment_error_processing')]);
         }
     }
 
@@ -237,7 +156,8 @@ class PaymentController extends Controller
     {
         return $request->validate([
             'driver_id' => ['required', 'exists:drivers,id'],
-            'week_number' => ['required', 'integer', 'min:1', 'max:53'],
+            'week_number' => ['required', 'string', 'regex:/^\d{4}-\d{2}$/'],
+            'warehouse' => ['nullable', 'string', 'max:32'],
             'total_invoice' => ['required', 'numeric', 'min:0'],
             'total_parcels' => ['nullable', 'integer', 'min:0'],
             'parcel_rows_count' => ['nullable', 'integer', 'min:0'],
@@ -251,37 +171,42 @@ class PaymentController extends Controller
             'pdf_path' => ['nullable', 'string'],
         ]);
     }
+
     public function markPaidBulk(Request $request)
-{
-    $paymentIds = $request->input('payment_ids', []);
+    {
+        $paymentIds = $request->input('payment_ids', []);
 
-    if (empty($paymentIds)) {
-        return response()->json(['success' => false, 'message' => 'No payments selected.']);
+        if (empty($paymentIds)) {
+            return response()->json(['success' => false, 'message' => 'No payments selected.']);
+        }
+
+        \App\Models\Payment::whereIn('id', $paymentIds)->update(['paid' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => count($paymentIds) . ' payments marked as paid successfully.'
+        ]);
     }
-
-    // Update all payments in one go
-    \App\Models\Payment::whereIn('id', $paymentIds)->update(['paid' => true]);
-
-    return response()->json([
-        'success' => true,
-        'message' => count($paymentIds) . ' payments marked as paid successfully.'
-    ]);
-}
 
     public function checkExists(Request $request)
     {
-        // driver_id from request is the driver code, not PK
         $driverCode = $request->input('driver_id');
         $week = $request->input('week_number');
-        // Find the driver record by its code
+        $warehouse = $request->input('warehouse');
+
         $driver = Driver::where('driver_id', $driverCode)->first();
         if (!$driver) {
             return response()->json(['exists' => false]);
         }
-        // Check payments by foreign key
-        $exists = Payment::where('driver_id', $driver->id)
-                         ->where('week_number', $week)
-                         ->exists();
+
+        $query = Payment::where('driver_id', $driver->id)
+                         ->where('week_number', $week);
+
+        if ($warehouse !== null) {
+            $query->where('warehouse', $warehouse);
+        }
+
+        $exists = $query->exists();
         return response()->json(['exists' => $exists]);
     }
 }

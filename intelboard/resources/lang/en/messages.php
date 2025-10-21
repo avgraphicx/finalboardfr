@@ -196,6 +196,7 @@ return [
     'network_error'                    => 'Network error.',
     'search_here'                      => 'Search here...',
     'preparing_upload'                 => 'Preparing upload...',
+    'pay_exists_for_driver'            => 'An invoice already exists for this driver and week.',
 
     /*
     |--------------------------------------------------------------------------
@@ -294,7 +295,7 @@ return [
     'payment_extracted_success'       => 'Payment data extracted and saved successfully!',
     'payment_pdf_error'               => 'Could not extract required data from the PDF. Please check the file.',
     'payment_validation_error'        => 'Validation error: ',
-    'payment_error_processing'        => 'Error processing PDF: ',
+    'payment_error_processing'        => 'Error processing PDF.',
     'driver_not_found'                => 'Driver with ID \':driver_id\' not found in database.',
     'payment_deleted_success'         => 'Payment deleted successfully.',
     'payment_delete_error'            => 'Error deleting payment: ',
