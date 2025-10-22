@@ -20,7 +20,7 @@
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-3">
-                    <div class="card-title">{{ __('messages.drivers') }}</div>
+                    <div class="card-title">{{ __('messages.total_drivers') }} : {{ $driversCount }}</div>
                     <div class="d-flex flex-wrap gap-2">
                         <button class="btn btn-danger d-none" id="delete-selected-btn">
                             <i
@@ -28,11 +28,22 @@
                             (<span id="selected-count">0</span>)
                         </button>
 
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-driver-modal">
+                        <button class="btn btn-outline-success" id="filter-active-btn">
+                            <i
+                                class="ri-check-double-line me-1 fw-medium align-middle"></i>{{ __('messages.show_active_only') }}
+                        </button>
+
+                        @php
+                            $currentDrivers = $driversCount;
+                            $maxDrivers = auth()->user()->broker->subscriptionType->max_drivers ?? PHP_INT_MAX;
+                        @endphp
+                        <button id="open-create-driver" class="btn btn-primary" data-current-drivers="{{ $currentDrivers }}"
+                            data-max-drivers="{{ $maxDrivers }}">
                             <i class="ri-add-line me-1 fw-medium align-middle"></i>{{ __('messages.add_driver_btn') }}
                         </button>
                     </div>
                 </div>
+
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <div class="col-12 mb-3 mt-3 me-3" id="custom-search-wrapper">
@@ -45,35 +56,25 @@
                         <table id="drivers-table" class="table text-nowrap table-hover table-striped">
                             <thead>
                                 <tr>
-                                    <th scope="col" id="checkCol" class="no-sort"><input class="form-check-input"
-                                            type="checkbox" id="selectAllDrivers" aria-label="Select All"></th>
-                                    <th scope="col" id="driverCol" class="no-sort">{{ __('messages.driver') }}</th>
-                                    <th scope="col" id="percentageCol" class="no-sort">
-                                        {{ __('messages.default_percentage') }}</th>
-                                    <th scope="col" id="rentalCol" class="no-sort">
-                                        {{ __('messages.default_rental_price') }}</th>
-                                    <th scope="col" id="byCol" class="no-sort">{{ __('messages.added_by') }}</th>
-                                    <th scope="col" id="actionCol" class="no-sort">{{ __('messages.actions') }}</th>
+                                    <th id="checkCol" scope="col"><input class="form-check-input" type="checkbox"
+                                            id="selectAllDrivers" aria-label="{{ __('messages.select_all') }}"></th>
+                                    <th id="driverCol" scope="col">{{ __('messages.driver') }}</th>
+                                    <th scope="col">{{ __('messages.default_percentage') }}</th>
+                                    <th scope="col">{{ __('messages.default_rental_price') }}</th>
+                                    <th scope="col">{{ __('messages.added_by') }}</th>
+                                    <th id="actionCol" scope="col">{{ __('messages.actions') }}</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                            </tbody>
+                            <tbody></tbody>
                         </table>
+
                         <!-- Pagination -->
                         <div class="col-12" id="tableFooterpagination">
                             <nav id="pagenums" aria-label="Page navigation">
                                 <ul class="pagination mb-0">
-                                    <li class="page-item">
+                                    <li class="page-item disabled">
                                         <a class="page-link" href="javascript:void(0);" aria-label="Previous">
                                             <span aria-hidden="true"><i class="bx bx-chevron-left"></i></span>
-                                        </a>
-                                    </li>
-                                    <li class="page-item"><a class="page-link" href="javascript:void(0);">1</a></li>
-                                    <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
-                                    <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="javascript:void(0);" aria-label="Next">
-                                            <span aria-hidden="true"><i class="bx bx-chevron-right"></i></span>
                                         </a>
                                     </li>
                                 </ul>
@@ -84,11 +85,13 @@
             </div>
         </div>
     </div>
+
+    {{-- === EDIT MODAL === --}}
     <div class="modal fade" id="edit-driver-modal" tabindex="-1" aria-labelledby="editDriverModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editDriverModalLabel">{{ __('messages.add_driver') }}</h5>
+                    <h5 class="modal-title" id="editDriverModalLabel">{{ __('messages.edit_driver') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                         aria-label="{{ __('messages.close') }}"></button>
                 </div>
@@ -132,13 +135,14 @@
                             <label class="form-check-label"
                                 for="edit-driver-active">{{ __('messages.driver_active') }}</label>
                         </div>
-                        <button type="submit" class="btn btn-primary">{{ __('messages.add_driver_btn') }}</button>
+                        <button type="submit" class="btn btn-primary">{{ __('messages.save_changes') }}</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
+    {{-- === CREATE MODAL === --}}
     <div class="modal fade" id="create-driver-modal" tabindex="-1" aria-labelledby="createDriverModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -191,6 +195,7 @@
         </div>
     </div>
 @endsection
+
 @section('scripts')
     <script>
         $.ajaxSetup({
@@ -203,6 +208,7 @@
             let currentPage = 1;
             const limit = 10;
             let searchTerm = '';
+            let showActiveOnly = false;
             const tableBody = $('#drivers-table tbody');
 
             // === LOAD DRIVERS ===
@@ -210,7 +216,8 @@
                 $.get("{{ route('drivers.data') }}", {
                     page: page,
                     limit: limit,
-                    search: searchTerm
+                    search: searchTerm,
+                    active_only: showActiveOnly
                 }, function(response) {
                     const {
                         data,
@@ -220,28 +227,28 @@
 
                     if (data.length === 0) {
                         tableBody.append(
-                            `<tr><td colspan="6" class="text-center text-muted py-4">No drivers found</td></tr>`
-                            );
+                            `<tr><td colspan="6" class="text-center text-muted py-4">{{ __('messages.no_drivers_found') }}</td></tr>`
+                        );
                     } else {
                         data.forEach(driver => {
                             const row = `
-                        <tr>
-                            <td><input class="form-check-input select-driver-checkbox" type="checkbox" value="${driver.id}"></td>
-                            <td>
-                                <div class="fw-bold">${driver.full_name}</div>
-                                <div class="text-muted fs-11">${driver.driver_id}</div>
-                            </td>
-                            <td>${driver.default_percentage}%</td>
-                            <td>$${Number(driver.default_rental_price).toFixed(2)}</td>
-                            <td>${driver.added_by_name}</td>
-                            <td>
-                                <div class="hstack gap-2 fs-15">
-                                    <a href="/drivers/${driver.id}" class="btn btn-icon btn-sm btn-primary"><i class="ri-eye-line"></i></a>
-                                    <a href="javascript:void(0);" data-id="${driver.id}" class="btn btn-icon btn-sm btn-warning edit-driver-btn"><i class="ri-edit-line"></i></a>
-                                    <a href="javascript:void(0);" data-id="${driver.id}" class="btn btn-icon btn-sm btn-danger delete-driver-btn"><i class="ri-delete-bin-line"></i></a>
-                                </div>
-                            </td>
-                        </tr>`;
+                            <tr>
+                                <td><input class="form-check-input select-driver-checkbox" type="checkbox" value="${driver.id}"></td>
+                                <td>
+                                    <div class="fw-bold">${driver.full_name}</div>
+                                    <div class="text-muted fs-11">${driver.driver_id}</div>
+                                </td>
+                                <td>${driver.default_percentage}%</td>
+                                <td>$${Number(driver.default_rental_price).toFixed(2)}</td>
+                                <td>${driver.added_by_name}</td>
+                                <td>
+                                    <div class="hstack gap-2 fs-15">
+                                        <a href="/drivers/${driver.id}" class="btn btn-icon btn-sm btn-primary"><i class="ri-eye-line"></i></a>
+                                        <a href="javascript:void(0);" data-id="${driver.id}" class="btn btn-icon btn-sm btn-warning edit-driver-btn"><i class="ri-edit-line"></i></a>
+                                        <a href="javascript:void(0);" data-id="${driver.id}" class="btn btn-icon btn-sm btn-danger delete-driver-btn"><i class="ri-delete-bin-line"></i></a>
+                                    </div>
+                                </td>
+                            </tr>`;
                             tableBody.append(row);
                         });
                     }
@@ -258,23 +265,20 @@
 
                 pagination.append(`
                 <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                    <a class="page-link" href="javascript:void(0);" aria-label="Previous"><i class="bx bx-chevron-left"></i></a>
-                </li>
-            `);
+                    <a class="page-link" href="javascript:void(0);" aria-label="{{ __('messages.previous') }}"><i class="bx bx-chevron-left"></i></a>
+                </li>`);
 
                 for (let i = 1; i <= totalPages; i++) {
                     pagination.append(`
                     <li class="page-item ${i === currentPage ? 'active' : ''}">
                         <a class="page-link" href="javascript:void(0);">${i}</a>
-                    </li>
-                `);
+                    </li>`);
                 }
 
                 pagination.append(`
                 <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                    <a class="page-link" href="javascript:void(0);" aria-label="Next"><i class="bx bx-chevron-right"></i></a>
-                </li>
-            `);
+                    <a class="page-link" href="javascript:void(0);" aria-label="{{ __('messages.next') }}"><i class="bx bx-chevron-right"></i></a>
+                </li>`);
             }
 
             // === PAGINATION HANDLER ===
@@ -299,7 +303,20 @@
                     searchTerm = $(this).val().trim();
                     currentPage = 1;
                     loadDrivers(currentPage);
-                }, 400); // debounce 400ms
+                }, 400);
+            });
+
+            // === ACTIVE FILTER TOGGLE ===
+            $('#filter-active-btn').on('click', function() {
+                showActiveOnly = !showActiveOnly;
+                currentPage = 1;
+                $(this)
+                    .toggleClass('btn-outline-success', !showActiveOnly)
+                    .toggleClass('btn-success', showActiveOnly)
+                    .html(showActiveOnly ?
+                        '<i class="ri-filter-line me-1"></i>{{ __('messages.show_all_drivers') }}' :
+                        '<i class="ri-check-double-line me-1"></i>{{ __('messages.show_active_only') }}');
+                loadDrivers(currentPage);
             });
 
             // === CREATE DRIVER ===
@@ -320,7 +337,7 @@
                     });
             });
 
-            // === EDIT MODAL ===
+            // === EDIT DRIVER ===
             $('#drivers-table').on('click', '.edit-driver-btn', function() {
                 const driverId = $(this).data('id');
                 $.get(`/drivers/${driverId}/edit`, function(data) {
@@ -340,25 +357,28 @@
             $('#drivers-table').on('click', '.delete-driver-btn', function() {
                 const driverId = $(this).data('id');
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'This action cannot be undone.',
+                    title: '{{ __('messages.confirm_delete_title') }}',
+                    text: '{{ __('messages.confirm_delete_text') }}',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonText: '{{ __('messages.confirm_delete_yes') }}',
+                    cancelButtonText: '{{ __('messages.cancel') }}'
                 }).then(result => {
                     if (result.isConfirmed) {
                         $.ajax({
                             url: `/drivers/${driverId}`,
                             type: 'DELETE',
                             success: function(response) {
-                                Swal.fire('Deleted!', response.message, 'success');
+                                Swal.fire('{{ __('messages.deleted_title') }}',
+                                    response.message, 'success');
                                 loadDrivers(currentPage);
                             },
                             error: function() {
-                                Swal.fire('Error!', 'Could not delete driver.',
-                                'error');
+                                Swal.fire('{{ __('messages.error_title') }}',
+                                    '{{ __('messages.driver_delete_error_js') }}',
+                                    'error');
                             }
                         });
                     }
@@ -382,6 +402,22 @@
 
             // === INITIAL LOAD ===
             loadDrivers(currentPage);
+
+            $('#open-create-driver').on('click', function() {
+                const current = parseInt(this.dataset.currentDrivers, 10);
+                const max = parseInt(this.dataset.maxDrivers, 10);
+                if (current >= max) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '{{ __('messages.max_drivers_reached') }}',
+                        // use raw JSON-encoded string to preserve apostrophe
+                        text: @json(__('messages.max_drivers_text', ['max' => ''])).replace(':max', max),
+                        confirmButtonText: '{{ __('messages.ok') }}'
+                    });
+                } else {
+                    $('#create-driver-modal').modal('show');
+                }
+            });
         });
     </script>
 @endsection

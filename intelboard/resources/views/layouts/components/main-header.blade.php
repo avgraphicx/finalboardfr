@@ -117,12 +117,26 @@
                     </div>
                 </div>
             </li> --}}
+            @php
+                // Generate user initials safely
+                $fullName = optional(currentUser())->full_name ?? (auth()->user()?->full_name ?? '');
+                $nameParts = explode(' ', trim($fullName));
+                $initials = '';
+                foreach ($nameParts as $part) {
+                    if (!empty($part)) {
+                        $initials .= strtoupper(substr($part, 0, 1));
+                    }
+                }
+                $initials = substr($initials, 0, 2);
+            @endphp
             <li class="header-element dropdown">
                 <a href="javascript:void(0);" class="header-link dropdown-toggle" id="mainHeaderProfile"
                     data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                     <div>
-                        <img src="{{ asset('build/assets/images/faces/12.jpg') }}" alt="img"
-                            class="header-link-icon">
+                        <span class="header-link-icon fw-bold fs-5"
+                            style="background: #32acce !important; color: white !important;">{{ $initials }}</span>
+                        {{-- <img src="{{ asset('build/assets/images/faces/12.jpg') }}" alt="img"
+                            class="header-link-icon"> --}}
                     </div>
                 </a>
                 <div class="main-header-dropdown dropdown-menu pt-0 overflow-hidden header-profile-dropdown dropdown-menu-end"
@@ -137,14 +151,16 @@
                     <div class="dropdown-divider"></div>
                     <div class="p-3">
                         <div class="d-flex align-items-start gap-2">
+
                             <div class="lh-1">
-                                <span class="avatar avatar-sm bg-primary-transparent avatar-rounded">
-                                    <img src="{{ asset('build/assets/images/faces/12.jpg') }}" alt="">
-                                </span>
+                                <span class="avatar-text fw-bold fs-5"
+                                    style="color: white !important;">{{ $initials }}</span>
                             </div>
                             <div>
-                                <span class="d-block fw-semibold lh-1">Tom Phillip</span>
-                                <span class="text-muted fs-12">tomphillip32@gmail.com</span>
+                                <span
+                                    class="d-block fw-semibold lh-1">{{ optional(currentUser())->full_name ?? (auth()->user()?->full_name ?? '') }}</span>
+                                <span
+                                    class="text-muted fs-12">{{ optional(currentUser()->subscription_type)->name ?? '' }}</span>
                             </div>
                         </div>
                     </div>
@@ -154,13 +170,13 @@
                             <ul class="list-unstyled mb-0 sub-list">
                                 <li>
                                     <a class="dropdown-item d-flex align-items-center" href="{{ url('profile') }}"><i
-                                            class="ti ti-user-circle me-2 fs-18"></i>View Profile</a>
+                                            class="ti ti-settings-cog me-2 fs-18"></i>{{ __('messages.settings') }}</a>
                                 </li>
-                                <li>
+                                {{-- <li>
                                     <a class="dropdown-item d-flex align-items-center"
                                         href="{{ url('mail-settings') }}"><i
                                             class="ti ti-settings-cog me-2 fs-18"></i>Account Settings</a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </li>
                         <li>
@@ -169,14 +185,14 @@
                                     <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);"><i
                                             class="ti ti-lifebuoy me-2 fs-18"></i>Support</a>
                                 </li>
-                                <li>
+                                {{-- <li>
                                     <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);"><i
                                             class="ti ti-bolt me-2 fs-18"></i>Activity Log</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);"><i
                                             class="ti ti-calendar me-2 fs-18"></i>Events</a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </li>
                         <li>

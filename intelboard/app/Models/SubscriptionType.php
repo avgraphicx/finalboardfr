@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SubscriptionType extends Model
 {
+    use HasFactory;
+
     /**
      * The table associated with the model.
      *
@@ -28,19 +30,11 @@ class SubscriptionType extends Model
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get all brokers that use this subscription type.
      *
-     * @var array<string, string>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    protected $casts = [
-        'add_supervisor' => 'boolean',
-        'custom_invoice' => 'boolean',
-    ];
-
-    /**
-     * Get all brokers with this subscription type.
-     */
-    public function brokers(): HasMany
+    public function brokers()
     {
         return $this->hasMany(Broker::class, 'subscription_type_id');
     }

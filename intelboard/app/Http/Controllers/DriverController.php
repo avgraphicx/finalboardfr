@@ -12,7 +12,9 @@ class DriverController extends Controller
     // Show all drivers page
     public function index()
     {
-        return view('pages.drivers');
+        // Pass current driver count to view for max_drivers check
+        $driversCount = Driver::where('added_by', Auth::id())->count();
+        return view('pages.drivers', compact('driversCount'));
     }
 
     // Custom paginated AJAX endpoint
@@ -20,14 +22,18 @@ public function getData(Request $request)
 {
     $page = $request->get('page', 1);
     $limit = $request->get('limit', 10);
-    $search = trim($request->get('search', '')); // 🆕 search text
+    $search = trim($request->get('search', ''));
+    $activeOnly = $request->boolean('active_only', false); // 🆕 new flag
     $offset = ($page - 1) * $limit;
 
     $query = Driver::query()
         ->with('addedBy')
         ->where('added_by', Auth::id());
 
-    // 🧠 Apply search filter (same as DataTables)
+    if ($activeOnly) {
+        $query->where('active', 1);
+    }
+
     if ($search !== '') {
         $query->where(function ($q) use ($search) {
             $q->where('full_name', 'like', "%{$search}%")

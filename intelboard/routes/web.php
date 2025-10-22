@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\StatsController;
+use App\Models\Driver;
+use App\Models\Payment;
 
 /******** Authentication Routes (Unprotected) ********/
 
@@ -39,9 +42,18 @@ Route::get('/lang/{locale}', function (string $locale) {
 /******** Protected Application Routes ********/
 Route::middleware(['auth', 'role:admin,broker,supervisor'])->group(function () {
     /******** Default Route ********/
-    Route::get('/', function () {
-        return view('pages.empty');
-    })->name('index');
+    // Stats page (dashboard)
+    // Route::get('/', function () {
+    //     return view('pages.empty');
+    // })->name('index');
+Route::get('/', [StatsController::class, 'index'])->name('index');
+
+    // Profile page
+    Route::get('profile', function () {
+        $user = \Illuminate\Support\Facades\Auth::user()
+            ->load(['broker.subscriptionType', 'broker.subscription']);
+        return view('pages.profile', compact('user'));
+    })->name('profile');
 
     /******** Drivers ********/
     Route::get('drivers/data', [DriverController::class, 'getData'])->name('drivers.data');
@@ -64,4 +76,5 @@ Route::middleware(['auth', 'role:admin,broker,supervisor'])->group(function () {
 
     // Payments resource (exclude index so our custom payments.index above is used)
     Route::resource('payments', PaymentController::class)->except(['index']);
+
 });

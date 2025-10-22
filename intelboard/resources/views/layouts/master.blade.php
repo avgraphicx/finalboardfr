@@ -58,11 +58,11 @@
 
         <!-- Start::app-content -->
         <div class="main-content app-content">
-            <div class="container-fluid page-container main-body-container">
+            {{-- <div class="container-fluid page-container main-body-container"> --}}
 
-                @yield('content')
+            @yield('content')
 
-            </div>
+            {{-- </div> --}}
         </div>
         <!-- End::content  -->
 

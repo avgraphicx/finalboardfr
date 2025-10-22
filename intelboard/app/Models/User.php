@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable
 {
@@ -20,14 +19,10 @@ class User extends Authenticatable
         'full_name',
         'email',
         'phone_number',
-        'role',
-        'broker_id',
         'password',
         'joined_date',
-        'status', // Essential for checking active status
-        'google_id',
-        'last_login_at',
-        'email_verified_at',
+        'status',
+        'broker_id',
     ];
 
     /**
@@ -38,31 +33,72 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'reset_password_token',
-        'reset_token_expiry',
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The relationships that should always be loaded.
      *
-     * @return array<string, string>
+     * @var array<int, string>
      */
-    protected function casts(): array
+    protected $with = ['broker.subscriptionType', 'broker.subscriptions'];
+
+    /**
+     * Each user may own one broker record.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function broker()
     {
-        return [
-            'email_verified_at'  => 'datetime',
-            'last_login_at'      => 'datetime',
-            'reset_token_expiry' => 'datetime',
-            'password'           => 'hashed',
-            'joined_date'        => 'date',
-        ];
+        return $this->hasOne(Broker::class, 'user_id');
     }
 
     /**
-     * Get the broker associated with the user.
+     * Accessor to retrieve the broker’s company name directly.
+     *
+     * @return string|null
      */
-    public function broker(): HasOne
+    public function getCompanyNameAttribute(): ?string
     {
-        return $this->hasOne(Broker::class);
+        return $this->broker->company_name ?? null;
+    }
+
+    /**
+     * Accessor to retrieve the broker’s logo directly.
+     *
+     * @return string|null
+     */
+    public function getCompanyLogoAttribute(): ?string
+    {
+        return $this->broker->logo ?? null;
+    }
+
+    /**
+     * Accessor to retrieve the subscription type.
+     *
+     * @return \App\Models\SubscriptionType|null
+     */
+    public function getSubscriptionTypeAttribute(): ?SubscriptionType
+    {
+        return $this->broker->subscriptionType ?? null;
+    }
+
+    /**
+     * Accessor to retrieve all broker subscriptions.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection|null
+     */
+    public function getSubscriptionsAttribute()
+    {
+        return $this->broker->subscriptions ?? collect();
+    }
+
+    /**
+     * Accessor to retrieve active subscription (latest one).
+     *
+     * @return \App\Models\Subscription|null
+     */
+    public function getActiveSubscriptionAttribute(): ?Subscription
+    {
+        return $this->broker?->activeSubscription?->first();
     }
 }

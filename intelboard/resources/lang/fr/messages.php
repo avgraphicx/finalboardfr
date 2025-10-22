@@ -107,6 +107,11 @@ return [
     |--------------------------------------------------------------------------
     */
     'drivers'                => 'Chauffeurs',
+
+    'user_drivers_count'           => 'Vous avez ajouté :count chauffeurs',
+    'max_drivers_reached'                => 'Nombre de chauffeurs en total atteint',
+    'max_drivers_text' => 'Vous avez atteint le nombre maximal de chauffeurs pour votre type d\'abonnement.',
+
     'add_driver_btn'         => 'Ajouter un chauffeur',
     'add_driver'             => 'Ajouter un chauffeur',
     'id'                     => 'ID',
@@ -132,6 +137,12 @@ return [
     'default_percentage'     => 'Pourcentage par défaut',
     'default_rental_price'   => 'Prix de location par défaut',
     'delete_selected'        => 'Supprimer la sélection',
+    'select_all'               => 'Tout sélectionner',
+    'no_drivers_found'         => 'Aucun chauffeur trouvé',
+    'show_active_only'         => 'Afficher chauffeurs actifs uniquement',
+    'show_all_drivers'         => 'Afficher tout les chauffeurs',
+    'previous'                 => 'Précédent',
+    'next'                     => 'Suivant',
     'confirm_delete_selected'=> 'Êtes-vous sûr de vouloir supprimer :count chauffeurs ?',
     'confirm_delete_single'  => 'Êtes-vous sûr de vouloir supprimer :id - :name ?',
     'transactions_history'   => 'Historique des transactions',
@@ -147,6 +158,8 @@ return [
     'drop_files_here'                => 'Déposez les fichiers ici',
     'click_to_upload'                => 'Cliquez pour téléverser',
     'browse'                         => 'Parcourir',
+    'upload_invoices'                => 'Téléverser les factures',
+    'preview'                        => 'Aperçu',
     'batch_upload_success'           => 'Le téléversement de lots est réussi. Les fichiers sont en cours de traitement.',
     'batch_upload_error'             => 'Échec du téléversement de lots. Veuillez réessayer.',
     'uploaded_invoices_summary'      => 'Récapitulatif des factures téléversées',
@@ -334,7 +347,7 @@ return [
     */
     'driver_payments'                 => 'Paiements du Chauffeur',
     'table_checkbox'                  => 'Sélectionner',
-    'table_week_number'               => 'Semaine #',
+    'table_week_number'               => '#',
     'table_total_invoice'             => 'Facture Totale',
     'table_parcel_rows'               => 'Jours',
     'table_benefit'                   => 'Bénéfice',
@@ -431,6 +444,23 @@ return [
     'failed'                => 'Échec',
     'showing_entries'       => 'Affichage des entrées _START_ à _END_ sur _TOTAL_',
     'upgrade_to_pro'        => 'Passer à la Version Pro',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Stats
+    |--------------------------------------------------------------------------
+    */
+
+        'total_drivers'                => 'Chauffeurs en total',
+    'active_drivers'                 => 'Chauffeurs actifs',
+    'top_driver_days'                 => 'Chauffeur / Jours',
+    'top_driver_parcels'                 => 'Chauffeur / Colis',
+    'days'                 => 'Jours',
+    'parcels_delivered'                 => 'Colis livrés',
+    'total_parcels_delivered'                 => 'Total Colis livrés',
+    'parcels'                 => 'Colis',
+    'total_intelcom_invoices'                 => 'Total des factures Intelcom',
+    'total_own_invoices'                 => 'Total de vos factures',
 
     /*
     |--------------------------------------------------------------------------
