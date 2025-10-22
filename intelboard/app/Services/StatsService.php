@@ -35,6 +35,36 @@ class StatsService
                 'driver' => $top->driver,
             ];
         }
+        // ===== TOP DRIVER BY Moneymade Intel =====
+        $top = Payment::with('driver')
+            ->whereIn('driver_id', $driverIds)
+            ->select('driver_id', DB::raw('SUM(total_invoice) as total_invoice'))
+            ->groupBy('driver_id')
+            ->orderByDesc('total_invoice')
+            ->first();
+        $topDriverInt = null;
+        if ($top && $top->driver) {
+            $topDriverInt = [
+                'driver_id' => $top->driver_id,
+                'total_invoice' => $top->total_invoice,
+                'driver' => $top->driver,
+            ];
+        }
+        // ===== TOP DRIVER BY Moneymade broker =====
+        $top = Payment::with('driver')
+            ->whereIn('driver_id', $driverIds)
+            ->select('driver_id', DB::raw('SUM(final_amount) as final_amount'))
+            ->groupBy('driver_id')
+            ->orderByDesc('final_amount')
+            ->first();
+        $topDriverOwn = null;
+        if ($top && $top->driver) {
+            $topDriverOwn = [
+                'driver_id' => $top->driver_id,
+                'final_amount' => $top->final_amount,
+                'driver' => $top->driver,
+            ];
+        }
         // ===== TOP DRIVER BY PARCELS =====
         $topParcels = Payment::with('driver')
             ->whereIn('driver_id', $driverIds)
@@ -54,6 +84,7 @@ class StatsService
             // ===== DRIVERS =====
             'total_drivers' => $drivers->count(),
 'active_drivers' => $drivers->where('active', 1)->count(),
+'missing_ssn' => $drivers->where('ssn', null)->count(),
 'active_driver_percentage' => $drivers->count() > 0
     ? round(($drivers->where('active', 1)->count() / $drivers->count()) * 100, 1)
     : 0,
@@ -73,6 +104,10 @@ class StatsService
                 $payments->sum('broker_van_cut') + $payments->sum('broker_pay_cut'),
                 2
             ),
+            // Average broker percentage across payments (0 if no payments)
+            'avg_broker_percentage' => $payments->count() > 0 ? round($payments->avg('broker_percentage'), 2) : 0,
+            // Average vehicule rental price across payments
+            'avg_vehicule_rental_price' => $payments->count() > 0 ? round($payments->avg('vehicule_rental_price'), 2) : 0,
             'unpaid_payments' => $payments->where('paid', 0)->count(),
             'paid_payments' => $payments->where('paid', 1)->count(),
 
@@ -80,6 +115,9 @@ class StatsService
             'top_driver' => $topDriver,
             // ===== TOP DRIVER BY PARCELS =====
             'top_driver_parcels' => $topDriverParcels,
+            // ===== TOP DRIVER BY INT INV =====
+            'top_driver_int' => $topDriverInt,
+            'top_driver_own' => $topDriverOwn,
         ];
     }
 }

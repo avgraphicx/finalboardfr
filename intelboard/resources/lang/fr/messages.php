@@ -454,6 +454,8 @@ return [
         'total_drivers'                => 'Chauffeurs en total',
     'active_drivers'                 => 'Chauffeurs actifs',
     'top_driver_days'                 => 'Chauffeur / Jours',
+    'top_driver_int'                 => 'Chauffeur / Factures Intelcom',
+    'top_driver_own'                 => 'Chauffeur / Vos Factures',
     'top_driver_parcels'                 => 'Chauffeur / Colis',
     'days'                 => 'Jours',
     'parcels_delivered'                 => 'Colis livrés',
@@ -461,6 +463,8 @@ return [
     'parcels'                 => 'Colis',
     'total_intelcom_invoices'                 => 'Total des factures Intelcom',
     'total_own_invoices'                 => 'Total de vos factures',
+    'avg_vehicule_rental_price'                 => 'Prix moyen de location',
+    'avg_broker_percentage'                 => 'Pourcentage moyen',
 
     /*
     |--------------------------------------------------------------------------

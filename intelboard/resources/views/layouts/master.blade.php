@@ -57,7 +57,7 @@
         <!-- End::main-sidebar -->
 
         <!-- Start::app-content -->
-        <div class="main-content app-content">
+        <div class="main-content app-content plr-2">
             {{-- <div class="container-fluid page-container main-body-container"> --}}
 
             @yield('content')

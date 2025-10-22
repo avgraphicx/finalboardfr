@@ -7,10 +7,9 @@
     <!-- Start::page-header -->
     <div class="page-header-breadcrumb mb-3">
         <div class="d-flex align-center justify-content-between flex-wrap">
-            <h1 class="page-title fw-medium fs-18 mb-0">Stats</h1>
+            <h1 class="page-title fw-medium fs-18 mb-0">{{ __('messages.stats') }}</h1>
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="javascript:void(0);">Pages</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Stats</li>
+                <li class="breadcrumb-item active" aria-current="page">{{ __('messages.dashboard') }}</li>
             </ol>
         </div>
     </div>
@@ -36,7 +35,7 @@
     <!-- Start::row-1 -->
     <div class="row row-cols-xxl-5">
         <div class="col">
-            <div class="card custom-card widget-card-style1 primary">
+            <div class="card custom-card widget-cardt primary">
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-3 flex-wrap">
                         <div class="lh-1">
@@ -56,11 +55,11 @@
         </div>
 
         <div class="col">
-            <div class="card custom-card widget-card-style1 success">
+            <div class="card custom-card widget-cardt primary">
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-3 flex-wrap">
                         <div class="lh-1">
-                            <span class="avatar avatar-md bg-success">
+                            <span class="avatar avatar-md bg-primary">
                                 <i class="ri-car-fill fs-5"></i>
                             </span>
                         </div>
@@ -75,7 +74,7 @@
         </div>
 
         <div class="col">
-            <div class="card custom-card widget-card-style1 warning">
+            <div class="card custom-card widget-cardt warning">
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-3 flex-wrap">
                         <div class="lh-1">
@@ -95,11 +94,11 @@
         </div>
 
         <div class="col">
-            <div class="card custom-card widget-card-style1 success">
+            <div class="card custom-card widget-cardt falconx">
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-3 flex-wrap">
                         <div class="lh-1">
-                            <span class="avatar avatar-md bg-success">
+                            <span class="avatar avatar-md bg-falconx">
                                 <i class="ri-receipt-line fs-5"></i>
                             </span>
                         </div>
@@ -114,11 +113,112 @@
             </div>
         </div>
         <div class="col">
-            <div class="card custom-card widget-card-style1 oceanx">
+            <div class="card custom-card widget-cardt falconx">
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-3 flex-wrap">
                         <div class="lh-1">
-                            <span class="avatar avatar-md bg-oceanx">
+                            <span class="avatar avatar-md bg-falconx">
+                                <i class="ri-bill-line fs-5"></i>
+                            </span>
+                        </div>
+
+                        <div class="flex-fill">
+                            <span class="d-block">{{ __('messages.total_own_invoices') }}</span>
+                            <h5 class="fw-semibold">{{ $stats['total_final_amount'] }}$</h5>
+                        </div>
+                        {{-- <div class="fs-15 text-success">{{ $stats['active_driver_percentage'] }}%</div> --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <!--End::row-1 -->
+    <div class="row row-cols-xxl-5">
+        <div class="col">
+            <div class="card custom-card widget-cardt falconx">
+                <div class="card-body">
+                    <div class="d-flex align-items-start gap-3 flex-wrap">
+                        <div class="lh-1">
+                            <span class="avatar avatar-md bg-falconx">
+                                <i class="ri-discount-percent-fill fs-5"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <span class="d-block">{{ __('messages.avg_broker_percentage') }}</span>
+                            <h5 class="fw-semibold">{{ $stats['avg_broker_percentage'] }}%</h5>
+                            {{-- <span class="badge bg-primary-transparent">{{ __('messages.payments') }}:
+                                {{ $allStats['paymentStats']['totalPayments'] }}</span> --}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card custom-card widget-cardt falconx">
+                <div class="card-body">
+                    <div class="d-flex align-items-start gap-3 flex-wrap">
+                        <div class="lh-1">
+                            <span class="avatar avatar-md bg-falconx">
+                                <i class="ri-money-dollar-circle-fill fs-5"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <span class="d-block">{{ __('messages.avg_vehicule_rental_price') }}</span>
+                            <h5 class="fw-semibold">{{ $stats['avg_vehicule_rental_price'] }}$</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card custom-card widget-cardt warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-start gap-3 flex-wrap">
+                        <div class="lh-1">
+                            <span class="avatar avatar-md bg-warning">
+                                <i class="ri-box-3-fill fs-5"></i>
+                            </span>
+                        </div>
+
+                        <div class="flex-fill">
+                            <span class="d-block">{{ __('messages.total_parcels_delivered') }}</span>
+                            <h5 class="fw-semibold">{{ $stats['total_parcels'] }}</h5>
+                        </div>
+                        {{-- <div class="fs-15 text-success">{{ $stats['active_driver_percentage'] }}%</div> --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card custom-card widget-cardt falconx">
+                <div class="card-body">
+                    <div class="d-flex align-items-start gap-3 flex-wrap">
+                        <div class="lh-1">
+                            <span class="avatar avatar-md bg-falconx">
+                                <i class="ri-receipt-line fs-5"></i>
+                            </span>
+                        </div>
+
+                        <div class="flex-fill">
+                            <span class="d-block">{{ __('messages.total_intelcom_invoices') }}</span>
+                            <h5 class="fw-semibold">{{ $stats['total_invoice_amount'] }}$</h5>
+                        </div>
+                        {{-- <div class="fs-15 text-success">{{ $stats['active_driver_percentage'] }}%</div> --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card custom-card widget-cardt falconx">
+                <div class="card-body">
+                    <div class="d-flex align-items-start gap-3 flex-wrap">
+                        <div class="lh-1">
+                            <span class="avatar avatar-md bg-falconx">
                                 <i class="ri-bill-line fs-5"></i>
                             </span>
                         </div>
@@ -137,19 +237,20 @@
     </div>
     <!--End::row-1 -->
 
+    <!--End::row-2 -->
     <div class="row">
         @if (!empty($stats['top_driver']))
             <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="card custom-card dashboard-main-card medical-main-card primary">
+                <div class="card custom-card widget-cardl lavenderx">
                     <div class="card-body">
                         <div class="d-flex align-items-start justify-content-between mb-2">
                             <div class="flex-fill">
                                 <div class="mb-2">{{ __('messages.top_driver_days') }}</div>
-                                <h4 class="fw-semibold text-primary mb-0">{{ $stats['top_driver']['driver']->full_name }}
+                                <h4 class="fw-semibold lavenderx mb-0">{{ $stats['top_driver']['driver']->full_name }}
                                 </h4>
                             </div>
                             <div>
-                                <span class="avatar avatar-md bg-primary">
+                                <span class="avatar avatar-md bg-lavenderx">
                                     <i class="ri-user-star-fill fs-5"></i>
                                 </span>
                             </div>
@@ -166,29 +267,76 @@
         @endif
         @if (!empty($stats['top_driver_parcels']))
             <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="card custom-card dashboard-main-card medical-main-card success">
+                <div class="card custom-card widget-cardl warning">
                     <div class="card-body">
                         <div class="d-flex align-items-start justify-content-between mb-2">
                             <div class="flex-fill">
                                 <div class="mb-2">{{ __('messages.top_driver_parcels') }}</div>
-                                <h4 class="fw-semibold text-success mb-0">
+                                <h4 class="fw-semibold text-warning mb-0">
                                     {{ $stats['top_driver_parcels']['driver']->full_name }}
                                 </h4>
                             </div>
                             <div>
-                                <span class="avatar avatar-md bg-success">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#ffffff"
-                                        viewBox="0 0 256 256">
-                                        <path
-                                            d="M223.68,66.15,135.68,18a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32l80.34,44-29.77,16.3-80.35-44ZM128,120,47.66,76l33.9-18.56,80.34,44ZM40,90l80,43.78v85.79L40,175.82Zm176,85.78h0l-80,43.79V133.82l32-17.51V152a8,8,0,0,0,16,0V107.55L216,90v85.77Z">
-                                        </path>
-                                    </svg>
+                                <span class="avatar avatar-md bg-warning">
+                                    <i class="ri-user-star-fill fs-5"></i>
                                 </span>
                             </div>
                         </div>
                         <div class="d-flex fs-13 align-items-center justify-content-between">
                             <div class="text-muted">{{ $stats['top_driver_parcels']['total_parcels'] }}
                                 {{ __('messages.parcels') }}</div>
+                            {{-- <div class="text-danger fw-medium d-inline-flex"><i
+                                    class="ti ti-trending-down align-middle me-1"></i>1.07%</div> --}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+        @if (!empty($stats['top_driver_int']))
+            <div class="col-md-6 col-lg-6 col-xl-3">
+                <div class="card custom-card widget-cardl falconx">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between mb-2">
+                            <div class="flex-fill">
+                                <div class="mb-2">{{ __('messages.top_driver_int') }}</div>
+                                <h4 class="fw-semibold falconx mb-0">
+                                    {{ $stats['top_driver_int']['driver']->full_name }}
+                                </h4>
+                            </div>
+                            <div>
+                                <span class="avatar avatar-md bg-amberx">
+                                    <i class="ri-receipt-line fs-5"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="d-flex fs-13 align-items-center justify-content-between">
+                            <div class="text-muted">{{ $stats['top_driver_int']['total_invoice'] }}$</div>
+                            {{-- <div class="text-danger fw-medium d-inline-flex"><i
+                                    class="ti ti-trending-down align-middle me-1"></i>1.07%</div> --}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+        @if (!empty($stats['top_driver_own']))
+            <div class="col-md-6 col-lg-6 col-xl-3">
+                <div class="card custom-card widget-cardl falconx">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between mb-2">
+                            <div class="flex-fill">
+                                <div class="mb-2">{{ __('messages.top_driver_own') }}</div>
+                                <h4 class="fw-semibold falconx mb-0">
+                                    {{ $stats['top_driver_own']['driver']->full_name }}
+                                </h4>
+                            </div>
+                            <div>
+                                <span class="avatar avatar-md bg-falconx">
+                                    <i class="ri-receipt-line fs-5"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="d-flex fs-13 align-items-center justify-content-between">
+                            <div class="text-muted">{{ $stats['top_driver_own']['final_amount'] }}$</div>
                             {{-- <div class="text-danger fw-medium d-inline-flex"><i
                                     class="ti ti-trending-down align-middle me-1"></i>1.07%</div> --}}
                         </div>
