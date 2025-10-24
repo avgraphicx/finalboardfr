@@ -4,11 +4,15 @@
 
 @section('styles')@section('styles')
 
+
+
 @endsection@endsection
 
 
 
 @section('content')@section('content')
+
+
 
     <!-- Profile Header -->    <!-- Profile Header -->
 
@@ -66,7 +70,7 @@
 
                         <span id="active"                        <span id="active"
 
-                            class="badge rounded-pill @if ($user->active == 'inactive') bg-danger @endif                            class="badge rounded-pill  @if ($user->active == 'inactive') bg-danger @endif
+                            class="badge rounded-pill @if ($user->active == 'inactive') bg-danger @endif                            class="badge rounded-pill @if ($user->active == 'inactive') bg-danger @endif
 
                             @if ($user->status == 'active') bg-success @endif avatar-badge"></span>                            @if ($user->status == 'active') bg-success @endif avatar-badge"></span>
 
@@ -76,71 +80,137 @@
 
                     <span class="d-block fs-13 tex-muted">{{ __('messages.subscription') }} :                    <span class="d-block fs-13 tex-muted">{{ __('messages.subscription') }} :
 
-                        {{ optional($user->subscription)->subscriptionType->name ?? 'None' }}</span>                        {{ optional(currentUser()->subscription)->subscriptionType->name ?? 'None' }}</span>
+                        {{ optional($user->subscription)->subscriptionType->name ?? 'None' }}</span>                        {{ optional($user->subscription)->subscriptionType->name ?? 'None' }}</span>
 
                     <span class="d-block fs-13 text-muted">{{ __('messages.until') }} :                    <span class="d-block fs-13 text-muted">{{ __('messages.until') }} :
 
-                        {{ optional($user->subscription)->ends_at ?? 'N/A' }}</span>                        {{ optional(currentUser()->subscription)->ends_at ?? 'N/A' }}</span>
+                        {{ optional($user->subscription)->ends_at ?? 'N/A' }}</span>                        {{ optional($user->subscription)->ends_at ?? 'N/A' }}</span>
 
-                </div>                </div>
+                </div>
 
-            </div>            </div>
+            </div>                </div>
 
-        </div>            {{-- <div class="card custom-card">
+        </div>            </div>
 
-        <div class="col-xl-9">                <div class="card-body">
+        <div class="col-xl-9">
 
-            <div class="card custom-card">                    <ul class="nav nav-tabs flex-column nav-tabs-header mb-0 mail-sesttings-tab" role="tablist">
+            <div class="card custom-card">        </div>
 
-                <div class="card-body">                        <li class="nav-item m-1">
+                <div class="card-body">    </div>
 
-                    <div class="tab-content">                            <a class="nav-link active" data-bs-toggle="tab" role="tab" aria-current="page"
+                    <div class="tab-content">
 
-                        <div class="tab-pane show active p-0 border-0" id="personal-info" role="tabpanel">                                href="#personal-info" aria-selected="true">
+                        <div class="tab-pane show active p-0 border-0" id="personal-info" role="tabpanel">    </div> {{-- <div class="card custom-card">
 
-                            <div>                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                            <div>
 
-                                <div class="row gy-4 mb-4">                                    <rect width="256" height="256" fill="none" />
+                                <div class="row gy-4 mb-4">        <div class="col-xl-9">                <div class="card-body">
 
-                                    <div class="col-12">                                    <path
+                                    <div class="col-12">
 
-                                        <label for="name" class="form-label">{{ __('messages.full_name') }}</label>                                        d="M216,48H40a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H216a8,8,0,0,0,8-8V56A8,8,0,0,0,216,48ZM96,144a24,24,0,1,1,24-24A24,24,0,0,1,96,144Z"
+                                        <label for="name" class="form-label">{{ __('messages.full_name') }}</label>            <div class="card custom-card">                    <ul class="nav nav-tabs flex-column nav-tabs-header mb-0 mail-sesttings-tab" role="tablist">
 
-                                        <input type="text" class="form-control" id="name"                                        opacity="0.2" />
+                                        <input type="text" class="form-control" id="name"
 
-                                            placeholder="{{ $user->full_name }}" value="{{ $user->full_name }}">                                    <line x1="152" y1="112" x2="192" y2="112" fill="none"
+                                            placeholder="{{ $user->full_name }}" value="{{ $user->full_name }}">                <div class="card-body">                        <li class="nav-item m-1">
 
-                                    </div>                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    </div>
 
-                                </div>                                        stroke-width="16" />
+                                </div>                    <div class="tab-content">                            <a class="nav-link active" data-bs-toggle="tab" role="tab" aria-current="page"
 
-                                <div class="row gy-4 mb-4">                                    <line x1="152" y1="144" x2="192" y2="144" fill="none"
+                                <div class="row gy-4 mb-4">
 
-                                    <div class="col-xl-6">                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    <div class="col-xl-6">                        <div class="tab-pane show active p-0 border-0" id="personal-info" role="tabpanel">                                href="#personal-info" aria-selected="true">
 
-                                        <label for="email-address"                                        stroke-width="16" />
+                                        <label for="email-address"
 
-                                            class="form-label">{{ __('messages.login_email_label') }} :</label>                                    <rect x="32" y="48" width="192" height="160" rx="8" fill="none"
+                                            class="form-label">{{ __('messages.login_email_label') }} :</label>                            <div>                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
 
-                                        <input type="text" class="form-control" id="email-address"                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        <input type="text" class="form-control" id="email-address"
 
-                                            placeholder="{{ $user->email }}" value="{{ $user->email }}">                                        stroke-width="16" />
+                                            placeholder="{{ $user->email }}" value="{{ $user->email }}">                                <div class="row gy-4 mb-4">                                    <rect width="256" height="256" fill="none" />
 
-                                    </div>                                    <circle cx="96" cy="120" r="24" fill="none" stroke="currentColor"
+                                    </div>
 
-                                    <div class="col-xl-6">                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                                    <div class="col-xl-6">                                    <div class="col-12">                                    <path
 
-                                        <label for="phone-no" class="form-label">{{ __('messages.phone_number') }}                                    <path d="M64,168c3.55-13.8,17.09-24,32-24s28.46,10.19,32,24" fill="none"
+                                        <label for="phone-no" class="form-label">{{ __('messages.phone_number') }}
 
-                                            :</label>                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                            :</label>                                        <label for="name" class="form-label">{{ __('messages.full_name') }}</label>                                        d="M216,48H40a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H216a8,8,0,0,0,8-8V56A8,8,0,0,0,216,48ZM96,144a24,24,0,1,1,24-24A24,24,0,0,1,96,144Z"
 
-                                        <input type="text" class="form-control" id="phone-no"                                        stroke-width="16" />
+                                        <input type="text" class="form-control" id="phone-no"
 
-                                            placeholder="{{ $user->phone_number }}" value="{{ $user->phone_number }}">                                </svg>
+                                            placeholder="{{ $user->phone_number }}" value="{{ $user->phone_number }}">                                        <input type="text" class="form-control" id="name"                                        opacity="0.2" />
 
-                                    </div>                                Personal Information</a>
+                                    </div>
 
-                                </div>                        </li>
+                                </div>                                            placeholder="{{ $user->full_name }}" value="{{ $user->full_name }}">                                    <line x1="152" y1="112" x2="192" y2="112" fill="none"
+
+                                <div class="row gy-4">
+
+                                    <div class="col-xl-6">                                    </div>                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+
+                                        <label for="password" class="form-label">{{ __('messages.current_password') }}
+
+                                            :</label>                                </div>                                        stroke-width="16" />
+
+                                        <input type="password" class="form-control" id="password"
+
+                                            placeholder="••••••••••••">                                <div class="row gy-4 mb-4">                                    <line x1="152" y1="144" x2="192" y2="144" fill="none"
+
+                                    </div>
+
+                                    <div class="col-xl-6">                                    <div class="col-xl-6">                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+
+                                        <label for="newpassword" class="form-label">{{ __('messages.new_password') }}
+
+                                            :</label>                                        <label for="email-address"                                        stroke-width="16" />
+
+                                        <input type="password" class="form-control" id="newpassword"
+
+                                            placeholder="••••••••••••">                                            class="form-label">{{ __('messages.login_email_label') }} :</label>                                    <rect x="32" y="48" width="192" height="160" rx="8" fill="none"
+
+                                    </div>
+
+                                </div>                                        <input type="text" class="form-control" id="email-address"                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+
+                            </div>
+
+                        </div>                                            placeholder="{{ $user->email }}" value="{{ $user->email }}">                                        stroke-width="16" />
+
+                    </div>
+
+                </div>                                    </div>                                    <circle cx="96" cy="120" r="24" fill="none" stroke="currentColor"
+
+                <div class="card-footer">
+
+                    <div class="float-end">                                    <div class="col-xl-6">                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+
+                        <button class="btn btn-primary label-btn label-end">
+
+                            Save changes                                        <label for="phone-no" class="form-label">{{ __('messages.phone_number') }}                                    <path d="M64,168c3.55-13.8,17.09-24,32-24s28.46,10.19,32,24" fill="none"
+
+                            <i class="ri-save-fill label-btn-icon ms-2"></i>
+
+                        </button>                                            :</label>                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+
+                    </div>
+
+                </div>                                        <input type="text" class="form-control" id="phone-no"                                        stroke-width="16" />
+
+            </div>
+
+        </div>                                            placeholder="{{ $user->phone_number }}" value="{{ $user->phone_number }}">                                </svg>
+
+    </div>
+
+@endsection                                    </div>                                Personal Information</a>
+
+
+
+@section('scripts')                                </div>                        </li>
+
+@endsection
 
                                 <div class="row gy-4">                        <li class="nav-item m-1">
 
@@ -168,145 +238,143 @@
 
                                             placeholder="••••••••••••">                                        fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
 
-                                        {{-- <p class="fs-12 mb-0 text-muted">Password.</p> --}}                                        stroke-width="16" />
+                                        {{-- <p class="fs-12 mb-0 text-muted">Password.</p> --}} stroke-width="16" />
 
-                                    </div>                                </svg>
+    </div> </svg>
 
-                                </div>                                Account Settings</a>
+    </div> Account Settings</a>
 
-                            </div>                        </li>
+    </div>
+    </li>
 
-                        </div>                        <li class="nav-item m-1">
+    </div>
+    <li class="nav-item m-1">
 
-                    </div>                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
+        </div> <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page" </div> href="#email-settings"
+            aria-selected="true">
 
-                </div>                                href="#email-settings" aria-selected="true">
+            <div class="card-footer"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
 
-                <div class="card-footer">                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                    <div class="float-end">
+                        <rect width="256" height="256" fill="none" />
 
-                    <div class="float-end">                                    <rect width="256" height="256" fill="none" />
+                        <button class="btn btn-primary label-btn label-end">
+                            <polygon points="224 56 128 144 32 56 224 56" opacity="0.2" />
 
-                        <button class="btn btn-primary label-btn label-end">                                    <polygon points="224 56 128 144 32 56 224 56" opacity="0.2" />
+                            Save changes <path <i class="ri-save-fill label-btn-icon ms-2"></i>
+                                d="M32,56H224a0,0,0,0,1,0,0V192a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V56A0,0,0,0,1,32,56Z"
 
-                            Save changes                                    <path
+                        </button> fill="none" stroke="currentColor" stroke-linecap="round"
 
-                            <i class="ri-save-fill label-btn-icon ms-2"></i>                                        d="M32,56H224a0,0,0,0,1,0,0V192a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V56A0,0,0,0,1,32,56Z"
+                    </div> stroke-linejoin="round" stroke-width="16" />
 
-                        </button>                                        fill="none" stroke="currentColor" stroke-linecap="round"
+            </div>
+            <polyline points="224 56 128 144 32 56" fill="none" stroke="currentColor" </div> stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
 
-                    </div>                                        stroke-linejoin="round" stroke-width="16" />
+                </div> </svg>
 
-                </div>                                    <polyline points="224 56 128 144 32 56" fill="none" stroke="currentColor"
+                </div> Email
+        </a>
 
-            </div>                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+    @endsection </li>
 
-        </div>                                </svg>
+<li class="nav-item m-1">
 
-    </div>                                Email</a>
+    @section('scripts') <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page" href="#labels"
+        @endsection aria-selected="true">
 
-@endsection                        </li>
-
-                        <li class="nav-item m-1">
-
-@section('scripts')                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page" href="#labels"
-
-@endsection                                aria-selected="true">
-
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                                    <rect width="256" height="256" fill="none" />
-                                    <path
-                                        d="M42.34,138.34A8,8,0,0,1,40,132.69V40h92.69a8,8,0,0,1,5.65,2.34l99.32,99.32a8,8,0,0,1,0,11.31L153,237.66a8,8,0,0,1-11.31,0Z"
-                                        opacity="0.2" />
-                                    <path
-                                        d="M42.34,138.34A8,8,0,0,1,40,132.69V40h92.69a8,8,0,0,1,5.65,2.34l99.32,99.32a8,8,0,0,1,0,11.31L153,237.66a8,8,0,0,1-11.31,0Z"
-                                        fill="none" stroke="currentColor" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="16" />
-                                    <circle cx="84" cy="84" r="12" />
-                                </svg>
-                                Labels</a>
-                        </li>
-                        <li class="nav-item m-1">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
-                                href="#notification-settings" aria-selected="true">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                                    <rect width="256" height="256" fill="none" />
-                                    <path
-                                        d="M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"
-                                        opacity="0.2" />
-                                    <path d="M96,192a32,32,0,0,0,64,0" fill="none" stroke="currentColor"
-                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
-                                    <path
-                                        d="M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"
-                                        fill="none" stroke="currentColor" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="16" />
-                                </svg>
-                                Notifications</a>
-                        </li>
-                        <li class="nav-item m-1">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
-                                href="#security" aria-selected="true">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                                    <rect width="256" height="256" fill="none" />
-                                    <rect x="40" y="88" width="176" height="128" rx="8" opacity="0.2" />
-                                    <rect x="40" y="88" width="176" height="128" rx="8" fill="none"
-                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="16" />
-                                    <circle cx="128" cy="152" r="12" />
-                                    <path d="M88,88V56a40,40,0,0,1,80,0V88" fill="none" stroke="currentColor"
-                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
-                                </svg>
-                                Security</a>
-                        </li>
-                    </ul>
-                </div>
-            </div> --}}
-        </div>
-        <div class="col-xl-9">
-            <div class="card custom-card">
-                <div class="card-body">
-                    <div class="tab-content">
-                        <div class="tab-pane show active p-0 border-0" id="personal-info" role="tabpanel">
-                            <div>
-                                <div class="row gy-4 mb-4">
-                                    <div class="col-12">
-                                        <label for="name" class="form-label">{{ __('messages.full_name') }}</label>
-                                        <input type="text" class="form-control" id="name"
-                                            placeholder="{{ $user->full_name }}" value="{{ $user->full_name }}">
-                                    </div>
-                                </div>
-                                <div class="row gy-4 mb-4">
-                                    <div class="col-xl-6">
-                                        <label for="email-address"
-                                            class="form-label">{{ __('messages.login_email_label') }} :</label>
-                                        <input type="text" class="form-control" id="email-address"
-                                            placeholder="{{ $user->email }}" value="{{ $user->email }}">
-                                    </div>
-                                    <div class="col-xl-6">
-                                        <label for="phone-no" class="form-label">{{ __('messages.phone_number') }}
-                                            :</label>
-                                        <input type="text" class="form-control" id="phone-no"
-                                            placeholder="{{ $user->phone_number }}" value="{{ $user->phone_number }}">
-                                    </div>
-                                </div>
-                                <div class="row gy-4">
-                                    <div class="col-xl-6">
-                                        <label for="password" class="form-label">{{ __('messages.current_password') }}
-                                            :</label>
-                                        <input type="password" class="form-control" id="password"
-                                            placeholder="••••••••••••">
-
-                                    </div>
-                                    <div class="col-xl-6">
-                                        <label for="newpassword" class="form-label">{{ __('messages.new_password') }}
-                                            :</label>
-                                        <input type="password" class="form-control" id="newpassword"
-                                            placeholder="••••••••••••">
-                                        {{-- <p class="fs-12 mb-0 text-muted">Password.</p> --}}
-                                    </div>
-                                </div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none" />
+            <path
+                d="M42.34,138.34A8,8,0,0,1,40,132.69V40h92.69a8,8,0,0,1,5.65,2.34l99.32,99.32a8,8,0,0,1,0,11.31L153,237.66a8,8,0,0,1-11.31,0Z"
+                opacity="0.2" />
+            <path
+                d="M42.34,138.34A8,8,0,0,1,40,132.69V40h92.69a8,8,0,0,1,5.65,2.34l99.32,99.32a8,8,0,0,1,0,11.31L153,237.66a8,8,0,0,1-11.31,0Z"
+                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+            <circle cx="84" cy="84" r="12" />
+        </svg>
+        Labels</a>
+</li>
+<li class="nav-item m-1">
+    <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page" href="#notification-settings"
+        aria-selected="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none" />
+            <path
+                d="M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"
+                opacity="0.2" />
+            <path d="M96,192a32,32,0,0,0,64,0" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
+            <path
+                d="M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"
+                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+        </svg>
+        Notifications</a>
+</li>
+<li class="nav-item m-1">
+    <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page" href="#security" aria-selected="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none" />
+            <rect x="40" y="88" width="176" height="128" rx="8" opacity="0.2" />
+            <rect x="40" y="88" width="176" height="128" rx="8" fill="none" stroke="currentColor"
+                stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+            <circle cx="128" cy="152" r="12" />
+            <path d="M88,88V56a40,40,0,0,1,80,0V88" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="16" />
+        </svg>
+        Security</a>
+</li>
+</ul>
+</div>
+</div> --}}
+</div>
+<div class="col-xl-9">
+    <div class="card custom-card">
+        <div class="card-body">
+            <div class="tab-content">
+                <div class="tab-pane show active p-0 border-0" id="personal-info" role="tabpanel">
+                    <div>
+                        <div class="row gy-4 mb-4">
+                            <div class="col-12">
+                                <label for="name" class="form-label">{{ __('messages.full_name') }}</label>
+                                <input type="text" class="form-control" id="name"
+                                    placeholder="{{ $user->full_name }}" value="{{ $user->full_name }}">
                             </div>
                         </div>
-                        {{-- <div class="tab-pane border-0 p-0" id="account-settings" role="tabpanel">
+                        <div class="row gy-4 mb-4">
+                            <div class="col-xl-6">
+                                <label for="email-address" class="form-label">{{ __('messages.login_email_label') }}
+                                    :</label>
+                                <input type="text" class="form-control" id="email-address"
+                                    placeholder="{{ $user->email }}" value="{{ $user->email }}">
+                            </div>
+                            <div class="col-xl-6">
+                                <label for="phone-no" class="form-label">{{ __('messages.phone_number') }}
+                                    :</label>
+                                <input type="text" class="form-control" id="phone-no"
+                                    placeholder="{{ $user->phone_number }}" value="{{ $user->phone_number }}">
+                            </div>
+                        </div>
+                        <div class="row gy-4">
+                            <div class="col-xl-6">
+                                <label for="password" class="form-label">{{ __('messages.current_password') }}
+                                    :</label>
+                                <input type="password" class="form-control" id="password"
+                                    placeholder="••••••••••••">
+
+                            </div>
+                            <div class="col-xl-6">
+                                <label for="newpassword" class="form-label">{{ __('messages.new_password') }}
+                                    :</label>
+                                <input type="password" class="form-control" id="newpassword"
+                                    placeholder="••••••••••••">
+                                {{-- <p class="fs-12 mb-0 text-muted">Password.</p> --}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{-- <div class="tab-pane border-0 p-0" id="account-settings" role="tabpanel">
                             <div class="row gy-3">
                                 <div class="col-xxl-7">
                                     <div class="card custom-card shadow-none mb-0 border">
@@ -1218,19 +1286,19 @@
                                 </li>
                             </ul>
                         </div> --}}
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="float-end">
-                        <button class="btn btn-primary label-btn label-end">
-                            Save changes
-                            <i class="ri-save-fill label-btn-icon ms-2"></i>
-                        </button>
-                    </div>
-                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="float-end">
+                <button class="btn btn-primary label-btn label-end">
+                    Save changes
+                    <i class="ri-save-fill label-btn-icon ms-2"></i>
+                </button>
             </div>
         </div>
     </div>
+</div>
+</div>
 @endsection
 
 @section('scripts')
