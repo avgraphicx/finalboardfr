@@ -220,9 +220,18 @@ class PaymentImportService
         $saved = 0;
         $failed = 0;
 
+        \Log::info('=== importBatch SERVICE START ===', [
+            'token' => $token,
+            'selected_keys' => $selectedKeys,
+            'selected_count' => count($selectedKeys),
+        ]);
+
         foreach ($selectedKeys as $key) {
+            \Log::info("=== Processing key: $key ===");
+
             $entry = $cache['items'][$key] ?? null;
             if (!$entry || empty($entry['can_import'])) {
+                \Log::warning("Skipping key $key - entry missing or cannot import");
                 $failed++;
                 continue;
             }
@@ -252,6 +261,14 @@ class PaymentImportService
                 $weekParts = explode('-', $snapshot['week_number']);
                 $weekNum = isset($weekParts[1]) ? (int)$weekParts[1] : (int)$snapshot['week_number'];
 
+                \Log::info("Creating invoice for key $key", [
+                    'driver_id' => $dbDriverId,
+                    'week_number_raw' => $snapshot['week_number'],
+                    'week_number_extracted' => $weekNum,
+                    'warehouse' => $snapshot['warehouse'],
+                    'invoice_total' => $snapshot['total_invoice'],
+                ]);
+
                 Invoice::create([
                     'driver_id' => $dbDriverId,
                     'week_number' => $weekNum,
@@ -268,11 +285,13 @@ class PaymentImportService
                     'pdf_path' => $publicPath,
                 ]);
 
+                \Log::info("Invoice created successfully for key $key");
                 $saved++;
             } catch (\Throwable $e) {
                 \Log::error('Failed to import payment from batch', [
                     'key' => $key,
                     'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                 ]);
                 $failed++;
             }
@@ -281,6 +300,11 @@ class PaymentImportService
         // Cleanup temp files and session cache
         Storage::disk('local')->deleteDirectory('temp/payment-previews/' . $token);
         Session::forget("payment_previews.$token");
+
+        \Log::info('=== importBatch COMPLETE ===', [
+            'saved' => $saved,
+            'failed' => $failed,
+        ]);
 
         return ['saved' => $saved, 'failed' => $failed];
     }

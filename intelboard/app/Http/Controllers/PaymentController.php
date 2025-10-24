@@ -53,6 +53,12 @@ class PaymentController extends Controller
 
     public function importBatch(Request $request)
     {
+        \Log::info('=== importBatch START ===', [
+            'all_request' => $request->all(),
+            'token' => $request->input('token'),
+            'selected_raw' => $request->input('selected'),
+        ]);
+
         $validated = $request->validate([
             'token' => ['required', 'string'],
             'selected' => ['array'],
@@ -61,18 +67,31 @@ class PaymentController extends Controller
 
         $selected = $validated['selected'] ?? [];
 
+        \Log::info('=== importBatch VALIDATED ===', [
+            'token' => $validated['token'],
+            'selected' => $selected,
+            'selected_count' => count($selected),
+        ]);
+
         try {
             $result = $this->paymentImportService->importBatch($validated['token'], $selected);
+
+            \Log::info('=== importBatch SUCCESS ===', [
+                'result' => $result,
+            ]);
 
             return redirect()
                 ->route('invoices.index')
                 ->with('success', __('messages.success_text', ['count' => $result['saved']]) . ' ' . ($result['failed'] > 0 ? __('messages.partially_saved_text', ['saved' => $result['saved'], 'failed' => $result['failed']]) : ''));
         } catch (PaymentImportException $e) {
+            \Log::error('=== importBatch PaymentImportException ===', [
+                'error' => $e->getMessage(),
+            ]);
             return redirect()
                 ->route('payments.importForm')
                 ->withErrors(['token' => $e->getMessage()]);
         } catch (\Throwable $e) {
-            \Log::error('Error importing payment batch', [
+            \Log::error('=== importBatch Throwable Error ===', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
