@@ -65,7 +65,7 @@ class PaymentController extends Controller
             $result = $this->paymentImportService->importBatch($validated['token'], $selected);
 
             return redirect()
-                ->route('payments.index')
+                ->route('invoices.index')
                 ->with('success', __('messages.success_text', ['count' => $result['saved']]) . ' ' . ($result['failed'] > 0 ? __('messages.partially_saved_text', ['saved' => $result['saved'], 'failed' => $result['failed']]) : ''));
         } catch (PaymentImportException $e) {
             return redirect()
@@ -100,7 +100,7 @@ class PaymentController extends Controller
         $validated = $this->validatePayment($request, $payment->id);
         $payment->update($validated);
 
-        return redirect()->route('payments.index')->with('success', 'Payment updated successfully.');
+        return redirect()->route('invoices.index')->with('success', 'Payment updated successfully.');
     }
 
     public function destroy(Payment $payment)

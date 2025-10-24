@@ -35,7 +35,7 @@
                     </a>
                 </li>
                 <li class="slide">
-                    <a href="{{ route('payments.index') }}" class="side-menu__item">
+                    <a href="{{ route('invoices.index') }}" class="side-menu__item">
                         <i class="bi bi-receipt side-menu__icon"></i>
                         <span class="side-menu__label">{{ __('messages.payments') }}</span>
                     </a>

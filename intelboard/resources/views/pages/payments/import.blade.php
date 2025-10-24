@@ -9,7 +9,7 @@
             <h1 class="page-title fw-medium fs-18 mb-0">{{ __('messages.upload_invoices') }}</h1>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a
-                        href="{{ route('payments.index') }}">{{ __('messages.payments_page_label') }}</a></li>
+                        href="{{ route('invoices.index') }}">{{ __('messages.payments_page_label') }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ __('messages.upload_invoices') }}</li>
             </ol>
         </div>
@@ -49,7 +49,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="ri-eye-line"></i> {{ __('messages.preview') }}
                             </button>
-                            <a href="{{ route('payments.index') }}" class="btn btn-teal-light">
+                            <a href="{{ route('invoices.index') }}" class="btn btn-teal-light">
                                 <i class="bi bi-arrow-left-circle-fill"></i> {{ __('messages.cancel') }}
                             </a>
                         </div>

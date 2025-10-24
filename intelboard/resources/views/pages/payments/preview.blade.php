@@ -9,7 +9,7 @@
             <h1 class="page-title fw-medium fs-18 mb-0">{{ __('messages.preview') }}</h1>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a
-                        href="{{ route('payments.index') }}">{{ __('messages.payments_page_label') }}</a></li>
+                        href="{{ route('invoices.index') }}">{{ __('messages.payments_page_label') }}</a></li>
                 <li class="breadcrumb-item"><a
                         href="{{ route('payments.importForm') }}">{{ __('messages.upload_invoices') }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ __('messages.preview') }}</li>
@@ -45,7 +45,8 @@
                     <ul class="mb-0">
                         @foreach ($duplicatesBatch as $i)
                             <li>{{ $i['file_name'] }} — {{ $i['driver_id'] ?? '' }} {{ $i['driver_full_name'] ?? '' }}
-                                ({{ $i['week_number'] ?? '' }}) [{{ $i['warehouse'] ?? 'N/A' }}]</li>
+                                ({{ $i['week_number'] ?? '' }})
+                                [{{ $i['warehouse'] ?? 'N/A' }}]</li>
                         @endforeach
                     </ul>
                 </div>
@@ -58,7 +59,8 @@
                     <ul class="mb-0">
                         @foreach ($duplicatesDb as $i)
                             <li>{{ $i['file_name'] }} — {{ $i['driver_id'] ?? '' }} {{ $i['driver_full_name'] ?? '' }}
-                                ({{ $i['week_number'] ?? '' }}) [{{ $i['warehouse'] ?? 'N/A' }}]</li>
+                                ({{ $i['week_number'] ?? '' }})
+                                [{{ $i['warehouse'] ?? 'N/A' }}]</li>
                         @endforeach
                     </ul>
                 </div>
