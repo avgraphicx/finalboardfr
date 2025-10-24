@@ -84,10 +84,6 @@
                             <small class="text-muted">{{ __('messages.penalty') }}</small>
                             <p class="fw-semibold">${{ (int) $invoice->penalty }}</p>
                         </div>
-                        <div class="col-md-6">
-                            <small class="text-muted">{{ __('messages.broker_share') }}</small>
-                            <p class="fw-semibold text-primary">${{ (int) $invoice->broker_share }}</p>
-                        </div>
                     </div>
 
                     <hr>

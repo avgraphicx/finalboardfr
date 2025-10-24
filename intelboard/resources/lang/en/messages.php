@@ -279,6 +279,39 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Invoice Details / Show Page
+    |--------------------------------------------------------------------------
+    */
+    'invoice'                => 'Invoice',
+    'invoices'               => 'Invoices',
+    'invoice_details'        => 'Invoice Details',
+    'financial_summary'      => 'Financial Summary',
+    'days_worked'            => 'Days Worked',
+    'warehouse'              => 'Warehouse',
+    'edit_invoice'           => 'Edit Invoice',
+    'invoice_total'          => 'Invoice Total',
+    'days_worked'            => 'Days Worked',
+    'vehicle_rental_price'   => 'Vehicle Rental Price',
+    'driver_percentage'      => 'Driver Percentage',
+    'bonus'                  => 'Bonus',
+    'cash_advance'           => 'Cash Advance',
+    'penalty'                => 'Penalty',
+    'amount_to_pay_driver'   => 'Amount to Pay Driver',
+    'broker_share'           => 'Broker Share',
+    'payment_status'         => 'Payment Status',
+    'paid'                   => 'Paid',
+    'unpaid'                 => 'Unpaid',
+    'paid_at'                => 'Paid At',
+    'paid_on'                => 'Paid On',
+    'mark_paid'              => 'Mark as Paid',
+    'created'                => 'Created',
+    'last_updated'           => 'Last Updated',
+    'update'                 => 'Update',
+    'week'                   => 'Week',
+    'driver'                 => 'Driver',
+
+    /*
+    |--------------------------------------------------------------------------
     | Calculation Actions / Messages
     |--------------------------------------------------------------------------
     */
