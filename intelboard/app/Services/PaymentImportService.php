@@ -207,10 +207,11 @@ class PaymentImportService
      *
      * @param string $token
      * @param string[] $selectedKeys
+     * @param int $brokerId The ID of the broker (user) performing the import
      * @return array{saved:int,failed:int}
      * @throws PaymentImportException
      */
-    public function importBatch(string $token, array $selectedKeys): array
+    public function importBatch(string $token, array $selectedKeys, int $brokerId = null): array
     {
         $cache = Session::get("payment_previews.$token");
         if (!$cache || !isset($cache['items']) || !is_array($cache['items'])) {
@@ -280,6 +281,7 @@ class PaymentImportService
                 ]);
 
                 Invoice::create([
+                    'broker_id' => $brokerId,
                     'driver_id' => $dbDriverId,
                     'week_number' => $weekNum,
                     'warehouse_name' => $snapshot['warehouse'],

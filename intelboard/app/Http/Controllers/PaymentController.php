@@ -74,7 +74,7 @@ class PaymentController extends Controller
         ]);
 
         try {
-            $result = $this->paymentImportService->importBatch($validated['token'], $selected);
+            $result = $this->paymentImportService->importBatch($validated['token'], $selected, Auth::id());
 
             \Log::info('=== importBatch SUCCESS ===', [
                 'result' => $result,
