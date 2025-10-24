@@ -19,20 +19,32 @@
         <div class="col-xl-3">
             <div class="card custom-card">
                 <div class="card-body text-center p-4">
-                    <span class="avatar avatar-xxl avatar-rounded">
-                        <img src="/assets/images/faces/9.jpg" alt="" id="profile-img">
-                        <span class="badge rounded-pill bg-primary avatar-badge">
-                            <input type="file" name="photo" class="position-absolute w-100 h-100 op-0"
-                                id="profile-change">
-                            <i class="fe fe-camera"></i>
-                        </span>
+                    @php
+                        $nameParts = explode(' ', trim($user->full_name));
+                        $initials = '';
+                        foreach ($nameParts as $part) {
+                            if (!empty($part)) {
+                                $initials .= strtoupper(substr($part, 0, 1));
+                            }
+                        }
+                        $initials = substr($initials, 0, 2);
+                    @endphp
+                    <span class="avatar avatar-xxl avatar-rounded bg-primary text-light">
+                        <span class="avatar-text fw-bold fs-5" style="color: white !important;">{{ $initials }}</span>
+                        <span id="active"
+                            class="badge rounded-pill
+                            @if ($user->active == '0') bg-danger @endif
+                            @if ($user->active == '1') bg-success @endif avatar-badge"></span>
                     </span>
-                    <h6 class="fw-semibold mt-3 mb-1">Jhon Doe</h6>
-                    <span class="d-block fs-13 tex-muted">jhondoe3125@gmail.com</span>
-                    <div class="btn-list mt-3">
-                        <button class="btn btn-sm btn-w-sm btn-primary">Edit</button>
-                        <button class="btn btn-sm btn-w-sm btn-danger">Delete</button>
-                    </div>
+                    <h6 class="fw-semibold mt-3 mb-1">{{ $user->full_name }}</h6>
+                    <span class="d-block fs-13 text-muted">
+                        {{ __('messages.subscription') }} :
+                        {{ $user->subscription?->subscriptionType?->name ?? 'None' }}
+                    </span>
+                    <span class="d-block fs-13 text-muted">
+                        {{ __('messages.until') }} :
+                        {{ $user->subscription?->ends_at?->format('Y-m-d') ?? 'N/A' }}
+                    </span>
                 </div>
             </div>
             <div class="card custom-card">
@@ -75,74 +87,12 @@
                                         stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
                                     <path
                                         d="M41.43,178.09A99.14,99.14,0,0,1,31.36,153.8l16.78-21a81.59,81.59,0,0,1,0-9.64l-16.77-21a99.43,99.43,0,0,1,10.05-24.3l26.71-3a81,81,0,0,1,6.81-6.81l3-26.7A99.14,99.14,0,0,1,102.2,31.36l21,16.78a81.59,81.59,0,0,1,9.64,0l21-16.77a99.43,99.43,0,0,1,24.3,10.05l3,26.71a81,81,0,0,1,6.81,6.81l26.7,3a99.14,99.14,0,0,1,10.07,24.29l-16.78,21a81.59,81.59,0,0,1,0,9.64l16.77,21a99.43,99.43,0,0,1-10,24.3l-26.71,3a81,81,0,0,1-6.81,6.81l-3,26.7a99.14,99.14,0,0,1-24.29,10.07l-21-16.78a81.59,81.59,0,0,1-9.64,0l-21,16.77a99.43,99.43,0,0,1-24.3-10l-3-26.71a81,81,0,0,1-6.81-6.81Z"
-                                        fill="none" stroke="currentColor" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="16" />
-                                </svg>
-                                Account Settings</a>
-                        </li>
-                        <li class="nav-item m-1">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
-                                href="#email-settings" aria-selected="true">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                                    <rect width="256" height="256" fill="none" />
-                                    <polygon points="224 56 128 144 32 56 224 56" opacity="0.2" />
-                                    <path
-                                        d="M32,56H224a0,0,0,0,1,0,0V192a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V56A0,0,0,0,1,32,56Z"
-                                        fill="none" stroke="currentColor" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="16" />
-                                    <polyline points="224 56 128 144 32 56" fill="none" stroke="currentColor"
-                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
-                                </svg>
-                                Email</a>
-                        </li>
-                        <li class="nav-item m-1">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page" href="#labels"
-                                aria-selected="true">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                                    <rect width="256" height="256" fill="none" />
-                                    <path
-                                        d="M42.34,138.34A8,8,0,0,1,40,132.69V40h92.69a8,8,0,0,1,5.65,2.34l99.32,99.32a8,8,0,0,1,0,11.31L153,237.66a8,8,0,0,1-11.31,0Z"
-                                        opacity="0.2" />
-                                    <path
-                                        d="M42.34,138.34A8,8,0,0,1,40,132.69V40h92.69a8,8,0,0,1,5.65,2.34l99.32,99.32a8,8,0,0,1,0,11.31L153,237.66a8,8,0,0,1-11.31,0Z"
-                                        fill="none" stroke="currentColor" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="16" />
-                                    <circle cx="84" cy="84" r="12" />
-                                </svg>
-                                Labels</a>
-                        </li>
-                        <li class="nav-item m-1">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
-                                href="#notification-settings" aria-selected="true">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                                    <rect width="256" height="256" fill="none" />
-                                    <path
-                                        d="M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"
-                                        opacity="0.2" />
-                                    <path d="M96,192a32,32,0,0,0,64,0" fill="none" stroke="currentColor"
-                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
-                                    <path
-                                        d="M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"
-                                        fill="none" stroke="currentColor" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="16" />
-                                </svg>
-                                Notifications</a>
-                        </li>
-                        <li class="nav-item m-1">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
-                                href="#security" aria-selected="true">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                                    <rect width="256" height="256" fill="none" />
-                                    <rect x="40" y="88" width="176" height="128" rx="8" opacity="0.2" />
-                                    <rect x="40" y="88" width="176" height="128" rx="8" fill="none"
-                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                         stroke-width="16" />
-                                    <circle cx="128" cy="152" r="12" />
-                                    <path d="M88,88V56a40,40,0,0,1,80,0V88" fill="none" stroke="currentColor"
-                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
                                 </svg>
-                                Security</a>
+                                Preferences</a>
                         </li>
+                        <!-- Other commented tabs remain here -->
                     </ul>
                 </div>
             </div>

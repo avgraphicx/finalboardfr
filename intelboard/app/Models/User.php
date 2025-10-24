@@ -91,6 +91,11 @@ class User extends Authenticatable
         return $this->hasOne(Subscription::class, 'broker_id');
     }
 
+    public function company(): HasOne
+    {
+        return $this->hasOne(Company::class, 'user_id');
+    }
+
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);
