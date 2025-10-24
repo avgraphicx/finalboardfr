@@ -15,7 +15,7 @@ class ProfileController extends Controller
      */
     public function show(): View
     {
-        $user = Auth::user();
+        $user = Auth::user()->load(['subscription.subscriptionType', 'preferences']);
         $preferences = $user->preferences ?? null;
 
         return view('pages.profile', compact('user', 'preferences'));
@@ -26,7 +26,7 @@ class ProfileController extends Controller
      */
     public function edit(): View
     {
-        $user = Auth::user();
+        $user = Auth::user()->load(['subscription.subscriptionType', 'preferences']);
         $preferences = $user->preferences ?? null;
 
         return view('pages.profile', compact('user', 'preferences'));
