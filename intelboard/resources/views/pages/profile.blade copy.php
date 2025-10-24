@@ -1,0 +1,498 @@
+@extends('layouts.master')
+
+@section('styles')
+@endsection
+
+@section('content')
+    <!-- Profile Header -->
+    <div class="page-header-breadcrumb mb-3">
+        <div class="d-flex align-center justify-content-between flex-wrap">
+            <h1 class="page-title fw-medium fs-18 mb-0">{{ __('messages.profile') }}</h1>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ route('index') }}">{{ __('messages.dashboard_menu') }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ __('messages.profile') }}</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-xl-3">
+            <div class="card custom-card">
+                <div class="card-body text-center p-4">
+                    <span class="avatar avatar-xxl avatar-rounded">
+                        <img src="/assets/images/faces/9.jpg" alt="" id="profile-img">
+                        <span class="badge rounded-pill bg-primary avatar-badge">
+                            <input type="file" name="photo" class="position-absolute w-100 h-100 op-0"
+                                id="profile-change">
+                            <i class="fe fe-camera"></i>
+                        </span>
+                    </span>
+                    <h6 class="fw-semibold mt-3 mb-1">Jhon Doe</h6>
+                    <span class="d-block fs-13 tex-muted">jhondoe3125@gmail.com</span>
+                    <div class="btn-list mt-3">
+                        <button class="btn btn-sm btn-w-sm btn-primary">Edit</button>
+                        <button class="btn btn-sm btn-w-sm btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card custom-card">
+                <div class="card-body">
+                    <ul class="nav nav-tabs flex-column nav-tabs-header mb-0 mail-sesttings-tab" role="tablist">
+                        <li class="nav-item m-1">
+                            <a class="nav-link active" data-bs-toggle="tab" role="tab" aria-current="page"
+                                href="#personal-info" aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                    <rect width="256" height="256" fill="none" />
+                                    <path
+                                        d="M216,48H40a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H216a8,8,0,0,0,8-8V56A8,8,0,0,0,216,48ZM96,144a24,24,0,1,1,24-24A24,24,0,0,1,96,144Z"
+                                        opacity="0.2" />
+                                    <line x1="152" y1="112" x2="192" y2="112" fill="none"
+                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="16" />
+                                    <line x1="152" y1="144" x2="192" y2="144" fill="none"
+                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="16" />
+                                    <rect x="32" y="48" width="192" height="160" rx="8" fill="none"
+                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="16" />
+                                    <circle cx="96" cy="120" r="24" fill="none" stroke="currentColor"
+                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                                    <path d="M64,168c3.55-13.8,17.09-24,32-24s28.46,10.19,32,24" fill="none"
+                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="16" />
+                                </svg>
+                                Personal Information</a>
+                        </li>
+                        <li class="nav-item m-1">
+                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
+                                href="#account-settings" aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                    <rect width="256" height="256" fill="none" />
+                                    <path
+                                        d="M207.86,123.18l16.78-21a99.14,99.14,0,0,0-10.07-24.29l-26.7-3a81,81,0,0,0-6.81-6.81l-3-26.71a99.43,99.43,0,0,0-24.3-10l-21,16.77a81.59,81.59,0,0,0-9.64,0l-21-16.78A99.14,99.14,0,0,0,77.91,41.43l-3,26.7a81,81,0,0,0-6.81,6.81l-26.71,3a99.43,99.43,0,0,0-10,24.3l16.77,21a81.59,81.59,0,0,0,0,9.64l-16.78,21a99.14,99.14,0,0,0,10.07,24.29l26.7,3a81,81,0,0,0,6.81,6.81l3,26.71a99.43,99.43,0,0,0,24.3,10l21-16.77a81.59,81.59,0,0,0,9.64,0l21,16.78a99.14,99.14,0,0,0,24.29-10.07l3-26.7a81,81,0,0,0,6.81-6.81l26.71-3a99.43,99.43,0,0,0,10-24.3l-16.77-21A81.59,81.59,0,0,0,207.86,123.18ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"
+                                        opacity="0.2" />
+                                    <circle cx="128" cy="128" r="40" fill="none" stroke="currentColor"
+                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                                    <path
+                                        d="M41.43,178.09A99.14,99.14,0,0,1,31.36,153.8l16.78-21a81.59,81.59,0,0,1,0-9.64l-16.77-21a99.43,99.43,0,0,1,10.05-24.3l26.71-3a81,81,0,0,1,6.81-6.81l3-26.7A99.14,99.14,0,0,1,102.2,31.36l21,16.78a81.59,81.59,0,0,1,9.64,0l21-16.77a99.43,99.43,0,0,1,24.3,10.05l3,26.71a81,81,0,0,1,6.81,6.81l26.7,3a99.14,99.14,0,0,1,10.07,24.29l-16.78,21a81.59,81.59,0,0,1,0,9.64l16.77,21a99.43,99.43,0,0,1-10,24.3l-26.71,3a81,81,0,0,1-6.81,6.81l-3,26.7a99.14,99.14,0,0,1-24.29,10.07l-21-16.78a81.59,81.59,0,0,1-9.64,0l-21,16.77a99.43,99.43,0,0,1-24.3-10l-3-26.71a81,81,0,0,1-6.81-6.81Z"
+                                        fill="none" stroke="currentColor" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="16" />
+                                </svg>
+                                Account Settings</a>
+                        </li>
+                        <li class="nav-item m-1">
+                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
+                                href="#email-settings" aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                    <rect width="256" height="256" fill="none" />
+                                    <polygon points="224 56 128 144 32 56 224 56" opacity="0.2" />
+                                    <path
+                                        d="M32,56H224a0,0,0,0,1,0,0V192a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V56A0,0,0,0,1,32,56Z"
+                                        fill="none" stroke="currentColor" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="16" />
+                                    <polyline points="224 56 128 144 32 56" fill="none" stroke="currentColor"
+                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                                </svg>
+                                Email</a>
+                        </li>
+                        <li class="nav-item m-1">
+                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page" href="#labels"
+                                aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                    <rect width="256" height="256" fill="none" />
+                                    <path
+                                        d="M42.34,138.34A8,8,0,0,1,40,132.69V40h92.69a8,8,0,0,1,5.65,2.34l99.32,99.32a8,8,0,0,1,0,11.31L153,237.66a8,8,0,0,1-11.31,0Z"
+                                        opacity="0.2" />
+                                    <path
+                                        d="M42.34,138.34A8,8,0,0,1,40,132.69V40h92.69a8,8,0,0,1,5.65,2.34l99.32,99.32a8,8,0,0,1,0,11.31L153,237.66a8,8,0,0,1-11.31,0Z"
+                                        fill="none" stroke="currentColor" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="16" />
+                                    <circle cx="84" cy="84" r="12" />
+                                </svg>
+                                Labels</a>
+                        </li>
+                        <li class="nav-item m-1">
+                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
+                                href="#notification-settings" aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                    <rect width="256" height="256" fill="none" />
+                                    <path
+                                        d="M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"
+                                        opacity="0.2" />
+                                    <path d="M96,192a32,32,0,0,0,64,0" fill="none" stroke="currentColor"
+                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                                    <path
+                                        d="M56,104a72,72,0,0,1,144,0c0,35.82,8.3,64.6,14.9,76A8,8,0,0,1,208,192H48a8,8,0,0,1-6.88-12C47.71,168.6,56,139.81,56,104Z"
+                                        fill="none" stroke="currentColor" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="16" />
+                                </svg>
+                                Notifications</a>
+                        </li>
+                        <li class="nav-item m-1">
+                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
+                                href="#security" aria-selected="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                    <rect width="256" height="256" fill="none" />
+                                    <rect x="40" y="88" width="176" height="128" rx="8" opacity="0.2" />
+                                    <rect x="40" y="88" width="176" height="128" rx="8" fill="none"
+                                        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="16" />
+                                    <circle cx="128" cy="152" r="12" />
+                                    <path d="M88,88V56a40,40,0,0,1,80,0V88" fill="none" stroke="currentColor"
+                                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                                </svg>
+                                Security</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-9">
+            <div class="card custom-card">
+                <form method="PUT" action="{{ route('profile.update-preferences') }}" id="preferencesForm">
+                    @csrf
+                    @method('PUT')
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div class="tab-pane show active p-0 border-0" id="personal-info" role="tabpanel">
+                                <div>
+                                    <div class="row gy-4 mb-4">
+                                        <div class="col-12">
+                                            <label for="name"
+                                                class="form-label">{{ __('messages.full_name') }}</label>
+                                            <input type="text" class="form-control" id="name" disabled
+                                                placeholder="{{ $user->full_name }}" value="{{ $user->full_name }}">
+                                            <small
+                                                class="text-muted">{{ __('messages.read_only') ?? 'Read only' }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="row gy-4 mb-4">
+                                        <div class="col-xl-6">
+                                            <label for="email-address"
+                                                class="form-label">{{ __('messages.login_email_label') }} :</label>
+                                            <input type="text" class="form-control" id="email-address" disabled
+                                                placeholder="{{ $user->email }}" value="{{ $user->email }}">
+                                            <small
+                                                class="text-muted">{{ __('messages.read_only') ?? 'Read only' }}</small>
+                                        </div>
+                                        <div class="col-xl-6">
+                                            <label for="phone-no" class="form-label">{{ __('messages.phone_number') }}
+                                                :</label>
+                                            <input type="text" class="form-control" id="phone-no" disabled
+                                                placeholder="{{ $user->phone_number }}"
+                                                value="{{ $user->phone_number }}">
+                                            <small
+                                                class="text-muted">{{ __('messages.read_only') ?? 'Read only' }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="row gy-4 mb-4">
+                                        <div class="col-xl-6">
+                                            <label for="language-preference"
+                                                class="form-label">{{ __('messages.language_preference') ?? 'Language Preference' }}
+                                                :</label>
+                                            <select class="form-control" id="language-preference" name="language"
+                                                required>
+                                                <option value="en" @selected(($preferences?->language ?? 'en') === 'en')>
+                                                    {{ __('messages.language_en') }}</option>
+                                                <option value="fr" @selected(($preferences?->language ?? 'en') === 'fr')>
+                                                    {{ __('messages.language_fr') }}</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-xl-6">
+                                            <label for="theme-preference"
+                                                class="form-label">{{ __('messages.theme_preference') ?? 'Theme Preference' }}
+                                                :</label>
+                                            <select class="form-control" id="theme-preference" name="theme" required>
+                                                <option value="light" @selected(($preferences?->theme ?? 'light') === 'light')>
+                                                    {{ __('messages.light_theme') ?? 'Light' }}</option>
+                                                <option value="dark" @selected(($preferences?->theme ?? 'light') === 'dark')>
+                                                    {{ __('messages.dark_theme') ?? 'Dark' }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row gy-4">
+                                        <div class="col-xl-6">
+                                            <label for="password"
+                                                class="form-label">{{ __('messages.current_password') }}
+                                                :</label>
+                                            <input type="password" class="form-control" id="password"
+                                                placeholder="••••••••••••">
+                                        </div>
+                                        <div class="col-xl-6">
+                                            <label for="newpassword" class="form-label">{{ __('messages.new_password') }}
+                                                :</label>
+                                            <input type="password" class="form-control" id="newpassword"
+                                                placeholder="••••••••••••">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane border-0 p-0" id="account-settings" role="tabpanel">
+                                <div class="row gy-3">
+                                    <div class="col-xxl-7">
+                                        <div class="card custom-card shadow-none mb-0 border">
+                                            <div class="card-body">
+                                                <div
+                                                    class="d-sm-flex d-block align-items-top mb-4 justify-content-between">
+                                                    <div class="w-75">
+                                                        <p class="fs-14 mb-1 fw-medium">Two Step Verification</p>
+                                                        <p class="fs-13 text-muted mb-0">Two step verificatoin is very
+                                                            secured and restricts in happening faulty practices.</p>
+                                                    </div>
+                                                    <div class="toggle toggle-primary on mb-0" id="two-step-verification">
+                                                        <span></span>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="d-sm-flex d-block align-items-top mb-4 justify-content-between">
+                                                    <div class="mb-sm-0 mb-2 w-75">
+                                                        <p class="fs-14 mb-2 fw-medium">Authentication</p>
+                                                        <div class="mb-0 authentication-btn-group">
+                                                            <div class="btn-group" role="group"
+                                                                aria-label="Basic radio toggle button group">
+                                                                <input type="radio" class="btn-check" name="btnradio"
+                                                                    id="btnradio1" checked="">
+                                                                <label class="btn btn-outline-light" for="btnradio1"><i
+                                                                        class="ri-lock-unlock-line me-2 d-inline-block"></i>Pin</label>
+                                                                <input type="radio" class="btn-check" name="btnradio"
+                                                                    id="btnradio2">
+                                                                <label class="btn btn-outline-light" for="btnradio2"><i
+                                                                        class="ri-lock-password-line me-2 d-inline-block"></i>Password</label>
+                                                                <input type="radio" class="btn-check" name="btnradio"
+                                                                    id="btnradio3">
+                                                                <label class="btn btn-outline-light" for="btnradio3"><i
+                                                                        class="ri-fingerprint-line me-2 d-inline-block"></i>Finger
+                                                                    Print</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="toggle toggle-primary on mb-0 ms-0 mt-sm-0 mt-2"
+                                                        id="authentication">
+                                                        <span></span>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="d-sm-flex d-block align-items-top mb-4 justify-content-between">
+                                                    <div class="w-75">
+                                                        <p class="fs-14 mb-1 fw-medium">Recovery Mail</p>
+                                                        <p class="fs-13 text-muted mb-0">Incase of forgetting password
+                                                            mails are sent to heifo@gmail.com</p>
+                                                    </div>
+                                                    <div class="toggle toggle-primary on mb-0 ms-0 mt-sm-0 mt-2"
+                                                        id="recovery-mail">
+                                                        <span></span>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="d-sm-flex d-block align-items-top mb-4 justify-content-between">
+                                                    <div>
+                                                        <p class="fs-14 mb-1 fw-medium">SMS Recovery</p>
+                                                        <p class="fs-13 text-muted mb-0">SMS are sent to 9102312xx in case
+                                                            of recovery</p>
+                                                    </div>
+                                                    <div class="toggle toggle-primary on mb-0 ms-0 mt-sm-0 mt-2"
+                                                        id="sms-recovery">
+                                                        <span></span>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-top justify-content-between">
+                                                    <div>
+                                                        <p class="fs-14 mb-1 fw-medium">Reset Password</p>
+                                                        <p class="fs-13 text-muted">Password should be min of <b
+                                                                class="text-success">8 digits<sup>*</sup></b>,atleast <b
+                                                                class="text-success">One Capital letter<sup>*</sup></b> and
+                                                            <b class="text-success">One Special Character<sup>*</sup></b>
+                                                            included.</p>
+                                                        <div class="mb-2">
+                                                            <label for="current-password" class="form-label">Current
+                                                                Password</label>
+                                                            <input type="text" class="form-control"
+                                                                id="current-password" placeholder="Current Password">
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label for="new-password" class="form-label">New
+                                                                Password</label>
+                                                            <input type="text" class="form-control" id="new-password"
+                                                                placeholder="New Password">
+                                                        </div>
+                                                        <div class="mb-0">
+                                                            <label for="confirm-password" class="form-label">Confirm
+                                                                Password</label>
+                                                            <input type="text" class="form-control"
+                                                                id="confirm-password" placeholder="Confirm Password">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xxl-5">
+                                        <div class="card custom-card shadow-none mb-0 border">
+                                            <div class="card-header justify-content-between d-sm-flex d-block">
+                                                <div class="card-title">Registered Devices</div>
+                                                <div class="mt-sm-0 mt-2">
+                                                    <button class="btn btn-sm btn-primary">Signout from all
+                                                        devices</button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <ul class="list-group">
+                                                    <li class="list-group-item">
+                                                        <div class="d-sm-flex d-block align-items-top">
+                                                            <div class="lh-1 mb-sm-0 mb-2"><i
+                                                                    class="bi bi-phone me-3 fs-16 align-middle text-muted"></i>
+                                                            </div>
+                                                            <div class="lh-1 flex-fill">
+                                                                <p class="mb-1">
+                                                                    <span class="fw-medium">Mobile-LG-1023</span>
+                                                                </p>
+                                                                <p class="mb-0">
+                                                                    <span class="text-muted fs-13">Manchester, UK-Nov 30,
+                                                                        04:45PM</span>
+                                                                </p>
+                                                            </div>
+                                                            <div class="dropdown mt-sm-0 mt-2">
+                                                                <a href="javascript:void(0);"
+                                                                    class="btn btn-icon btn-sm btn-light"
+                                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="fe fe-more-vertical"></i>
+                                                                </a>
+                                                                <ul class="dropdown-menu">
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Action</a></li>
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Another action</a>
+                                                                    </li>
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Something else
+                                                                            here</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <div class="d-sm-flex d-block align-items-top">
+                                                            <div class="lh-1 mb-sm-0 mb-2"><i
+                                                                    class="bi bi-laptop me-3 fs-16 align-middle text-muted"></i>
+                                                            </div>
+                                                            <div class="lh-1 flex-fill">
+                                                                <p class="mb-1">
+                                                                    <span class="fw-medium">Lenovo-1291203</span>
+                                                                </p>
+                                                                <p class="mb-0">
+                                                                    <span class="text-muted fs-13">England, UK-Aug 12,
+                                                                        12:25PM</span>
+                                                                </p>
+                                                            </div>
+                                                            <div class="dropdown mt-sm-0 mt-2">
+                                                                <a href="javascript:void(0);"
+                                                                    class="btn btn-icon btn-sm btn-light"
+                                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="fe fe-more-vertical"></i>
+                                                                </a>
+                                                                <ul class="dropdown-menu">
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Action</a></li>
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Another action</a>
+                                                                    </li>
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Something else
+                                                                            here</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <div class="d-sm-flex d-block align-items-top">
+                                                            <div class="lh-1 mb-sm-0 mb-2"><i
+                                                                    class="bi bi-laptop me-3 fs-16 align-middle text-muted"></i>
+                                                            </div>
+                                                            <div class="lh-1 flex-fill">
+                                                                <p class="mb-1">
+                                                                    <span class="fw-medium">Macbook-Suzika</span>
+                                                                </p>
+                                                                <p class="mb-0">
+                                                                    <span class="text-muted fs-13">Brightoon, UK-Jul 18,
+                                                                        8:34AM</span>
+                                                                </p>
+                                                            </div>
+                                                            <div class="dropdown mt-sm-0 mt-2">
+                                                                <a href="javascript:void(0);"
+                                                                    class="btn btn-icon btn-sm btn-light"
+                                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="fe fe-more-vertical"></i>
+                                                                </a>
+                                                                <ul class="dropdown-menu">
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Action</a></li>
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Another action</a>
+                                                                    </li>
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Something else
+                                                                            here</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <div class="d-sm-flex d-block align-items-top">
+                                                            <div class="lh-1 mb-sm-0 mb-2"><i
+                                                                    class="bi bi-pc-display-horizontal me-3 fs-16 align-middle text-muted"></i>
+                                                            </div>
+                                                            <div class="lh-1 flex-fill">
+                                                                <p class="mb-1">
+                                                                    <span class="fw-medium">Apple-Desktop</span>
+                                                                </p>
+                                                                <p class="mb-0">
+                                                                    <span class="text-muted fs-13">Darlington, UK-Jan 14,
+                                                                        11:14AM</span>
+                                                                </p>
+                                                            </div>
+                                                            <div class="dropdown mt-sm-0 mt-2">
+                                                                <a href="javascript:void(0);"
+                                                                    class="btn btn-icon btn-sm btn-light"
+                                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="fe fe-more-vertical"></i>
+                                                                </a>
+                                                                <ul class="dropdown-menu">
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Action</a></li>
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Another action</a>
+                                                                    </li>
+                                                                    <li><a class="dropdown-item"
+                                                                            href="javascript:void(0);">Something else
+                                                                            here</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Other tabs remain commented --}}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="float-end">
+                            <button type="submit" class="btn btn-primary label-btn label-end">
+                                {{ __('messages.save_changes') ?? 'Save changes' }}
+                                <i class="ri-save-fill label-btn-icon ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+@endsection
