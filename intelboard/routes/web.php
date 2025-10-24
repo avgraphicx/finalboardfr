@@ -11,6 +11,8 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\PaymentController;
 
 /******** Authentication Routes (Unprotected) ********/
 
@@ -69,6 +71,18 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('invoices', InvoiceController::class);
     Route::post('invoices/{invoice}/mark-paid', [InvoiceController::class, 'markPaid'])->name('invoices.mark-paid');
     Route::post('invoices/mark-paid-bulk', [InvoiceController::class, 'markPaidBulk'])->name('invoices.mark-paid-bulk');
+
+    /******** Expenses Management ********/
+    Route::resource('expenses', ExpenseController::class);
+
+    /******** Payments (Legacy Import Feature) ********/
+    Route::get('payments', [PaymentController::class, 'importForm'])->name('payments.importForm');
+    Route::get('payments/import', [PaymentController::class, 'importForm'])->name('payments.importForm');
+    Route::post('payments/preview', [PaymentController::class, 'previewBatch'])->name('payments.previewBatch');
+    Route::post('payments/import-batch', [PaymentController::class, 'importBatch'])->name('payments.importBatch');
+    Route::post('payments/mark-paid-bulk', [PaymentController::class, 'markPaidBulk'])->name('payments.markPaidBulk');
+    Route::post('payments/{payment}/mark-paid', [PaymentController::class, 'markPaid'])->name('payments.markPaid');
+    Route::post('payments/check-exists', [PaymentController::class, 'checkExists'])->name('payments.checkExists');
 
     /******** Statistics & Analytics ********/
     Route::get('stats/weekly', [StatsController::class, 'index'])->name('stats.weekly');
