@@ -62,9 +62,13 @@ class PaymentImportService
         $snapshot = $this->composeSnapshot($driver, $extraction);
         $storedPdfPath = $pdf->store('payments', 'public');
 
+        // Extract week number from "YYYY-WW" format
+        $weekParts = explode('-', $weekIdentifier);
+        $weekNum = isset($weekParts[1]) ? (int)$weekParts[1] : (int)$weekIdentifier;
+
         Invoice::create([
             'driver_id' => $driver->id,
-            'week_number' => $weekIdentifier,
+            'week_number' => $weekNum,
             'warehouse_name' => $snapshot['warehouse'],
             'invoice_total' => $snapshot['total_invoice'],
             'total_parcels' => $snapshot['total_parcels'],
@@ -244,9 +248,13 @@ class PaymentImportService
                 }
 
                 // Create invoice
+                // Extract week number from "YYYY-WW" format
+                $weekParts = explode('-', $snapshot['week_number']);
+                $weekNum = isset($weekParts[1]) ? (int)$weekParts[1] : (int)$snapshot['week_number'];
+
                 Invoice::create([
                     'driver_id' => $dbDriverId,
-                    'week_number' => $snapshot['week_number'],
+                    'week_number' => $weekNum,
                     'warehouse_name' => $snapshot['warehouse'],
                     'invoice_total' => $snapshot['total_invoice'],
                     'total_parcels' => $snapshot['total_parcels'],
