@@ -230,8 +230,18 @@ class PaymentImportService
             \Log::info("=== Processing key: $key ===");
 
             $entry = $cache['items'][$key] ?? null;
+
+            \Log::info("Entry status", [
+                'key' => $key,
+                'entry_exists' => $entry !== null,
+                'entry_keys' => $entry ? array_keys($entry) : null,
+                'can_import' => $entry['can_import'] ?? null,
+            ]);
+
             if (!$entry || empty($entry['can_import'])) {
-                \Log::warning("Skipping key $key - entry missing or cannot import");
+                \Log::warning("Skipping key $key - entry missing or cannot import", [
+                    'entry' => $entry,
+                ]);
                 $failed++;
                 continue;
             }
@@ -291,6 +301,7 @@ class PaymentImportService
                 \Log::error('Failed to import payment from batch', [
                     'key' => $key,
                     'error' => $e->getMessage(),
+                    'error_class' => get_class($e),
                     'trace' => $e->getTraceAsString(),
                 ]);
                 $failed++;
