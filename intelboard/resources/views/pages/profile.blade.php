@@ -47,7 +47,7 @@
                     </span>
                 </div>
             </div>
-            {{-- <div class="card custom-card">
+            <div class="card custom-card">
                 <div class="card-body">
                     <ul class="nav nav-tabs flex-column nav-tabs-header mb-0 mail-sesttings-tab" role="tablist">
                         <li class="nav-item m-1">
@@ -95,7 +95,7 @@
                         <!-- Other commented tabs remain here -->
                     </ul>
                 </div>
-            </div> --}}
+            </div>
         </div>
 
         <div class="col-xl-9">
@@ -123,6 +123,30 @@
                                             :</label>
                                         <input type="text" class="form-control" id="phone-no"
                                             placeholder="{{ $user->phone_number }}" value="{{ $user->phone_number }}">
+                                    </div>
+                                </div>
+                                <div class="row gy-4 mb-4">
+                                    <div class="col-xl-6">
+                                        <label for="language-preference"
+                                            class="form-label">{{ __('messages.language_preference') ?? 'Language Preference' }}
+                                            :</label>
+                                        <select class="form-control" id="language-preference" name="language">
+                                            <option value="en" @selected(($preferences?->language ?? 'en') === 'en')>
+                                                {{ __('messages.language_en') }}</option>
+                                            <option value="fr" @selected(($preferences?->language ?? 'en') === 'fr')>
+                                                {{ __('messages.language_fr') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label for="theme-preference"
+                                            class="form-label">{{ __('messages.theme_preference') ?? 'Theme Preference' }}
+                                            :</label>
+                                        <select class="form-control" id="theme-preference" name="theme">
+                                            <option value="light" @selected(($preferences?->theme ?? 'light') === 'light')>
+                                                {{ __('messages.light_theme') ?? 'Light' }}</option>
+                                            <option value="dark" @selected(($preferences?->theme ?? 'light') === 'dark')>
+                                                {{ __('messages.dark_theme') ?? 'Dark' }}</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="row gy-4">

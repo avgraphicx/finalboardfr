@@ -42,6 +42,10 @@ return [
     */
     'language_en'           => 'English',
     'language_fr'           => 'Français',
+    'language_preference'   => 'Préférence de langue',
+    'theme_preference'      => 'Préférence de thème',
+    'light_theme'           => 'Clair',
+    'dark_theme'            => 'Sombre',
 
     /*
     |--------------------------------------------------------------------------
