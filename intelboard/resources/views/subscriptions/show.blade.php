@@ -1,0 +1,14 @@
+@extends('layouts.master')
+
+@section('content')
+    <a href="{{ route('subscriptions.index') }}" class="btn btn-secondary">{{ __('messages.back') }}</a>
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5>{{ __('messages.subscription') ?? 'Subscription' }}</h5>
+            <p>{{ __('messages.broker') ?? 'Broker' }}: {{ $subscription->broker->full_name }}</p>
+            <p>{{ __('messages.type') ?? 'Type' }}: {{ $subscription->subscriptionType->name }}</p>
+            <p>{{ __('messages.status') ?? 'Status' }}: {{ $subscription->stripe_status }}</p>
+            <p>{{ __('messages.ends_at') ?? 'Ends At' }}: {{ $subscription->ends_at?->format('Y-m-d') }}</p>
+        </div>
+    </div>
+@endsection

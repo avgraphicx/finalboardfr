@@ -18,7 +18,7 @@ class ProfileController extends Controller
         $user = Auth::user();
         $preferences = $user->preferences ?? null;
 
-        return view('profile.show', compact('user', 'preferences'));
+        return view('pages.profile', compact('user', 'preferences'));
     }
 
     /**
@@ -29,7 +29,7 @@ class ProfileController extends Controller
         $user = Auth::user();
         $preferences = $user->preferences ?? null;
 
-        return view('profile.edit', compact('user', 'preferences'));
+        return view('pages.profile', compact('user', 'preferences'));
     }
 
     /**
@@ -75,7 +75,7 @@ class ProfileController extends Controller
      */
     public function editPassword(): View
     {
-        return view('profile.edit-password');
+        return view('pages.profile');
     }
 
     /**
@@ -112,6 +112,6 @@ class ProfileController extends Controller
             ->orderByDesc('login_at')
             ->paginate(15);
 
-        return view('profile.login-activity', compact('activities'));
+        return view('pages.profile', compact('activities'));
     }
 }
