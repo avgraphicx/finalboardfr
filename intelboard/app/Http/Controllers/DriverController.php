@@ -62,6 +62,7 @@ class DriverController extends Controller
                 'id' => $driver->id,
                 'driver_id' => $driver->driver_id,
                 'full_name' => $driver->full_name,
+                'phone_number' => $driver->phone_number,
                 'license_number' => $driver->license_number,
                 'ssn' => $driver->ssn,
                 'active' => $driver->active,
@@ -95,6 +96,7 @@ class DriverController extends Controller
         $validated = $request->validate([
             'driver_id' => ['required', 'string', 'max:50', Rule::unique('drivers', 'driver_id')],
             'full_name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string|max:20',
             'license_number' => 'nullable|string|max:50',
             'ssn' => 'nullable|string|max:50',
             'default_percentage' => 'nullable|numeric|min:0|max:100',
@@ -138,6 +140,7 @@ class DriverController extends Controller
         $validated = $request->validate([
             'driver_id' => ['required', 'string', 'max:50', Rule::unique('drivers', 'driver_id')->ignore($driver->id)],
             'full_name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string|max:20',
             'license_number' => 'nullable|string|max:50',
             'ssn' => 'nullable|string|max:50',
             'default_percentage' => 'nullable|numeric|min:0|max:100',
