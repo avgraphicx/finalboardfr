@@ -111,14 +111,14 @@
                                             value="{{ $i['key'] }}" checked>
                                         <div class="d-flex flex-column">
                                             <strong>{{ $i['driver_id'] }} — {{ $i['driver_full_name'] }}</strong>
-                                            <small class="text-muted">{{ __('messages.week') }}: {{ $i['week_number'] }} •
-                                                {{ __('messages.file') }}: {{ $i['file_name'] }}</small>
+                                            <small class="text-muted">{{ __('messages.week') }}:
+                                                {{ $i['week_number'] }}</small>
                                             <small class="text-muted">Warehouse: {{ $i['warehouse'] ?? 'N/A' }}</small>
                                             <small class="text-muted">{{ __('messages.total_invoice') }}:
                                                 {{ number_format($i['total_invoice'] ?? 0, 2) }} •
                                                 {{ __('messages.total_parcels') }}: {{ $i['total_parcels'] ?? 0 }} •
-                                                {{ __('messages.final_amount') }}:
-                                                {{ number_format($i['final_amount'] ?? 0, 2) }}</small>
+                                                {{ __('messages.daysworked') }}:
+                                                {{ $i['parcel_rows_count'] ?? 'N/A' }}</small>
                                         </div>
                                     </label>
                                 @endforeach
