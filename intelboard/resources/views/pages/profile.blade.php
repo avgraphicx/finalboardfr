@@ -37,9 +37,9 @@
                     </span>
                     <h6 class="fw-semibold mt-3 mb-1">{{ $user->full_name }}</h6>
                     <span class="d-block fs-13 tex-muted">{{ __('messages.subscription') }} :
-                        {{ currentUser()->subscription_type->name }}</span>
+                        {{ optional(currentUser()->subscription)->subscriptionType->name ?? 'None' }}</span>
                     <span class="d-block fs-13 text-muted">{{ __('messages.until') }} :
-                        {{ optional(currentUser()->subscription)->ends_at }}</span>
+                        {{ optional(currentUser()->subscription)->ends_at ?? 'N/A' }}</span>
                 </div>
             </div>
             {{-- <div class="card custom-card">

@@ -11,3 +11,5 @@ This project uses **Laravel + Blade** templates.
 5. Keep code clean, production-ready, and mobile-friendly.
 6. Avoid adding custom workarounds unless explicitly requested.
 7. Never modify `.env` or sensitive credentials.
+   Dont use php artisan serve, this is a vps server the app is viewed through https://intelboard.ca/
+8. Ensure all routes are properly registered in `routes/web.php`.

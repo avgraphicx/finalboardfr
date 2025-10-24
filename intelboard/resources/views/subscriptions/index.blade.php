@@ -29,8 +29,8 @@
                                 <tbody>
                                     @foreach ($subscriptions as $sub)
                                         <tr>
-                                            <td>{{ $sub->broker->full_name }}</td>
-                                            <td>{{ $sub->subscriptionType->name }}</td>
+                                            <td>{{ optional($sub->broker)->full_name ?? 'Unknown' }}</td>
+                                            <td>{{ optional($sub->subscriptionType)->name ?? 'Unknown' }}</td>
                                             <td>{{ $sub->stripe_status }}</td>
                                             <td>{{ $sub->ends_at?->format('Y-m-d') }}</td>
                                             <td>
