@@ -23,7 +23,10 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <small class="text-muted">{{ __('messages.driver') }}</small>
-                            <p class="fw-semibold">{{ $invoice->driver->full_name ?? 'N/A' }}</p>
+                            <p class="fw-semibold">
+                                <span class="badge bg-primary me-2">{{ $invoice->driver->driver_id ?? 'N/A' }}</span>
+                                {{ $invoice->driver->full_name ?? 'N/A' }}
+                            </p>
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">{{ __('messages.week') }}</small>
