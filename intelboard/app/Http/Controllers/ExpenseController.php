@@ -13,7 +13,7 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        $brokerId = Auth::user()->broker->id;
+        $brokerId = Auth::id();
         $expenses = Expense::where('broker_id', $brokerId)->paginate(15);
         return view('pages.expenses.index', compact('expenses'));
     }
@@ -38,7 +38,7 @@ class ExpenseController extends Controller
             'for'       => 'required|string|max:255',
             'note'      => 'nullable|string',
         ]);
-        $data['broker_id'] = Auth::user()->broker->id;
+        $data['broker_id'] = Auth::id();
         Expense::create($data);
         return redirect()->route('expenses.index')->with('success', 'Expense created.');
     }

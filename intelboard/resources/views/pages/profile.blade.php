@@ -39,7 +39,7 @@
                     <span class="d-block fs-13 tex-muted">{{ __('messages.subscription') }} :
                         {{ currentUser()->subscription_type->name }}</span>
                     <span class="d-block fs-13 text-muted">{{ __('messages.until') }} :
-                        {{ optional(currentUser()->broker->subscription)->ends_at }}</span>
+                        {{ optional(currentUser()->subscription)->ends_at }}</span>
                 </div>
             </div>
             {{-- <div class="card custom-card">
