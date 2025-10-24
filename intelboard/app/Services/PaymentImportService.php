@@ -5,7 +5,7 @@ namespace App\Services;
 use App\DataTransferObjects\PaymentExtraction;
 use App\Exceptions\PaymentImportException;
 use App\Models\Driver;
-use App\Models\Payment;
+use App\Models\Invoice;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -62,20 +62,19 @@ class PaymentImportService
         $snapshot = $this->composeSnapshot($driver, $extraction);
         $storedPdfPath = $pdf->store('payments', 'public');
 
-        Payment::create([
+        Invoice::create([
             'driver_id' => $driver->id,
             'week_number' => $weekIdentifier,
-            'warehouse' => $snapshot['warehouse'],
-            'total_invoice' => $snapshot['total_invoice'],
+            'warehouse_name' => $snapshot['warehouse'],
+            'invoice_total' => $snapshot['total_invoice'],
             'total_parcels' => $snapshot['total_parcels'],
-            'parcel_rows_count' => $snapshot['parcel_rows_count'],
-            'vehicule_rental_price' => $snapshot['vehicule_rental_price'],
-            'broker_percentage' => $snapshot['broker_percentage'],
-            'broker_van_cut' => $snapshot['broker_van_cut'],
-            'broker_pay_cut' => $snapshot['broker_pay_cut'],
+            'days_worked' => $snapshot['parcel_rows_count'],
+            'vehicle_rental_price' => $snapshot['vehicule_rental_price'],
+            'driver_percentage' => $snapshot['broker_percentage'],
             'bonus' => 0,
             'cash_advance' => 0,
-            'final_amount' => $snapshot['final_amount'],
+            'penalty' => 0,
+            'amount_to_pay_driver' => $snapshot['final_amount'],
             'pdf_path' => $storedPdfPath,
         ]);
 
@@ -137,9 +136,9 @@ class PaymentImportService
                     $seenKeys[$key] = true;
 
                     // Check DB duplicate WITH warehouse
-                    $exists = Payment::where('driver_id', $driver->id)
+                    $exists = Invoice::where('driver_id', $driver->id)
                         ->where('week_number', $extraction->weekIdentifier())
-                        ->where('warehouse', $snapshot['warehouse'])
+                        ->where('warehouse_name', $snapshot['warehouse'])
                         ->exists();
                     if ($exists) {
                         $status = 'duplicate_in_db';
@@ -244,21 +243,20 @@ class PaymentImportService
                     fclose($stream);
                 }
 
-                // Create payment
-                Payment::create([
+                // Create invoice
+                Invoice::create([
                     'driver_id' => $dbDriverId,
                     'week_number' => $snapshot['week_number'],
-                    'warehouse' => $snapshot['warehouse'],
-                    'total_invoice' => $snapshot['total_invoice'],
+                    'warehouse_name' => $snapshot['warehouse'],
+                    'invoice_total' => $snapshot['total_invoice'],
                     'total_parcels' => $snapshot['total_parcels'],
-                    'parcel_rows_count' => $snapshot['parcel_rows_count'],
-                    'vehicule_rental_price' => $snapshot['vehicule_rental_price'],
-                    'broker_percentage' => $snapshot['broker_percentage'],
-                    'broker_van_cut' => $snapshot['broker_van_cut'],
-                    'broker_pay_cut' => $snapshot['broker_pay_cut'],
+                    'days_worked' => $snapshot['parcel_rows_count'],
+                    'vehicle_rental_price' => $snapshot['vehicule_rental_price'],
+                    'driver_percentage' => $snapshot['broker_percentage'],
                     'bonus' => 0,
                     'cash_advance' => 0,
-                    'final_amount' => $snapshot['final_amount'],
+                    'penalty' => 0,
+                    'amount_to_pay_driver' => $snapshot['final_amount'],
                     'pdf_path' => $publicPath,
                 ]);
 
@@ -303,9 +301,9 @@ class PaymentImportService
 
     private function guardAgainstDuplicate(int $driverId, PaymentExtraction $extraction): void
     {
-        $exists = Payment::where('driver_id', $driverId)
+        $exists = Invoice::where('driver_id', $driverId)
             ->where('week_number', $extraction->weekIdentifier())
-            ->where('warehouse', $extraction->warehouse)
+            ->where('warehouse_name', $extraction->warehouse)
             ->exists();
 
         if ($exists) {
