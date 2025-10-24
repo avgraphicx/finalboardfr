@@ -33,9 +33,9 @@
                             <label for="invoice_total"
                                 class="form-label">{{ __('messages.invoice_total') ?? 'Invoice Total' }} <span
                                     class="text-danger">*</span></label>
-                            <input type="number" step="0.01"
-                                class="form-control @error('invoice_total') is-invalid @enderror" id="invoice_total"
-                                name="invoice_total" value="{{ old('invoice_total', $invoice->invoice_total) }}" required>
+                            <input type="number" class="form-control @error('invoice_total') is-invalid @enderror"
+                                id="invoice_total" name="invoice_total"
+                                value="{{ old('invoice_total', (int) $invoice->invoice_total) }}" required>
                             @error('invoice_total')
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
@@ -71,10 +71,10 @@
                             <div class="col-md-6 mb-3">
                                 <label for="vehicle_rental_price"
                                     class="form-label">{{ __('messages.vehicle_rental_price') ?? 'Vehicle Rental Price' }}</label>
-                                <input type="number" step="0.01"
+                                <input type="number"
                                     class="form-control @error('vehicle_rental_price') is-invalid @enderror"
                                     id="vehicle_rental_price" name="vehicle_rental_price"
-                                    value="{{ old('vehicle_rental_price', $invoice->vehicle_rental_price) }}">
+                                    value="{{ old('vehicle_rental_price', (int) $invoice->vehicle_rental_price) }}">
                                 @error('vehicle_rental_price')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -84,10 +84,9 @@
                                 <label for="driver_percentage"
                                     class="form-label">{{ __('messages.driver_percentage') ?? 'Driver %' }} <span
                                         class="text-danger">*</span></label>
-                                <input type="number" step="0.01"
-                                    class="form-control @error('driver_percentage') is-invalid @enderror"
+                                <input type="number" class="form-control @error('driver_percentage') is-invalid @enderror"
                                     id="driver_percentage" name="driver_percentage"
-                                    value="{{ old('driver_percentage', $invoice->driver_percentage) }}" required>
+                                    value="{{ old('driver_percentage', (int) $invoice->driver_percentage) }}" required>
                                 @error('driver_percentage')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -97,9 +96,8 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="bonus" class="form-label">{{ __('messages.bonus') ?? 'Bonus' }}</label>
-                                <input type="number" step="0.01"
-                                    class="form-control @error('bonus') is-invalid @enderror" id="bonus" name="bonus"
-                                    value="{{ old('bonus', $invoice->bonus) }}">
+                                <input type="number" class="form-control @error('bonus') is-invalid @enderror"
+                                    id="bonus" name="bonus" value="{{ old('bonus', (int) $invoice->bonus) }}">
                                 @error('bonus')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -108,9 +106,9 @@
                             <div class="col-md-6 mb-3">
                                 <label for="cash_advance"
                                     class="form-label">{{ __('messages.cash_advance') ?? 'Cash Advance' }}</label>
-                                <input type="number" step="0.01"
-                                    class="form-control @error('cash_advance') is-invalid @enderror" id="cash_advance"
-                                    name="cash_advance" value="{{ old('cash_advance', $invoice->cash_advance) }}">
+                                <input type="number" class="form-control @error('cash_advance') is-invalid @enderror"
+                                    id="cash_advance" name="cash_advance"
+                                    value="{{ old('cash_advance', (int) $invoice->cash_advance) }}">
                                 @error('cash_advance')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -120,9 +118,8 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="penalty" class="form-label">{{ __('messages.penalty') ?? 'Penalty' }}</label>
-                                <input type="number" step="0.01"
-                                    class="form-control @error('penalty') is-invalid @enderror" id="penalty"
-                                    name="penalty" value="{{ old('penalty', $invoice->penalty) }}">
+                                <input type="number" class="form-control @error('penalty') is-invalid @enderror"
+                                    id="penalty" name="penalty" value="{{ old('penalty', (int) $invoice->penalty) }}">
                                 @error('penalty')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror

@@ -157,10 +157,11 @@
                                                         <i class="ri-check-line"></i>
                                                     </button>
                                                 @else
-                                                    <button class="btn btn-icon btn-sm btn-warning mark-unpaid-btn"
+                                                    <button
+                                                        class="btn btn-icon btn-sm btn-teal-gradient btn-wave mark-unpaid-btn"
                                                         data-invoice-id="{{ $invoice->id }}"
                                                         title="{{ __('messages.btn_mark_unpaid') }}">
-                                                        <i class="ri-close-line"></i>
+                                                        <i class="ri-refresh-line"></i>
                                                     </button>
                                                 @endif
                                             </div>
