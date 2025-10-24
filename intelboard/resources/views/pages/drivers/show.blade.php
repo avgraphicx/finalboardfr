@@ -122,7 +122,7 @@
                                         </td>
                                         <td>
                                             <span class="badge {{ $invoice->is_paid ? 'bg-success' : 'bg-danger' }}">
-                                                W{{ $invoice->week_number }}
+                                                {{ __('messages.table_week_short') }}{{ $invoice->week_number }}
                                             </span>
                                         </td>
                                         <td>${{ number_format($invoice->invoice_total, 2) }}</td>
@@ -150,7 +150,7 @@
                                                     <i class="ri-delete-bin-line"></i>
                                                 </button>
 
-                                                @if (!$invoice->paid)
+                                                @if (!$invoice->is_paid)
                                                     <button class="btn btn-icon btn-sm btn-success mark-paid-btn"
                                                         data-invoice-id="{{ $invoice->id }}"
                                                         title="{{ __('messages.btn_mark_paid') }}">

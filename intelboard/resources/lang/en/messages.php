@@ -352,6 +352,7 @@ return [
     'table_days_worked'               => 'Days',
     'table_benefit'                   => 'Benefit',
     'table_final_amount'              => 'Final Amount',
+    'table_week_short'              => 'W',
     'table_actions'                   => 'Actions',
     'btn_view'                        => 'View',
     'btn_edit'                        => 'Edit',
