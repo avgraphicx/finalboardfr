@@ -4,10 +4,13 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DriverController;
-use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\StatsController;
-use App\Models\Driver;
-use App\Models\Payment;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
 
 /******** Authentication Routes (Unprotected) ********/
 
@@ -26,7 +29,7 @@ Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback
 // Logout (POST request for security)
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-// Placeholder for registration continuation (required for Google logic)
+// Placeholder for registration completion (required for Google OAuth flow)
 Route::get('register/complete', function () {
     return view('auth.register-complete');
 })->name('register.complete');
@@ -40,41 +43,50 @@ Route::get('/lang/{locale}', function (string $locale) {
 })->name('set.locale');
 
 /******** Protected Application Routes ********/
-Route::middleware(['auth', 'role:admin,broker,supervisor'])->group(function () {
-    /******** Default Route ********/
-    // Stats page (dashboard)
-    // Route::get('/', function () {
-    //     return view('pages.empty');
-    // })->name('index');
-Route::get('/', [StatsController::class, 'index'])->name('index');
+Route::middleware(['auth'])->group(function () {
 
-    // Profile page
-    Route::get('profile', function () {
-        $user = \Illuminate\Support\Facades\Auth::user()
-            ->load(['broker.subscriptionType', 'broker.subscription']);
-        return view('pages.profile', compact('user'));
-    })->name('profile');
+    /******** Dashboard & Home ********/
+    Route::get('/', [DashboardController::class, 'index'])->name('index');
+    Route::post('/dashboard/refresh-stats', [DashboardController::class, 'refreshStats'])->name('dashboard.refresh-stats');
 
-    /******** Drivers ********/
+    /******** Profile Management ********/
+    Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('profile/password', [ProfileController::class, 'editPassword'])->name('profile.edit-password');
+    Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::put('profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.update-preferences');
+    Route::get('profile/login-activity', [ProfileController::class, 'loginActivity'])->name('profile.login-activity');
+
+    /******** Drivers Management ********/
+    Route::resource('drivers', DriverController::class);
     Route::get('drivers/data', [DriverController::class, 'getData'])->name('drivers.data');
-    Route::resource('drivers', DriverController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
     Route::delete('drivers/bulk-destroy', [DriverController::class, 'bulkDestroy'])->name('drivers.bulkDestroy');
+    Route::patch('drivers/{driver}/toggle-active', [DriverController::class, 'toggleActive'])->name('drivers.toggle-active');
+    Route::get('drivers/{driver}/earnings', [DriverController::class, 'earnings'])->name('drivers.earnings');
 
-    /******** Payments ********/
-    // Make payments.index show the Import form
-    Route::get('payments', [PaymentController::class, 'importForm'])->name('payments.index');
+    /******** Invoices Management ********/
+    Route::resource('invoices', InvoiceController::class);
+    Route::post('invoices/{invoice}/mark-paid', [InvoiceController::class, 'markPaid'])->name('invoices.mark-paid');
+    Route::post('invoices/mark-paid-bulk', [InvoiceController::class, 'markPaidBulk'])->name('invoices.mark-paid-bulk');
 
-    // Preview/Import flow (no JS business logic in Blade)
-    Route::get('payments/import', [PaymentController::class, 'importForm'])->name('payments.importForm');
-    Route::post('payments/preview', [PaymentController::class, 'previewBatch'])->name('payments.previewBatch');
-    Route::post('payments/import-batch', [PaymentController::class, 'importBatch'])->name('payments.importBatch');
+    /******** Statistics & Analytics ********/
+    Route::get('stats/weekly', [StatsController::class, 'index'])->name('stats.weekly');
+    Route::get('stats/drivers', [StatsController::class, 'driverStats'])->name('stats.drivers');
+    Route::get('stats/averages', [StatsController::class, 'averageMetrics'])->name('stats.averages');
+    Route::get('stats/earnings-by-week', [StatsController::class, 'earningsByWeek'])->name('stats.earnings-by-week');
 
-    // Custom routes
-    Route::post('payments/mark-paid-bulk', [PaymentController::class, 'markPaidBulk'])->name('payments.markPaidBulk');
-    Route::post('payments/{payment}/mark-paid', [PaymentController::class, 'markPaid'])->name('payments.markPaid');
-    Route::post('payments/check-exists', [PaymentController::class, 'checkExists'])->name('payments.checkExists');
+    /******** Admin-Only Routes ********/
+    Route::middleware(['role:admin'])->group(function () {
+        // User Management
+        Route::resource('users', UserController::class);
 
-    // Payments resource (exclude index so our custom payments.index above is used)
-    Route::resource('payments', PaymentController::class)->except(['index']);
+        // Subscription Management
+        Route::resource('subscriptions', SubscriptionController::class);
+
+        // Audit Logs
+        Route::resource('audits', AuditLogController::class)->only(['index', 'show']);
+        Route::get('audits/export/csv', [AuditLogController::class, 'export'])->name('audits.export');
+    });
 
 });

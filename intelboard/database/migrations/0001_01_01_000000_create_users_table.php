@@ -13,10 +13,19 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->string('google_id')->nullable();
             $table->string('name');
+            $table->string('full_name')->nullable(); // Kept for backwards compatibility
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable(); // Nullable for OAuth users
+            $table->string('phone_number', 50)->nullable();
+            $table->tinyInteger('role')->default(3); // 1=Admin, 2=Broker, 3=Supervisor
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->date('joining_date')->nullable();
+            $table->boolean('active')->default(true);
+            $table->string('company_name')->nullable(); // For brokers only
+            $table->string('logo')->nullable(); // File path or URL
+            $table->string('subscription_tier')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

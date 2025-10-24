@@ -2,37 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Driver extends Model
 {
-    use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'full_name',
-        'phone_number',
         'driver_id',
-        'license_number',
+        'full_name',
         'ssn',
+        'license_number',
         'default_percentage',
         'default_rental_price',
-        'added_by',
         'active',
+        'created_by',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -42,19 +28,13 @@ class Driver extends Model
         ];
     }
 
-    /**
-     * Get the user that added the driver.
-     */
-    public function addedBy(): BelongsTo
+    public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'added_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
-    /**
-     * Get all payments for this driver.
-     */
-    public function payments(): HasMany
+    public function invoices(): HasMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Invoice::class);
     }
 }

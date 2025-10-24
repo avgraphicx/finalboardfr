@@ -3,135 +3,165 @@
 namespace App\Http\Controllers;
 
 use App\Models\Driver;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class DriverController extends Controller
 {
-    // Show all drivers page
-    public function index()
+    /**
+     * Display a listing of drivers.
+     */
+    public function index(): View
     {
-        // Pass current driver count to view for max_drivers check
-        $driversCount = Driver::where('added_by', Auth::id())->count();
-        return view('pages.drivers', compact('driversCount'));
+        $drivers = Driver::where('created_by', Auth::id())
+            ->paginate(15);
+
+        return view('pages.drivers.index', compact('drivers'));
     }
 
-    // Custom paginated AJAX endpoint
-public function getData(Request $request)
-{
-    $page = $request->get('page', 1);
-    $limit = $request->get('limit', 10);
-    $search = trim($request->get('search', ''));
-    $activeOnly = $request->boolean('active_only', false); // 🆕 new flag
-    $offset = ($page - 1) * $limit;
-
-    $query = Driver::query()
-        ->with('addedBy')
-        ->where('added_by', Auth::id());
-
-    if ($activeOnly) {
-        $query->where('active', 1);
-    }
-
-    if ($search !== '') {
-        $query->where(function ($q) use ($search) {
-            $q->where('full_name', 'like', "%{$search}%")
-              ->orWhere('driver_id', 'like', "%{$search}%")
-              ->orWhere('license_number', 'like', "%{$search}%")
-              ->orWhere('phone_number', 'like', "%{$search}%")
-              ->orWhere('ssn', 'like', "%{$search}%");
-        });
-    }
-
-    $total = $query->count();
-
-    $drivers = $query->offset($offset)
-        ->limit($limit)
-        ->get();
-
-    $driversFormatted = $drivers->map(function ($driver) {
-        return [
-            'id' => $driver->id,
-            'full_name' => $driver->full_name,
-            'driver_id' => $driver->driver_id,
-            'default_percentage' => $driver->default_percentage ?? 0,
-            'default_rental_price' => $driver->default_rental_price ?? 0,
-            'added_by_name' => $driver->addedBy ? $driver->addedBy->full_name : 'N/A',
-            'active' => $driver->active,
-        ];
-    });
-
-    return response()->json([
-        'data' => $driversFormatted,
-        'total' => $total,
-        'page' => $page,
-        'limit' => $limit,
-    ]);
-}
-
-    // Add a new driver
-    public function store(Request $request)
+    /**
+     * Get paginated drivers data for AJAX/API requests.
+     */
+    public function getData(Request $request)
     {
-        try {
-            $validatedData = $this->validateDriver($request);
-            $validatedData['added_by'] = Auth::id();
-            $validatedData['active'] = 1; // default active
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', 10);
+        $search = trim($request->get('search', ''));
+        $activeOnly = $request->boolean('active_only', false);
+        $offset = ($page - 1) * $limit;
 
-            $driver = Driver::create($validatedData);
+        $query = Driver::query()
+            ->with('createdBy')
+            ->where('created_by', Auth::id());
 
-            return response()->json([
-                'success' => true,
-                'message' => __('messages.driver_added_success'),
-                'driver'  => $driver
-            ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'errors'  => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error'   => __('messages.unexpected_error')
-            ], 500);
+        if ($activeOnly) {
+            $query->where('active', true);
         }
-    }
 
-    // Show driver details
-    public function show(Driver $driver)
-    {
-        $driver->load('addedBy');
-        return view('pages.driver', compact('driver'));
-    }
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'like', "%{$search}%")
+                  ->orWhere('driver_id', 'like', "%{$search}%")
+                  ->orWhere('license_number', 'like', "%{$search}%")
+                  ->orWhere('ssn', 'like', "%{$search}%");
+            });
+        }
 
-    // Edit driver
-    public function edit(Driver $driver)
-    {
-        return response()->json($driver);
-    }
+        $total = $query->count();
 
-    // Update driver
-    public function update(Request $request, Driver $driver)
-    {
-        $validatedData = $this->validateDriver($request, $driver->id);
-        $driver->update($validatedData);
+        $drivers = $query->offset($offset)
+            ->limit($limit)
+            ->get();
+
+        $driversFormatted = $drivers->map(function ($driver) {
+            return [
+                'id' => $driver->id,
+                'driver_id' => $driver->driver_id,
+                'full_name' => $driver->full_name,
+                'license_number' => $driver->license_number,
+                'ssn' => $driver->ssn,
+                'active' => $driver->active,
+                'created_by_name' => $driver->createdBy ? $driver->createdBy->name : 'N/A',
+            ];
+        });
 
         return response()->json([
-            'success' => true,
-            'message' => __('messages.driver_updated_success'),
-            'driver'  => $driver,
-        ], 200);
+            'data' => $driversFormatted,
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit,
+        ]);
     }
 
-    // Delete single driver
-    public function destroy(Driver $driver)
+    /**
+     * Show the form for creating a new driver.
+     */
+    public function create(): View
+    {
+        return view('pages.drivers.create');
+    }
+
+    /**
+     * Store a newly created driver in storage.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'driver_id' => ['required', 'string', 'max:50', Rule::unique('drivers', 'driver_id')],
+            'full_name' => 'required|string|max:255',
+            'license_number' => 'nullable|string|max:50',
+            'ssn' => 'nullable|string|max:50',
+            'default_percentage' => 'nullable|numeric|min:0|max:100',
+            'default_rental_price' => 'nullable|numeric|min:0',
+        ]);
+
+        $validated['created_by'] = Auth::id();
+        $validated['active'] = true;
+
+        Driver::create($validated);
+
+        return redirect()->route('drivers.index')
+            ->with('success', __('messages.driver_added_success') ?? 'Driver created successfully.');
+    }
+
+    /**
+     * Display the specified driver.
+     */
+    public function show(Driver $driver): View
+    {
+        $invoices = $driver->invoices()
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        return view('pages.drivers.show', compact('driver', 'invoices'));
+    }
+
+    /**
+     * Show the form for editing the specified driver.
+     */
+    public function edit(Driver $driver): View
+    {
+        return view('pages.drivers.edit', compact('driver'));
+    }
+
+    /**
+     * Update the specified driver in storage.
+     */
+    public function update(Request $request, Driver $driver): RedirectResponse
+    {
+        $validated = $request->validate([
+            'driver_id' => ['required', 'string', 'max:50', Rule::unique('drivers', 'driver_id')->ignore($driver->id)],
+            'full_name' => 'required|string|max:255',
+            'license_number' => 'nullable|string|max:50',
+            'ssn' => 'nullable|string|max:50',
+            'default_percentage' => 'nullable|numeric|min:0|max:100',
+            'default_rental_price' => 'nullable|numeric|min:0',
+        ]);
+
+        $driver->update($validated);
+
+        return redirect()->route('drivers.show', $driver)
+            ->with('success', __('messages.driver_updated_success') ?? 'Driver updated successfully.');
+    }
+
+    /**
+     * Remove the specified driver from storage.
+     */
+    public function destroy(Driver $driver): RedirectResponse
     {
         $driver->delete();
-        return response()->json(['success' => true, 'message' => __('messages.driver_deleted_success')], 200);
+
+        return redirect()->route('drivers.index')
+            ->with('success', __('messages.driver_deleted_success') ?? 'Driver deleted successfully.');
     }
 
-    // Delete multiple drivers
+    /**
+     * Delete multiple drivers.
+     */
     public function bulkDestroy(Request $request)
     {
         $request->validate([
@@ -143,22 +173,36 @@ public function getData(Request $request)
 
         return response()->json([
             'success' => true,
-            'message' => __(':count drivers successfully deleted.', ['count' => $count]),
+            'message' => __('messages.drivers_deleted', ['count' => $count]) ?? "$count drivers successfully deleted.",
         ]);
     }
 
-    // Validation logic
-    private function validateDriver(Request $request, $ignoreId = null)
+    /**
+     * Toggle driver active status.
+     */
+    public function toggleActive(Driver $driver): RedirectResponse
     {
-        return $request->validate([
-            'full_name' => ['required', 'string', 'max:255'],
-            'phone_number' => ['nullable', 'string', 'max:255'],
-            'driver_id' => ['required', 'string', 'max:255', Rule::unique('drivers', 'driver_id')->ignore($ignoreId)],
-            'license_number' => ['nullable', 'string', 'max:255'],
-            'ssn' => ['nullable', 'string', 'max:255'],
-            'default_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'default_rental_price' => ['nullable', 'numeric', 'min:0'],
-            'active' => ['nullable', 'boolean'],
-        ]);
+        $driver->update(['active' => !$driver->active]);
+
+        return redirect()->back()
+            ->with('success', 'Driver status updated successfully.');
+    }
+
+    /**
+     * Get driver earnings for current week.
+     */
+    public function earnings(Driver $driver): View
+    {
+        $weekNumber = now()->weekOfYear;
+
+        $invoices = $driver->invoices()
+            ->where('week_number', $weekNumber)
+            ->get();
+
+        $earnings = $invoices->sum('amount_to_pay_driver');
+        $totalInvoices = $invoices->count();
+        $totalParcels = $invoices->sum('total_parcels');
+
+        return view('pages.drivers.earnings', compact('driver', 'earnings', 'totalInvoices', 'totalParcels'));
     }
 }

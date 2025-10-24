@@ -3,54 +3,55 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Subscription extends Model
 {
-    use HasFactory;
+    protected $table = 'subscriptions';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'broker_id',
-        'subscription_id',
-        'total_price',
-        'created_at',
+        'subscription_type_id',
+        'stripe_subscription_id',
+        'stripe_status',
+        'started_at',
         'ends_at',
-        'updated_at',
+        'price_paid',
+        'auto_renew',
     ];
 
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = true;
-
-    /**
-     * Get the broker associated with this subscription.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function broker()
+    protected function casts(): array
     {
-        return $this->belongsTo(Broker::class, 'broker_id');
+        return [
+            'started_at' => 'date',
+            'ends_at' => 'date',
+            'price_paid' => 'decimal:2',
+            'auto_renew' => 'boolean',
+        ];
     }
 
-    /**
-     * Determine if the subscription is currently active.
-     *
-     * @return bool
-     */
+    public function broker(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'broker_id');
+    }
+
+    public function subscriptionType(): BelongsTo
+    {
+        return $this->belongsTo(SubscriptionType::class);
+    }
+
     public function isActive(): bool
     {
-        if (!$this->ends_at) {
-            return false;
-        }
+        return $this->stripe_status === 'active' && $this->ends_at->isFuture();
+    }
 
-        return now()->lessThanOrEqualTo($this->ends_at);
+    public function isExpired(): bool
+    {
+        return $this->ends_at->isPast();
+    }
+
+    public function daysRemaining(): int
+    {
+        return now()->diffInDays($this->ends_at, false);
     }
 }

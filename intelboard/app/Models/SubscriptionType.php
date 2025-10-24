@@ -3,39 +3,32 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SubscriptionType extends Model
 {
-    use HasFactory;
+    protected $table = 'subscription_types';
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'subscription_type';
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
-        'max_files',
-        'add_supervisor',
         'max_drivers',
+        'add_supervisor',
         'custom_invoice',
+        'price',
+        'stripe_plan_id',
     ];
 
-    /**
-     * Get all brokers that use this subscription type.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function brokers()
+    protected function casts(): array
     {
-        return $this->hasMany(Broker::class, 'subscription_type_id');
+        return [
+            'add_supervisor' => 'boolean',
+            'custom_invoice' => 'boolean',
+            'price' => 'decimal:2',
+        ];
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
     }
 }

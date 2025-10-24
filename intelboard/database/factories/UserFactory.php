@@ -25,20 +25,55 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'full_name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'phone_number' => fake()->phoneNumber(),
+            'role' => fake()->randomElement([1, 2, 3]), // 1=Admin, 2=Broker, 3=Supervisor
+            'joining_date' => fake()->dateTime(),
+            'active' => true,
+            'company_name' => fake()->company(),
             'remember_token' => Str::random(10),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indicate that the user should be an admin.
      */
-    public function unverified(): static
+    public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'role' => 1,
+        ]);
+    }
+
+    /**
+     * Indicate that the user should be a broker.
+     */
+    public function broker(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 2,
+        ]);
+    }
+
+    /**
+     * Indicate that the user should be a supervisor.
+     */
+    public function supervisor(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 3,
+        ]);
+    }
+
+    /**
+     * Indicate that the user should be inactive.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'active' => false,
         ]);
     }
 }

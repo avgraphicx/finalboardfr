@@ -2,103 +2,156 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
+        'google_id',
+        'name',
         'full_name',
         'email',
-        'phone_number',
         'password',
-        'joined_date',
-        'status',
-        'broker_id',
+        'phone_number',
+        'role', // 1=Admin, 2=Broker, 3=Supervisor
+        'created_by',
+        'joining_date',
+        'active',
+        'company_name',
+        'logo',
+        'subscription_tier',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
-        'password',
         'remember_token',
     ];
 
-    /**
-     * The relationships that should always be loaded.
-     *
-     * @var array<int, string>
-     */
-    protected $with = ['broker.subscriptionType', 'broker.subscriptions'];
-
-    /**
-     * Each user may own one broker record.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function broker()
+    protected function casts(): array
     {
-        return $this->hasOne(Broker::class, 'user_id');
+        return [
+            'email_verified_at' => 'datetime',
+            'joining_date' => 'date',
+            'active' => 'boolean',
+            'role' => 'integer',
+        ];
     }
 
-    /**
-     * Accessor to retrieve the broker’s company name directly.
-     *
-     * @return string|null
-     */
-    public function getCompanyNameAttribute(): ?string
+    // === Relationships ===
+
+    public function createdBy(): BelongsTo
     {
-        return $this->broker->company_name ?? null;
+        return $this->belongsTo(User::class, 'created_by');
     }
 
-    /**
-     * Accessor to retrieve the broker’s logo directly.
-     *
-     * @return string|null
-     */
-    public function getCompanyLogoAttribute(): ?string
+    public function createdUsers(): HasMany
     {
-        return $this->broker->logo ?? null;
+        return $this->hasMany(User::class, 'created_by');
     }
 
-    /**
-     * Accessor to retrieve the subscription type.
-     *
-     * @return \App\Models\SubscriptionType|null
-     */
-    public function getSubscriptionTypeAttribute(): ?SubscriptionType
+    public function activity(): HasMany
     {
-        return $this->broker->subscriptionType ?? null;
+        return $this->hasMany(UserActivity::class);
     }
 
-    /**
-     * Accessor to retrieve all broker subscriptions.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection|null
-     */
-    public function getSubscriptionsAttribute()
+    public function activities(): HasMany
     {
-        return $this->broker->subscriptions ?? collect();
+        return $this->hasMany(UserActivity::class);
     }
 
-    /**
-     * Accessor to retrieve active subscription (latest one).
-     *
-     * @return \App\Models\Subscription|null
-     */
-    public function getActiveSubscriptionAttribute(): ?Subscription
+    public function preference(): HasOne
     {
-        return $this->broker?->activeSubscription?->first();
+        return $this->hasOne(UserPreference::class);
+    }
+
+    public function preferences(): HasOne
+    {
+        return $this->hasOne(UserPreference::class);
+    }
+
+    public function drivers(): HasMany
+    {
+        return $this->hasMany(Driver::class, 'created_by');
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'broker_id');
+    }
+
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class, 'broker_id');
+    }
+
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class);
+    }
+
+    public function statsCache(): HasMany
+    {
+        return $this->hasMany(StatsCache::class, 'broker_id');
+    }
+
+    // === Query Scopes ===
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('active', true);
+    }
+
+    public function scopeAdmins(Builder $query): Builder
+    {
+        return $query->where('role', 1);
+    }
+
+    public function scopeBrokers(Builder $query): Builder
+    {
+        return $query->where('role', 2);
+    }
+
+    public function scopeSupervisors(Builder $query): Builder
+    {
+        return $query->where('role', 3);
+    }
+
+    // === Helpers & Accessors ===
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 1;
+    }
+
+    public function isBroker(): bool
+    {
+        return $this->role === 2;
+    }
+
+    public function isSupervisor(): bool
+    {
+        return $this->role === 3;
+    }
+
+    public function getRoleNameAttribute(): string
+    {
+        return match ($this->role) {
+            1 => 'Admin',
+            2 => 'Broker',
+            3 => 'Supervisor',
+            default => 'Unknown',
+        };
+    }
+
+    public function logoUrl(): ?string
+    {
+        return $this->logo ? asset('storage/' . $this->logo) : null;
     }
 }

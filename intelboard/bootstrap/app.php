@@ -15,9 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SetLocale::class,
         ]);
 
-        // Register the CheckUserRole middleware alias
+        // Register middleware aliases
         $middleware->alias([
-            'role' => \App\Http\Middleware\CheckUserRole::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'check-user-role' => \App\Http\Middleware\CheckUserRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

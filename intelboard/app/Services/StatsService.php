@@ -3,121 +3,148 @@
 namespace App\Services;
 
 use App\Models\Driver;
-use App\Models\Payment;
+use App\Models\Invoice;
 use Illuminate\Support\Facades\DB;
 
 class StatsService
 {
     /**
      * Collect dashboard statistics for the given broker.
+     *
+     * @param  object  $broker
+     * @return array
      */
-    public function getDashboardStats($broker)
+    public function getDashboardStats($broker): array
     {
-        // Drivers belonging to this broker
-        $drivers = Driver::where('added_by', $broker->user_id);
+        // Drivers belonging to this broker (created_by field in new schema)
+        $drivers   = Driver::where('created_by', $broker->id);
         $driverIds = $drivers->pluck('id');
 
-        // Payments for those drivers
-        $payments = Payment::whereIn('driver_id', $driverIds);
+        // Invoices for those drivers
+        $invoices = Invoice::whereIn('driver_id', $driverIds);
 
-        // ===== TOP DRIVER BY DAYS (parcel_rows_count) =====
-        $top = Payment::with('driver')
+        // ===== TOP DRIVER BY DAYS (days_worked) =====
+        $topRows = Invoice::with('driver')
             ->whereIn('driver_id', $driverIds)
-            ->select('driver_id', DB::raw('SUM(parcel_rows_count) as total_rows'))
+            ->select('driver_id', DB::raw('SUM(days_worked) AS total_rows'))
             ->groupBy('driver_id')
             ->orderByDesc('total_rows')
             ->first();
+
         $topDriver = null;
-        if ($top && $top->driver) {
+        if ($topRows && $topRows->driver) {
             $topDriver = [
-                'driver_id' => $top->driver_id,
-                'total_rows' => $top->total_rows,
-                'driver' => $top->driver,
+                'driver_id'   => $topRows->driver_id,
+                'total_rows'  => $topRows->total_rows,
+                'driver'      => $topRows->driver,
             ];
         }
-        // ===== TOP DRIVER BY Moneymade Intel =====
-        $top = Payment::with('driver')
+
+        // ===== TOP DRIVER BY INT INV (invoice_total) =====
+        $topInv = Invoice::with('driver')
             ->whereIn('driver_id', $driverIds)
-            ->select('driver_id', DB::raw('SUM(total_invoice) as total_invoice'))
+            ->select('driver_id', DB::raw('SUM(invoice_total) AS total_invoice'))
             ->groupBy('driver_id')
             ->orderByDesc('total_invoice')
             ->first();
+
         $topDriverInt = null;
-        if ($top && $top->driver) {
+        if ($topInv && $topInv->driver) {
             $topDriverInt = [
-                'driver_id' => $top->driver_id,
-                'total_invoice' => $top->total_invoice,
-                'driver' => $top->driver,
+                'driver_id'     => $topInv->driver_id,
+                'total_invoice' => $topInv->total_invoice,
+                'driver'        => $topInv->driver,
             ];
         }
-        // ===== TOP DRIVER BY Moneymade broker =====
-        $top = Payment::with('driver')
+
+        // ===== TOP DRIVER BY BROKER EARNINGS (amount_to_pay_driver) =====
+        $topOwn = Invoice::with('driver')
             ->whereIn('driver_id', $driverIds)
-            ->select('driver_id', DB::raw('SUM(final_amount) as final_amount'))
+            ->select('driver_id', DB::raw('SUM(amount_to_pay_driver) AS final_amount'))
             ->groupBy('driver_id')
             ->orderByDesc('final_amount')
             ->first();
+
         $topDriverOwn = null;
-        if ($top && $top->driver) {
+        if ($topOwn && $topOwn->driver) {
             $topDriverOwn = [
-                'driver_id' => $top->driver_id,
-                'final_amount' => $top->final_amount,
-                'driver' => $top->driver,
+                'driver_id'    => $topOwn->driver_id,
+                'final_amount' => $topOwn->final_amount,
+                'driver'       => $topOwn->driver,
             ];
         }
-        // ===== TOP DRIVER BY PARCELS =====
-        $topParcels = Payment::with('driver')
+
+        // ===== TOP DRIVER BY PARCELS (total_parcels) =====
+        $topParcels = Invoice::with('driver')
             ->whereIn('driver_id', $driverIds)
-            ->select('driver_id', DB::raw('SUM(total_parcels) as total_parcels'))
+            ->select('driver_id', DB::raw('SUM(total_parcels) AS total_parcels'))
             ->groupBy('driver_id')
             ->orderByDesc('total_parcels')
             ->first();
+
         $topDriverParcels = null;
         if ($topParcels && $topParcels->driver) {
             $topDriverParcels = [
-                'driver_id' => $topParcels->driver_id,
-                'total_parcels' => $topParcels->total_parcels,
-                'driver' => $topParcels->driver,
+                'driver_id'      => $topParcels->driver_id,
+                'total_parcels'  => $topParcels->total_parcels,
+                'driver'         => $topParcels->driver,
             ];
         }
+
+        $totalDrivers = $drivers->count();
+        $activeCount  = $drivers->where('active', 1)->count();
+
         return [
             // ===== DRIVERS =====
-            'total_drivers' => $drivers->count(),
-'active_drivers' => $drivers->where('active', 1)->count(),
-'missing_ssn' => $drivers->where('ssn', null)->count(),
-'active_driver_percentage' => $drivers->count() > 0
-    ? round(($drivers->where('active', 1)->count() / $drivers->count()) * 100, 1)
-    : 0,
-            'avg_rental_price' => round($drivers->avg('default_rental_price'), 2),
-            'drivers_missing_info' => Driver::where('added_by', $broker->user_id)
+            'total_drivers'               => $totalDrivers,
+            'active_drivers'              => $activeCount,
+            // Drivers missing SSN or license
+            'drivers_missing_ssn'         => Driver::where('created_by', $broker->id)->whereNull('ssn')->count(),
+            'drivers_missing_license'     => Driver::where('created_by', $broker->id)->whereNull('license_number')->count(),
+            'active_driver_percentage' => $totalDrivers > 0
+                ? round(($activeCount / $totalDrivers) * 100, 1)
+                : 0,
+            'avg_rental_price'         => round($drivers->avg('default_rental_price'), 2),
+            // Drivers missing any key info (SSN or license)
+            'drivers_missing_info'         => Driver::where('created_by', $broker->id)
                 ->where(function ($q) {
-                    $q->whereNull('ssn')->orWhereNull('license_number');
-                })->count(),
+                    $q->whereNull('ssn')
+                      ->orWhereNull('license_number');
+                })
+                ->count(),
 
-            // ===== PAYMENTS =====
-            'total_payments' => $payments->count(),
-            'total_invoice_amount' => round($payments->sum('total_invoice'), 2),
-            'total_final_amount' => round($payments->sum('final_amount'), 2),
-            'total_parcels' => (int) $payments->sum('total_parcels'),
-            'avg_final_amount' => round($payments->avg('final_amount'), 2),
-            'total_broker_earnings' => round(
-                $payments->sum('broker_van_cut') + $payments->sum('broker_pay_cut'),
+            // ===== INVOICES =====
+            'total_payments'            => $invoices->count(),
+            'unpaid_invoices'           => $invoices->where('is_paid', 0)->count(),
+            'total_invoice_amount'      => round($invoices->sum('invoice_total'), 2),
+            'total_final_amount'        => round($invoices->sum('amount_to_pay_driver'), 2),
+            'total_parcels'             => (int) $invoices->sum('total_parcels'),
+            'avg_final_amount'          => round($invoices->avg('amount_to_pay_driver'), 2),
+            'total_broker_earnings'     => round(
+                $invoices->sum('broker_share'),
                 2
             ),
-            // Average broker percentage across payments (0 if no payments)
-            'avg_broker_percentage' => $payments->count() > 0 ? round($payments->avg('broker_percentage'), 2) : 0,
-            // Average vehicule rental price across payments
-            'avg_vehicule_rental_price' => $payments->count() > 0 ? round($payments->avg('vehicule_rental_price'), 2) : 0,
-            'unpaid_payments' => $payments->where('paid', 0)->count(),
-            'paid_payments' => $payments->where('paid', 1)->count(),
+            'avg_broker_percentage'     => $invoices->count() > 0
+                ? round($invoices->avg('driver_percentage'), 2)
+                : 0,
+            'avg_vehicule_rental_price' => $invoices->count() > 0
+                ? round($invoices->avg('vehicle_rental_price'), 2)
+                : 0,
+            'unpaid_payments'           => $invoices->where('is_paid', 0)->count(),
+            'paid_payments'             => $invoices->where('is_paid', 1)->count(),
+            // ===== BROKER EARNINGS BY WEEK =====
+            'broker_earnings_by_week'   => Invoice::whereIn('driver_id', $driverIds)
+                                            ->select('week_number', DB::raw('SUM(broker_share) as earnings'))
+                                            ->groupBy('week_number')
+                                            ->orderBy('week_number')
+                                            ->get()
+                                            ->toArray(),
 
-            // ===== TOP DRIVER BY DAYS =====
-            'top_driver' => $topDriver,
-            // ===== TOP DRIVER BY PARCELS =====
+            // ===== TOP DRIVERS =====
+            'top_driver'         => $topDriver,
             'top_driver_parcels' => $topDriverParcels,
-            // ===== TOP DRIVER BY INT INV =====
-            'top_driver_int' => $topDriverInt,
-            'top_driver_own' => $topDriverOwn,
+            'top_driver_int'     => $topDriverInt,
+            'top_driver_own'     => $topDriverOwn,
         ];
     }
 }

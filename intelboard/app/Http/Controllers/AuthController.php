@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -11,17 +10,11 @@ use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login & Logout (Standard)
-    |--------------------------------------------------------------------------
-    */
     /**
      * Show the login form.
      */
     public function showLogin()
     {
-        // CHANGED: Referenced view path to match your custom structure: pages/pages/sign-in-basic.blade.php
         return view('pages.sign-in-basic');
     }
 
@@ -37,19 +30,24 @@ class AuthController extends Controller
 
         $remember = $request->boolean('remember');
 
-        // 1. Manually find the user and ensure status is 'active'
+        // 1. Find active user by email
         $user = User::where('email', $credentials['email'])
-            ->where('status', 'active')
+            ->where('active', true)
             ->first();
 
         // 2. Check if user exists AND password matches
         if ($user && Hash::check($credentials['password'], $user->password)) {
-
             Auth::login($user, $remember);
             $request->session()->regenerate();
 
-            // 3. Update last login timestamp
-            $user->update(['last_login_at' => now()]);
+            // 3. Log user activity
+            $user->activities()->create([
+                'login_at' => now(),
+                'browser' => $request->header('User-Agent'),
+                'ip_address' => $request->ip(),
+                'device' => $this->getDeviceType($request),
+                'location' => $this->getLocation($request),
+            ]);
 
             return redirect()->intended('/');
         }
@@ -72,11 +70,6 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Google Authentication
-    |--------------------------------------------------------------------------
-    */
     /**
      * Redirect the user to the Google authentication page.
      */
@@ -97,46 +90,82 @@ class AuthController extends Controller
 
             // 1. Check if user exists by google_id and is active
             $user = User::where('google_id', $googleId)
-                        ->where('status', 'active')
+                        ->where('active', true)
                         ->first();
 
             if ($user) {
-                // User found via Google ID, log them in
-                $user->update(['last_login_at' => now()]);
                 Auth::login($user, true);
+                $this->logUserActivity($user);
                 return redirect()->intended('/');
             }
 
             // 2. Check if user exists by email and is active (Link existing account)
             $user = User::where('email', $email)
-                        ->where('status', 'active')
+                        ->where('active', true)
                         ->first();
 
             if ($user) {
-                // Existing user found via email, link Google ID and log them in
-                $user->update([
-                    'google_id'     => $googleId,
-                    'last_login_at' => now()
-                ]);
+                // Link Google ID to existing user
+                $user->update(['google_id' => $googleId]);
                 Auth::login($user, true);
+                $this->logUserActivity($user);
                 return redirect()->intended('/');
             }
 
             // 3. New user: Store details in session and redirect to registration completion
             session(['google_user' => [
                 'google_id' => $googleId,
-                'full_name' => $googleUser->getName(),
-                'email'     => $email
+                'name' => $googleUser->getName(),
+                'email' => $email
             ]]);
 
-            // Redirect to the route where registration is completed (e.g., getting phone number)
             return redirect()->route('register.complete');
 
         } catch (\Throwable $e) {
-            // If anything fails during the Google OAuth process
             return redirect()
                 ->route('login')
                 ->withErrors(['email' => __('messages.invalid_credentials')]);
         }
+    }
+
+    /**
+     * Log user activity for tracking.
+     */
+    private function logUserActivity(User $user, Request $request = null): void
+    {
+        $request = $request ?? request();
+
+        $user->activities()->create([
+            'login_at' => now(),
+            'browser' => $request->header('User-Agent'),
+            'ip_address' => $request->ip(),
+            'device' => $this->getDeviceType($request),
+            'location' => $this->getLocation($request),
+        ]);
+    }
+
+    /**
+     * Determine device type from user agent.
+     */
+    private function getDeviceType(Request $request): string
+    {
+        $userAgent = $request->header('User-Agent');
+
+        if (strpos($userAgent, 'Mobile') !== false) {
+            return 'mobile';
+        } elseif (strpos($userAgent, 'Tablet') !== false || strpos($userAgent, 'iPad') !== false) {
+            return 'tablet';
+        }
+
+        return 'desktop';
+    }
+
+    /**
+     * Get location from IP address (basic implementation).
+     */
+    private function getLocation(Request $request): ?string
+    {
+        // This is a placeholder; in production, use GeoIP service
+        return null;
     }
 }
