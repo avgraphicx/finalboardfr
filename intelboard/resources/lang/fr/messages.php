@@ -103,6 +103,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Profile
+    |--------------------------------------------------------------------------
+    */
+    'profile'                  => 'Profil',
+    'subscription'             => 'Abonnement',
+    'until'                    => 'Jusqu\'au',
+    'save_changes'             => 'Enregistrer les modifications',
+
+    /*
+    |--------------------------------------------------------------------------
     | Drivers
     |--------------------------------------------------------------------------
     */
@@ -233,6 +243,39 @@ return [
     'payment_details'        => 'Détails de Paiement',
     'payments'               => 'Paiements',
     'calculation_for'        => 'Calcul pour :driver - Semaine: :week',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Invoice Details / Show Page
+    |--------------------------------------------------------------------------
+    */
+    'invoice'                => 'Facture',
+    'invoices'               => 'Factures',
+    'create_invoice'         => 'Créer une facture',
+    'select_driver'          => 'Sélectionner un chauffeur',
+    'invoice_details'        => 'Détails de la facture',
+    'financial_summary'      => 'Résumé financier',
+    'days_worked'            => 'Jours travaillés',
+    'warehouse'              => 'Entrepôt',
+    'edit_invoice'           => 'Modifier la facture',
+    'invoice_total'          => 'Total de la facture',
+    'vehicle_rental_price'   => 'Prix de location du véhicule',
+    'driver_percentage'      => 'Pourcentage du chauffeur',
+    'penalty'                => 'Pénalité',
+    'amount_to_pay_driver'   => 'Montant à payer au chauffeur',
+    'broker_share'           => 'Part du broker',
+    'payment_status'         => 'Statut du paiement',
+    'paid'                   => 'Payé',
+    'unpaid'                 => 'Impayé',
+    'paid_at'                => 'Payé le',
+    'paid_on'                => 'Payé le',
+    'mark_paid'              => 'Marquer comme payé',
+    'btn_mark_unpaid'        => 'Marquer comme non payé',
+    'created'                => 'Créé',
+    'last_updated'           => 'Dernière mise à jour',
+    'update'                 => 'Mettre à jour',
+    'week'                   => 'Semaine',
+    'driver'                 => 'Chauffeur',
 
     /*
     |--------------------------------------------------------------------------

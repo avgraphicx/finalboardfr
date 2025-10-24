@@ -34,7 +34,7 @@
                         <span id="active"
                             class="badge rounded-pill
                             @if ($user->active == '0') bg-danger @endif
-                            @if ($user->status == 'active') bg-success @endif avatar-badge"></span>
+                            @if ($user->active == '1') bg-success @endif avatar-badge"></span>
                     </span>
                     <h6 class="fw-semibold mt-3 mb-1">{{ $user->full_name }}</h6>
                     <span class="d-block fs-13 text-muted">
