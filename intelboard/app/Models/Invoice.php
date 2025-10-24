@@ -47,6 +47,16 @@ class Invoice extends Model
         ];
     }
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Automatically calculate amount_to_pay_driver before saving
+        static::saving(function ($invoice) {
+            $invoice->amount_to_pay_driver = $invoice->calculateAmountToPayDriver();
+        });
+    }
+
     public function broker(): BelongsTo
     {
         return $this->belongsTo(User::class, 'broker_id');
@@ -60,7 +70,9 @@ class Invoice extends Model
     // Calculate computed fields dynamically
     public function calculateAmountToPayDriver(): float
     {
-        return $this->invoice_total - $this->vehicle_rental_price - $this->bonus + $this->cash_advance - $this->penalty;
+        // Formula: Invoice Total - (Invoice Total * Driver Percentage%) - Vehicle Rental Price - Penalty - Cash Advance + Bonus
+        $driverCommission = $this->invoice_total * ($this->driver_percentage / 100);
+        return $this->invoice_total - $driverCommission - $this->vehicle_rental_price - $this->penalty - $this->cash_advance + $this->bonus;
     }
 
     public function calculateBrokerShare(): float
