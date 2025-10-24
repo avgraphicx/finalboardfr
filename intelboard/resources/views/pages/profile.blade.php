@@ -161,6 +161,21 @@
                                             </select>
                                         </div>
                                     </div>
+                                    <div class="row gy-4">
+                                        <div class="col-xl-6">
+                                            <label for="password"
+                                                class="form-label">{{ __('messages.current_password') }}
+                                                :</label>
+                                            <input type="password" class="form-control" id="password"
+                                                placeholder="••••••••••••">
+                                        </div>
+                                        <div class="col-xl-6">
+                                            <label for="newpassword" class="form-label">{{ __('messages.new_password') }}
+                                                :</label>
+                                            <input type="password" class="form-control" id="newpassword"
+                                                placeholder="••••••••••••">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             {{-- Other tabs remain commented --}}
