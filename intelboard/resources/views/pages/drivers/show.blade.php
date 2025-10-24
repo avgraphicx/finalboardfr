@@ -120,15 +120,16 @@
                                                 data-invoice-id="{{ $invoice->id }}">
                                         </td>
                                         <td>
-                                            <span class="badge {{ $invoice->paid ? 'bg-success' : 'bg-danger' }}">
+                                            <span class="badge {{ $invoice->is_paid ? 'bg-success' : 'bg-danger' }}">
                                                 W{{ $invoice->week_number }}
                                             </span>
                                         </td>
-                                        <td>${{ number_format($invoice->gross_amount, 2) }}</td>
-                                        <td>{{ $invoice->item_count }}</td>
-                                        <td>${{ number_format(($invoice->commission_percentage / 100) * $invoice->gross_amount, 2) }}
+                                        <td>${{ number_format($invoice->invoice_total, 2) }}</td>
+                                        <td>{{ $invoice->total_parcels }}</td>
+                                        <td>${{ number_format(($invoice->driver_percentage / 100) * $invoice->invoice_total, 2) }}
                                         </td>
-                                        <td class="fw-bold text-success">${{ number_format($invoice->net_amount, 2) }}</td>
+                                        <td class="fw-bold text-success">
+                                            ${{ number_format($invoice->amount_to_pay_driver, 2) }}</td>
                                         <td>
                                             <div class="hstack gap-2 fs-15">
                                                 <a href="{{ route('invoices.show', $invoice->id) }}"
