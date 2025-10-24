@@ -46,6 +46,7 @@ return [
     'theme_preference'      => 'Préférence de thème',
     'light_theme'           => 'Clair',
     'dark_theme'            => 'Sombre',
+    'read_only'             => 'Lecture seule',
 
     /*
     |--------------------------------------------------------------------------

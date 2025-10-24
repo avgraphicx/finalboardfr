@@ -46,6 +46,7 @@ return [
     'theme_preference'       => 'Theme Preference',
     'light_theme'            => 'Light',
     'dark_theme'             => 'Dark',
+    'read_only'              => 'Read only',
 
     /*
     |--------------------------------------------------------------------------
