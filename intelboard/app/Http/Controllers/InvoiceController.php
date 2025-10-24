@@ -111,7 +111,19 @@ class InvoiceController extends Controller
             'is_paid' => true,
             'paid_at' => now()->toDateString(),
         ]);
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => 'Invoice marked as paid']);
+    }
+
+    /**
+     * Mark invoice as unpaid
+     */
+    public function markUnpaid(Request $request, Invoice $invoice)
+    {
+        $invoice->update([
+            'is_paid' => false,
+            'paid_at' => null,
+        ]);
+        return response()->json(['success' => true, 'message' => 'Invoice marked as unpaid']);
     }
 
     /**
@@ -119,11 +131,11 @@ class InvoiceController extends Controller
      */
     public function markPaidBulk(Request $request)
     {
-        $ids = $request->validate(['ids' => 'required|array|min:1']);
-        Invoice::whereIn('id', $ids['ids'])->update([
+        $ids = $request->validate(['invoice_ids' => 'required|array|min:1'])['invoice_ids'];
+        Invoice::whereIn('id', $ids)->update([
             'is_paid' => true,
             'paid_at' => now()->toDateString(),
         ]);
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => count($ids) . ' invoices marked as paid']);
     }
 }

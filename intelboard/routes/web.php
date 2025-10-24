@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
     /******** Invoices Management ********/
     Route::resource('invoices', InvoiceController::class);
     Route::post('invoices/{invoice}/mark-paid', [InvoiceController::class, 'markPaid'])->name('invoices.mark-paid');
+    Route::post('invoices/{invoice}/mark-unpaid', [InvoiceController::class, 'markUnpaid'])->name('invoices.mark-unpaid');
     Route::post('invoices/mark-paid-bulk', [InvoiceController::class, 'markPaidBulk'])->name('invoices.mark-paid-bulk');
 
     /******** Expenses Management ********/

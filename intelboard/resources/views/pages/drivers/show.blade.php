@@ -157,8 +157,10 @@
                                                         <i class="ri-check-line"></i>
                                                     </button>
                                                 @else
-                                                    <button class="btn btn-icon btn-sm btn-secondary" disabled>
-                                                        <i class="ri-check-double-line"></i>
+                                                    <button class="btn btn-icon btn-sm btn-warning mark-unpaid-btn"
+                                                        data-invoice-id="{{ $invoice->id }}"
+                                                        title="{{ __('messages.btn_mark_unpaid') }}">
+                                                        <i class="ri-close-line"></i>
                                                     </button>
                                                 @endif
                                             </div>
@@ -299,6 +301,36 @@
                         })
                         .catch(() => Swal.fire('{{ __('messages.not_available') }}',
                             'Error marking as paid', 'error'));
+                });
+            });
+
+            // === INDIVIDUAL MARK AS UNPAID ===
+            document.querySelectorAll('.mark-unpaid-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const invoiceId = this.dataset.invoiceId;
+
+                    fetch(`{{ url('invoices') }}/${invoiceId}/mark-unpaid`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').content,
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('{{ __('messages.success') }}!', data.message,
+                                    'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('{{ __('messages.not_available') }}', data.message ||
+                                    'Error', 'error');
+                            }
+                        })
+                        .catch(() => Swal.fire('{{ __('messages.not_available') }}',
+                            'Error marking as unpaid', 'error'));
                 });
 
                 // === BULK MARK AS PAID ===
