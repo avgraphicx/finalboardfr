@@ -8,7 +8,7 @@ use App\Models\User;
  *
  * Usage:
  * currentUser()->company_name
- * currentUser()->subscription_type->max_drivers
+ * currentUser()->subscription->subscriptionType->max_drivers
  * currentUser()->subscription->ends_at
  *
  * @return \App\Models\User|null
@@ -22,10 +22,9 @@ if (!function_exists('currentUser')) {
             return null;
         }
 
-        // Always eager load broker + subscription relationships
+        // Always eager load subscription and subscriptionType relationships
         return $user->load([
-            'broker.subscriptionType',
-            'broker.subscriptions',
+            'subscription.subscriptionType',
         ]);
     }
 }
