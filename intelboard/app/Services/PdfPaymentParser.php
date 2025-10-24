@@ -73,10 +73,14 @@ class PdfPaymentParser
         } catch (\Throwable $e) {
             Log::error('PDF parsing error', [
                 'error' => $e->getMessage(),
+                'error_class' => get_class($e),
                 'file' => $file->getClientOriginalName(),
+                'file_path' => $file->getRealPath(),
+                'file_size' => $file->getSize(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            throw new PaymentImportException('Error parsing PDF.', 500);
+            throw new PaymentImportException('Error parsing PDF: ' . $e->getMessage(), 500);
         }
     }
 

@@ -171,11 +171,18 @@ class PaymentImportService
                     'status_reason' => $e->getMessage(),
                 ];
             } catch (\Throwable $e) {
+                \Log::error('PDF parsing error in previewBatch', [
+                    'file' => $original,
+                    'error' => $e->getMessage(),
+                    'file_class' => get_class($e),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
                 $responseItems[] = [
                     'key' => null,
                     'file_name' => $original,
                     'status' => 'parse_error',
-                    'status_reason' => __('messages.payment_error_processing'),
+                    'status_reason' => 'Error: ' . $e->getMessage(),
                 ];
             }
         }
