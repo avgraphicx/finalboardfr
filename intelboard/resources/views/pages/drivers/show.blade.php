@@ -107,6 +107,7 @@
                                     <th>{{ __('messages.table_week_number') }}</th>
                                     <th>{{ __('messages.table_total_invoice') }}</th>
                                     <th>{{ __('messages.table_parcel_rows') }}</th>
+                                    <th>{{ __('messages.table_days_worked') }}</th>
                                     <th>{{ __('messages.table_benefit') }}</th>
                                     <th>{{ __('messages.table_final_amount') }}</th>
                                     <th>{{ __('messages.table_actions') }}</th>
@@ -126,6 +127,7 @@
                                         </td>
                                         <td>${{ number_format($invoice->invoice_total, 2) }}</td>
                                         <td>{{ $invoice->total_parcels }}</td>
+                                        <td>{{ $invoice->days_worked }}</td>
                                         <td>${{ number_format(($invoice->driver_percentage / 100) * $invoice->invoice_total, 2) }}
                                         </td>
                                         <td class="fw-bold text-success">

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" dir="ltr" data-nav-layout="vertical" data-vertical-style="default"
-    data-page-style="regular" data-nav-style="menu-click" data-width="fullwidth" data-header-position="fixed"
-    data-menu-position="fixed" loader="enable">
+<html lang="{{ auth()->check() ? auth()->user()->preference?->language ?? app()->getLocale() : app()->getLocale() }}"
+    dir="ltr" data-nav-layout="vertical" data-vertical-style="default" data-page-style="regular"
+    data-nav-style="menu-click" data-width="fullwidth" data-header-position="fixed" data-menu-position="fixed"
+    loader="enable">
 
 <head>
 
