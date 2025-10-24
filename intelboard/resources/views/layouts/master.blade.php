@@ -2,7 +2,7 @@
 <html lang="{{ auth()->check() ? auth()->user()->preference?->language ?? app()->getLocale() : app()->getLocale() }}"
     dir="ltr" data-nav-layout="vertical" data-vertical-style="default" data-page-style="regular"
     data-nav-style="menu-click" data-width="fullwidth" data-header-position="fixed" data-menu-position="fixed"
-    loader="enable">
+    loader="enable" data-theme-mode="{{ auth()->check() ? auth()->user()->preference?->theme ?? 'dark' : 'dark' }}">
 
 <head>
 
