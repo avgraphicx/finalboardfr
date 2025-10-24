@@ -83,7 +83,7 @@
                         <li class="nav-item m-1" id="protab2">
                             <a href="javascript:void(0)" class="pe-none text-primary fw-medium nav-link" tabindex="-1">
                                 <i class="bi bi-person-circle me-1"></i>
-                                {{ $driver->addedBy?->full_name ?? 'N/A' }} - {{ $driver->created_at->toDateString() }}
+                                {{ $driver->createdBy?->full_name ?? 'N/A' }} - {{ $driver->created_at->toDateString() }}
                             </a>
                         </li>
                     </ul>

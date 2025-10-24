@@ -65,7 +65,9 @@ class DriverController extends Controller
                 'license_number' => $driver->license_number,
                 'ssn' => $driver->ssn,
                 'active' => $driver->active,
-                'created_by_name' => $driver->createdBy ? $driver->createdBy->name : 'N/A',
+                'default_percentage' => $driver->default_percentage,
+                'default_rental_price' => $driver->default_rental_price,
+                'added_by_name' => $driver->createdBy ? $driver->createdBy->full_name : 'N/A',
             ];
         });
 
