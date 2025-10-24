@@ -103,6 +103,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Profile
+    |--------------------------------------------------------------------------
+    */
+    'profile'                  => 'Profile',
+    'subscription'             => 'Subscription',
+    'until'                    => 'Until',
+    'save_changes'             => 'Save changes',
+
+    /*
+    |--------------------------------------------------------------------------
     | User / Company Settings
     |--------------------------------------------------------------------------
     */
@@ -284,6 +294,8 @@ return [
     */
     'invoice'                => 'Invoice',
     'invoices'               => 'Invoices',
+    'create_invoice'         => 'Create Invoice',
+    'select_driver'          => 'Select Driver',
     'invoice_details'        => 'Invoice Details',
     'financial_summary'      => 'Financial Summary',
     'days_worked'            => 'Days Worked',
@@ -309,6 +321,7 @@ return [
     'update'                 => 'Update',
     'week'                   => 'Week',
     'driver'                 => 'Driver',
+    'btn_mark_unpaid'        => 'Mark as Unpaid',
 
     /*
     |--------------------------------------------------------------------------

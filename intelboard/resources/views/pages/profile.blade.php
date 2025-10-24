@@ -33,7 +33,7 @@
                         <span class="avatar-text fw-bold fs-5" style="color: white !important;">{{ $initials }}</span>
                         <span id="active"
                             class="badge rounded-pill
-                            @if ($user->active == 'inactive') bg-danger @endif
+                            @if ($user->active == '0') bg-danger @endif
                             @if ($user->status == 'active') bg-success @endif avatar-badge"></span>
                     </span>
                     <h6 class="fw-semibold mt-3 mb-1">{{ $user->full_name }}</h6>
