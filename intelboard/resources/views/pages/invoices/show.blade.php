@@ -4,7 +4,12 @@
     <!-- Start::page-header -->
     <div class="page-header-breadcrumb mb-3">
         <div class="d-flex align-center justify-content-between flex-wrap">
-            <h1 class="page-title fw-medium fs-18 mb-0">{{ __('messages.invoice') ?? 'Invoice' }} #{{ $invoice->id }}</h1>
+            <h1 class="page-title fw-medium fs-18 mb-0">
+                <a href="{{ route('drivers.show', $invoice->driver) }}" class="btn btn-sm btn-outline-dark btn-wave">
+                    <i class="ri-arrow-left-s-line"></i>
+                </a>
+                {{ __('messages.invoice') ?? 'Invoice' }} #{{ $invoice->id }}
+            </h1>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ route('invoices.index') }}">{{ __('messages.invoices') }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">#{{ $invoice->id }}</li>
