@@ -53,40 +53,40 @@
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">{{ __('messages.invoice_total') }}</small>
-                            <p class="fw-semibold">${{ number_format($invoice->invoice_total, 2) }}</p>
+                            <p class="fw-semibold">${{ (int) $invoice->invoice_total }}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <small class="text-muted">{{ __('messages.vehicle_rental_price') }}</small>
-                            <p class="fw-semibold">${{ number_format($invoice->vehicle_rental_price, 2) }}</p>
+                            <p class="fw-semibold">${{ (int) $invoice->vehicle_rental_price }}</p>
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">{{ __('messages.driver_percentage') }}</small>
-                            <p class="fw-semibold">{{ number_format($invoice->driver_percentage, 2) }}%</p>
+                            <p class="fw-semibold">{{ (int) $invoice->driver_percentage }}%</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <small class="text-muted">{{ __('messages.bonus') }}</small>
-                            <p class="fw-semibold">${{ number_format($invoice->bonus, 2) }}</p>
+                            <p class="fw-semibold">${{ (int) $invoice->bonus }}</p>
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">{{ __('messages.cash_advance') }}</small>
-                            <p class="fw-semibold">${{ number_format($invoice->cash_advance, 2) }}</p>
+                            <p class="fw-semibold">${{ (int) $invoice->cash_advance }}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <small class="text-muted">{{ __('messages.penalty') }}</small>
-                            <p class="fw-semibold">${{ number_format($invoice->penalty, 2) }}</p>
+                            <p class="fw-semibold">${{ (int) $invoice->penalty }}</p>
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">{{ __('messages.broker_share') }}</small>
-                            <p class="fw-semibold text-primary">${{ number_format($invoice->broker_share, 2) }}</p>
+                            <p class="fw-semibold text-primary">${{ (int) $invoice->broker_share }}</p>
                         </div>
                     </div>
 
@@ -94,7 +94,7 @@
 
                     <div class="mb-3">
                         <small class="text-muted">{{ __('messages.amount_to_pay_driver') }}</small>
-                        <h5 class="text-success fw-semibold">${{ number_format($invoice->amount_to_pay_driver, 2) }}</h5>
+                        <h5 class="text-success fw-semibold">${{ (int) $invoice->amount_to_pay_driver }}</h5>
                     </div>
 
                     <div class="d-flex gap-2">
