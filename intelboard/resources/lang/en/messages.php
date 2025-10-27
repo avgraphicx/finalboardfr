@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Navigation / Common
@@ -706,30 +707,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Checkout / Subscription Page
-    |--------------------------------------------------------------------------
-    */
-    'checkout_page_title' => 'Complete Your Subscription',
-    'checkout_page_description' => 'You are one step away from unlocking powerful features. Complete the form below to get started.',
-    'checkout_back_to_landing' => 'Back to Landing Page',
-    'checkout_selected_plan' => 'Selected Plan',
-    'checkout_plan_summary' => 'Summary of your selected plan.',
-    'checkout_price_contact' => 'Contact Us',
-    'month_suffix' => '/ month',
-    'checkout_features' => 'What\'s Included',
-    'checkout_switch_plan' => 'Switch Plan',
-    'checkout_plan_button' => 'Switch',
-    'checkout_form_title' => 'Tell Us About Yourself',
-    'checkout_name_label' => 'Full Name',
-    'checkout_email_label' => 'Email Address',
-    'checkout_company_label' => 'Company Name (Optional)',
-    'checkout_phone_label' => 'Phone Number (Optional)',
-    'checkout_message_label' => 'Your Message (Optional)',
-    'checkout_submit' => 'Submit Request',
-    'price_prefix' => '$',
-
-    /*
-    |--------------------------------------------------------------------------
     | Invoice & Payment Pages
     |--------------------------------------------------------------------------
     */
@@ -782,4 +759,5 @@ return [
     'sign_in' => 'Sign In',
     'real_time_monitoring' => 'Real-time Monitoring',
     'monitor_business_metrics' => 'Monitor all your business metrics in real-time with instant updates and notifications.',
+
 ];

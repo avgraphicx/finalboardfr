@@ -10,8 +10,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-use Stripe\Stripe;
-use Stripe\Checkout\Session as StripeSession;
 
 class PublicSubscriptionController extends Controller
 {
@@ -57,41 +55,21 @@ class PublicSubscriptionController extends Controller
 
         $selectedPlan = $plans->firstWhere('slug', $validated['plan']);
 
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        $checkout_session = StripeSession::create([
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'cad',
-                    'product_data' => [
-                        'name' => $selectedPlan->name,
-                    ],
-                    'unit_amount' => $selectedPlan->price * 100,
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'subscription',
-            'success_url' => route('subscriptions.success'),
-            'cancel_url' => route('subscriptions.cancel'),
+        SubscriptionLead::create([
+            'subscription_type_id' => $selectedPlan?->id,
+            'plan_slug' => $selectedPlan?->slug,
+            'plan_name' => $selectedPlan?->name,
+            'plan_price' => $selectedPlan?->price,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'company' => $validated['company'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+            'message' => $validated['message'] ?? null,
         ]);
 
-        return redirect($checkout_session->url);
-    }
-
-    /**
-     * Handle successful subscription payment.
-     */
-    public function success(): View
-    {
-        return view('subscribe-success');
-    }
-
-    /**
-     * Handle cancelled subscription payment.
-     */
-    public function cancel(): View
-    {
-        return view('subscribe-cancel');
+        return redirect()
+            ->route('subscriptions.checkout', ['plan' => $selectedPlan?->slug])
+            ->with('status', __('messages.checkout_success'));
     }
 
     /**

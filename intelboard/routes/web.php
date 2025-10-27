@@ -13,7 +13,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\PublicSubscriptionController;
 
 /******** Authentication Routes (Unprotected) ********/
 
@@ -41,9 +40,6 @@ Route::get('register/complete', function () {
 Route::get('welcome', function () {
     return view('landing');
 })->name('landing');
-
-Route::get('subscribe', [PublicSubscriptionController::class, 'show'])->name('subscriptions.checkout');
-Route::post('subscribe', [PublicSubscriptionController::class, 'store'])->name('subscriptions.storePublic');
 
 /******** Language Switcher (Unprotected) ********/
 Route::get('/lang/{locale}', function (string $locale) {

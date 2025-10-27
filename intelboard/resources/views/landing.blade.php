@@ -394,8 +394,8 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscriptions.checkout', ['plan' => 'bronze', 'interval' => 'monthly']) }}"
-                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
+                                                <button
+                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -476,8 +476,8 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscriptions.checkout', ['plan' => 'gold', 'interval' => 'monthly']) }}"
-                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
+                                                <button
+                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -554,8 +554,8 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscriptions.checkout', ['plan' => 'diamond', 'interval' => 'monthly']) }}"
-                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
+                                                <button
+                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -638,8 +638,8 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscriptions.checkout', ['plan' => 'bronze', 'interval' => 'quarterly']) }}"
-                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
+                                                <button
+                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -720,8 +720,8 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscriptions.checkout', ['plan' => 'gold', 'interval' => 'quarterly']) }}"
-                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
+                                                <button
+                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -798,8 +798,8 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscriptions.checkout', ['plan' => 'diamond', 'interval' => 'quarterly']) }}"
-                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
+                                                <button
+                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -882,8 +882,8 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscriptions.checkout', ['plan' => 'bronze', 'interval' => 'yearly']) }}"
-                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
+                                                <button
+                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -964,8 +964,8 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscriptions.checkout', ['plan' => 'gold', 'interval' => 'yearly']) }}"
-                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
+                                                <button
+                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -1042,8 +1042,8 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscriptions.checkout', ['plan' => 'diamond', 'interval' => 'yearly']) }}"
-                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
+                                                <button
+                                                    class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</button>
                                             </div>
                                         </div>
                                     </div>

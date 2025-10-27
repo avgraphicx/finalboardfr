@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('messages.checkout_page_title') }} - {{ __('messages.intelboard') }}</title>
+    <title>{{ __('messages.checkout_page_title') }} - Intelboard</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         crossorigin="anonymous">
@@ -115,7 +115,7 @@
                         <div class="d-flex align-items-baseline gap-2 mt-3">
                             <span class="h2 fw-semibold text-dark">
                                 @if ($selectedPlan->formatted_price)
-                                    {{ __('messages.price_prefix') }}{{ $selectedPlan->formatted_price }}
+                                    ${{ $selectedPlan->formatted_price }}
                                 @else
                                     {{ __('messages.checkout_price_contact') }}
                                 @endif
@@ -149,7 +149,7 @@
                                                 <h4 class="h6 fw-semibold mb-1">{{ $plan->name }}</h4>
                                                 <p class="mb-0 text-muted">
                                                     @if ($plan->formatted_price)
-                                                        {{ __('messages.price_prefix') }}{{ $plan->formatted_price }}
+                                                        ${{ $plan->formatted_price }}
                                                         {{ __('messages.month_suffix') }}
                                                     @else
                                                         {{ __('messages.checkout_price_contact') }}
@@ -171,7 +171,7 @@
                 <div class="col-lg-8">
                     <div class="plan-card checkout-form">
                         <h2 class="h4 fw-semibold mb-3">{{ __('messages.checkout_form_title') }}</h2>
-                        <form method="POST" action="{{ route('subscriptions.storePublic') }}" novalidate>
+                        <form method="POST" action="{{ route('subscriptions.checkout.store') }}" novalidate>
                             @csrf
                             <input type="hidden" name="plan" value="{{ $selectedPlan->slug }}">
 
