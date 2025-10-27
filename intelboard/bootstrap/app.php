@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'check-user-role' => \App\Http\Middleware\CheckUserRole::class,
             'subscription.limit' => \App\Http\Middleware\CheckSubscriptionLimits::class,
+            'subscribed' => \App\Http\Middleware\CheckSubscription::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

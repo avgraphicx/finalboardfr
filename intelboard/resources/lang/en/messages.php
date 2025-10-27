@@ -686,7 +686,7 @@ return [
     'diamond' => 'Diamond',
     'diamond_desc' => 'For brokers with highest amount of drivers.',
     'view_stats_dashboard' => 'View statistics on the dashboard.',
-    'auto_calculate_unlimited' => 'Automatically calculate unlimited invoices at a time.',
+    'auto_calculate_unlimited' => 'Auto-calculate unlimited invoices at a time.',
     'vip_support' => 'VIP Support level.',
     'first_access_features' => 'First access to new features.',
     'built_for_your_team' => 'BUILT FOR YOUR TEAM',
@@ -743,13 +743,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Subscription
+    |--------------------------------------------------------------------------
+    */
+    'no_active_subscription' => 'You have no active subscription.',
+    'choose_plan_to_continue' => ' Please choose a plan to access all features.',
+    'select_plan_below' => ' Select a plan below.',
+
+    /*
+    |--------------------------------------------------------------------------
     | Sign Up Page
     |--------------------------------------------------------------------------
     */
     'sign_up' => 'Sign Up',
-    'join_us_by_creating_account' => 'Join us by creating a free account !',
+    'join_us_by_creating_account' => 'Join us by creating a free account!',
 
     'enter_email' => 'Enter Email',
+    'enter_phone_number' => 'Enter phone number',
     'password' => 'Password',
     'enter_password' => 'Enter Password',
     'create_account' => 'Create Account',

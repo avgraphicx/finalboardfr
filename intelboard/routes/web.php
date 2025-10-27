@@ -13,14 +13,30 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SubController;
 
 /******** Authentication Routes (Unprotected) ********/
+
+// Registration Form (GET)
+Route::get('signup', [AuthController::class, 'showRegister'])->name('signup');
 
 // Login Form (GET)
 Route::get('login', [AuthController::class, 'showLogin'])->name('login');
 
 // Handle Login Submission (POST)
 Route::post('login', [AuthController::class, 'login']);
+
+// Registration Form (GET)
+Route::get('register', [AuthController::class, 'showRegister'])->name('register');
+
+// Handle Registration Submission (POST)
+Route::post('register', [AuthController::class, 'register'])->name('register.store');
+
+// Subscription view route
+Route::get('/subscribe/view', [SubController::class, 'create'])->name('subscribe.view');
+
+// Post-registration pricing page
+Route::get('/register/pricing', [SubController::class, 'showPricing'])->name('register.pricing');
 
 // Google Redirect
 Route::get('auth/google/redirect', [AuthController::class, 'redirectToGoogle'])->name('google.redirect');
@@ -40,6 +56,12 @@ Route::get('register/complete', function () {
 Route::get('welcome', function () {
     return view('landing');
 })->name('landing');
+
+Route::get('no-subscription', function () {
+    return view('pages.nosub');
+})->name('no.subscription');
+
+Route::post('/subscribe', [SubController::class, 'store'])->name('subscribe');
 
 /******** Language Switcher (Unprotected) ********/
 Route::get('/lang/{locale}', function (string $locale) {
@@ -67,7 +89,7 @@ Route::get('/theme/{theme}', function (string $theme) {
 })->name('set.theme')->middleware('auth');
 
 /******** Protected Application Routes ********/
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'subscribed'])->group(function () {
 
     /******** Dashboard & Home ********/
     Route::get('/', [DashboardController::class, 'index'])->name('index');
@@ -136,6 +158,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Subscription Management
         Route::resource('subscriptions', SubscriptionController::class);
+        Route::resource('subs', SubController::class);
 
         // Audit Logs
         Route::resource('audits', AuditLogController::class)->only(['index', 'show']);

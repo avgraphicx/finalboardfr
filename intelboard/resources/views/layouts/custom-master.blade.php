@@ -32,7 +32,7 @@
 
 </head>
 
-<body class="{{ $bodyClass }}">
+<body class="authentication-background">
 
     <!-- Start Switcher -->
     @include('layouts.components.custom-switcher')

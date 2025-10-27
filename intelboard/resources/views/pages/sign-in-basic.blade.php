@@ -130,7 +130,7 @@
                             </a>
                         </div>
                         <div class="text-center mt-3 fw-medium">
-                            {{ __('messages.login_no_account') }} <a href="{{ url('sign-up-basic') }}"
+                            {{ __('messages.login_no_account') }} <a href="{{ route('signup') }}"
                                 class="text-primary">{{ __('messages.register_title') }}</a>
                         </div>
                     </div>

@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
@@ -19,43 +20,98 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle an authentication attempt (Standard Email/Password).
+     * Handle a login request.
      */
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => ['required', 'email'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        $remember = $request->boolean('remember');
-
-        // 1. Find active user by email
-        $user = User::where('email', $credentials['email'])
-            ->where('active', true)
-            ->first();
-
-        // 2. Check if user exists AND password matches
-        if ($user && Hash::check($credentials['password'], $user->password)) {
-            Auth::login($user, $remember);
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
-
-            // 3. Log user activity
-            $user->activities()->create([
-                'login_at' => now(),
-                'browser' => $request->header('User-Agent'),
-                'ip_address' => $request->ip(),
-                'device' => $this->getDeviceType($request),
-                'location' => $this->getLocation($request),
-            ]);
 
             return redirect()->intended('/');
         }
 
-        // Return generic error if login failed or user is inactive
         return back()->withErrors([
             'email' => __('messages.invalid_credentials'),
         ])->onlyInput('email');
+    }
+
+    /**
+     * Show the registration form.
+     */
+    public function showRegister(Request $request)
+    {
+        $plan = $request->query('plan', 'bronze'); // Default to bronze
+        $interval = $request->query('interval', 'monthly'); // Default to monthly
+
+        return view('pages.sign-up-basic', compact('plan', 'interval'));
+    }
+
+    /**
+     * Handle a registration request.
+     */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8'],
+            'phone' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'phone_number' => $request->phone,
+            'role' => 2, // Broker
+            'active' => true,
+        ]);
+
+        Auth::login($user);
+
+        // Now handle the subscription
+        $plan = $request->input('plan', 'bronze');
+        $interval = $request->input('interval', 'monthly');
+        $priceId = $this->getPriceId($plan, $interval);
+
+        if (!$priceId) {
+            return redirect()->route('dashboard')->with('error', 'Invalid subscription plan selected.');
+        }
+
+        // Redirect to a dedicated subscription page
+        return redirect()->route('subscribe.view', ['price_id' => $priceId]);
+    }
+
+    /**
+     * Get Stripe Price ID based on plan and interval.
+     * Replace with your actual Price IDs from Stripe.
+     */
+    private function getPriceId($plan, $interval)
+    {
+        $prices = [
+            'bronze' => [
+                'monthly' => 'price_1PQSfHRpS4YVz6cW2g5eYxkj',
+                'quarterly' => 'price_...',
+                'yearly' => 'price_...',
+            ],
+            'gold' => [
+                'monthly' => 'price_1PQSfhRpS4YVz6cW3gQ8gohK',
+                'quarterly' => 'price_...',
+                'yearly' => 'price_...',
+            ],
+            'diamond' => [
+                'monthly' => 'price_1PQSgBRpS4YVz6cW2sDxA2R1',
+                'quarterly' => 'price_...',
+                'yearly' => 'price_...',
+            ],
+        ];
+
+        return $prices[$plan][$interval] ?? null;
     }
 
     /**

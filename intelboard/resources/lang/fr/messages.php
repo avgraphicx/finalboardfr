@@ -75,18 +75,25 @@ return [
     |--------------------------------------------------------------------------
     */
     'register_title'                     => 'S\'inscrire',
+    'join_us_by_creating_account'        => 'Rejoignez-nous en créant un compte gratuit !',
     'register_full_name_label'           => 'Nom complet',
     'register_full_name_placeholder'     => 'Entrez votre nom complet',
     'register_email_label'               => 'Adresse e-mail',
     'register_email_placeholder'         => 'Entrez votre e-mail',
+    'enter_email'                        => 'Entrez votre e-mail',
     'register_phone_label'               => 'Numéro de téléphone',
     'register_phone_placeholder'         => 'Entrez votre numéro à 10 chiffres',
+    'enter_phone_number'                 => 'Entrez votre numéro de téléphone',
     'register_password_label'            => 'Mot de passe',
     'register_password_placeholder'      => 'Entrez votre mot de passe',
+    'enter_password'                     => 'Entrez votre mot de passe',
     'register_password_confirm_label'    => 'Confirmez le mot de passe',
     'register_password_confirm_placeholder' => 'Entrez à nouveau votre mot de passe',
     'register_button'                    => 'S\'inscrire',
     'register_already_have_account'      => 'Vous avez déjà un compte?',
+    'create_account'                     => 'Créer un compte',
+    'signup_with_google'                 => 'Inscrivez-vous avec Google',
+    'sign_in'                            => 'Se connecter',
     'register_phone_error'               => 'Veuillez entrer un numéro de téléphone valide à 10 chiffres.',
     'register_phone_title'               => 'Finaliser l\'inscription',
     'register_phone_welcome'             => 'Bienvenue, :name !',
@@ -658,7 +665,7 @@ return [
     'upload_more_invoices' => 'Téléverser plus de factures',
 
 
-];
+
 
     /*
     |--------------------------------------------------------------------------
@@ -674,11 +681,11 @@ return [
     'login' => 'Connexion',
     'get_started' => 'Commencer',
     'learn_more' => 'En savoir plus',
-    
+
     // Hero
     'hero_title' => 'Gérez vos opérations logistiques avec',
     'hero_description' => 'La plateforme tout-en-un pour les entreprises de logistique et de transport pour gérer les chauffeurs, suivre les factures et surveiller les paiements efficacement.',
-    
+
     // Features
     'core_features' => 'FONCTIONNALITÉS PRINCIPALES',
     'everything_you_need' => 'Tout ce dont vous avez besoin pour réussir',
@@ -693,7 +700,7 @@ return [
     'financial_tracking_desc' => 'Calculez automatiquement les commissions, les bonus, les pénalités et les paiements nets. Conservez un enregistrement clair de toutes les transactions financières.',
     'multi_language_themes' => 'Multilingue et thèmes',
     'multi_language_themes_desc' => 'Prise en charge complète de l\'anglais et du français, ainsi que des préférences spécifiques à l\'utilisateur pour le mode clair/sombre afin d\'améliorer la convivialité.',
-    
+
     // Workflow
     'how_it_works' => 'COMMENT ÇA MARCHE',
     'simple_workflow' => 'Un flux de travail simple et puissant',
@@ -705,7 +712,7 @@ return [
     'calculate_track_desc' => 'Intelboard calcule toutes les commissions, les avantages et le salaire net. Suivez l\'état des paiements de non payé à payé.',
     'view_analytics' => 'Voir l\'analytique',
     'view_analytics_desc' => 'Surveillez les performances, suivez les gains et générez des rapports à partir de votre tableau de bord interactif.',
-    
+
     // Analytics
     'analytics_reporting_section' => 'ANALYTIQUE ET RAPPORTS',
     'data_driven_decisions' => 'Décisions basées sur les données',
@@ -714,7 +721,7 @@ return [
     'analyze_weekly_earnings' => 'Analyser les statistiques des gains hebdomadaires.',
     'track_average_metrics' => 'Suivre les métriques moyennes pour tous les chauffeurs.',
     'monitor_key_stats' => 'Surveiller les statistiques clés de l\'entreprise d\'un coup d\'œil.',
-    
+
     // Pricing
     'pricing_plans' => 'Plans de tarification',
     'choose_right_plan' => 'Choisissez le bon plan pour vos besoins',
@@ -725,7 +732,7 @@ return [
     'save_10' => 'Économisez 10%',
     'save_20' => 'Économisez 20%',
     'per_month' => '/ mois',
-    
+
     // Bronze Plan
     'bronze' => 'Bronze',
     'bronze_desc' => 'Parfait pour les débutants avec peu de chauffeurs.',
@@ -737,13 +744,13 @@ return [
     'auto_calculate_multiple' => 'Calculer automatiquement plusieurs factures à la fois.',
     'add_supervisor_account' => 'Ajouter un compte superviseur.',
     'create_custom_invoice' => 'Créer une facture d\'entreprise personnalisée.',
-    
+
     // Gold Plan
     'gold' => 'Or',
     'gold_desc' => 'Conçu pour plus de chauffeurs et plusieurs entrepôts.',
     'add_up_to_50_drivers' => 'Ajoutez jusqu\'à 50 chauffeurs.',
     'auto_calculate_up_to_10' => 'Calculer automatiquement jusqu\'à 10 factures à la fois.',
-    
+
     // Diamond Plan
     'diamond' => 'Diamant',
     'diamond_desc' => 'Pour les courtiers avec le plus grand nombre de chauffeurs.',
@@ -751,3 +758,4 @@ return [
     'auto_calculate_unlimited' => 'Calculer automatiquement un nombre illimité de factures à la fois.',
     'vip_support' => 'Niveau de support VIP.',
     'first_access_features' => 'Premier accès aux nouvelles fonctionnalités.',
+];
