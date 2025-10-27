@@ -42,7 +42,19 @@ class Subscription extends Model
 
     public function isActive(): bool
     {
-        return $this->stripe_status === 'active' && $this->ends_at->isFuture();
+        // Check if subscription has not expired
+        if ($this->ends_at && $this->ends_at->isPast()) {
+            return false;
+        }
+
+        // If stripe_status exists, it must be 'active'
+        // If no stripe_status, consider it active if ends_at is in future or null
+        if ($this->stripe_status) {
+            return $this->stripe_status === 'active';
+        }
+
+        // No stripe_status set, check if ends_at is valid
+        return !$this->ends_at || $this->ends_at->isFuture();
     }
 
     public function isExpired(): bool

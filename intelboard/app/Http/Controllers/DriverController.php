@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Driver;
 use App\Models\Invoice;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class DriverController extends Controller
 {
@@ -90,6 +92,7 @@ class DriverController extends Controller
 
     /**
      * Store a newly created driver in storage.
+     * Protected by subscription.limit:driver middleware in routes.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -240,5 +243,44 @@ class DriverController extends Controller
             ->values();
 
         return response()->json($invoices);
+    }
+
+    /**
+     * Check if user can add more drivers based on subscription limits.
+     */
+    public function checkLimit(SubscriptionService $subscriptionService): JsonResponse
+    {
+        $user = Auth::user();
+
+        // Get limit info and check if user can add drivers
+        $limitInfo = $subscriptionService->getDriverLimitInfo($user);
+        $canAdd = $subscriptionService->canAddDriver($user);
+
+        // If user has no subscription at all
+        if (!$subscriptionService->hasActiveSubscription($user)) {
+            return response()->json([
+                'can_add' => false,
+                'message' => __('messages.subscription_required'),
+                'limit_info' => $limitInfo,
+            ], 403);
+        }
+
+        // If user has subscription but reached the limit
+        if (!$canAdd) {
+            return response()->json([
+                'can_add' => false,
+                'message' => __('messages.max_drivers_reached', [
+                    'current' => $limitInfo['current'],
+                    'max' => $limitInfo['max'],
+                ]),
+                'limit_info' => $limitInfo,
+            ], 403);
+        }
+
+        // User can add more drivers
+        return response()->json([
+            'can_add' => true,
+            'limit_info' => $limitInfo,
+        ]);
     }
 }

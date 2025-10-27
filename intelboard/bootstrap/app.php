@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'check-user-role' => \App\Http\Middleware\CheckUserRole::class,
+            'subscription.limit' => \App\Http\Middleware\CheckSubscriptionLimits::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

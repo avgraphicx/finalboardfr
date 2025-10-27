@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,12 +12,15 @@ class InvoiceController extends Controller
     /**
      * Display a listing of invoices.
      */
-    public function index()
+    public function index(SubscriptionService $subscriptionService)
     {
         $user = Auth::user();
         $invoices = Invoice::where('broker_id', $user->id)->with('driver')->paginate(20);
         $drivers = $user->drivers()->where('active', true)->get();
-        return view('pages.invoices.index', compact('invoices', 'drivers'));
+        $features = $subscriptionService->getSubscriptionFeatures($user);
+        $maxFiles = $features['max_files'] ?? 0;
+
+        return view('pages.invoices.index', compact('invoices', 'drivers', 'maxFiles'));
     }
 
     /**
@@ -30,6 +34,7 @@ class InvoiceController extends Controller
 
     /**
      * Store a newly created invoice.
+     * Protected by subscription.limit:custom_invoice middleware in routes.
      */
     public function store(Request $request)
     {

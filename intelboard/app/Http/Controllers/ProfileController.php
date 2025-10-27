@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,25 +14,27 @@ class ProfileController extends Controller
     /**
      * Show the user profile.
      */
-    public function show(): View
+    public function show(SubscriptionService $subscriptionService): View
     {
         /** @var \App\Models\User $user */
         $user = Auth::user()->load(['subscription.subscriptionType', 'preferences']);
         $preferences = $user->preferences ?? null;
+        $canAddSupervisor = $subscriptionService->canAddSupervisor($user);
 
-        return view('pages.profile', compact('user', 'preferences'));
+        return view('pages.profile', compact('user', 'preferences', 'canAddSupervisor'));
     }
 
     /**
      * Show the form for editing the profile.
      */
-    public function edit(): View
+    public function edit(SubscriptionService $subscriptionService): View
     {
         /** @var \App\Models\User $user */
         $user = Auth::user()->load(['subscription.subscriptionType', 'preferences']);
         $preferences = $user->preferences ?? null;
+        $canAddSupervisor = $subscriptionService->canAddSupervisor($user);
 
-        return view('pages.profile', compact('user', 'preferences'));
+        return view('pages.profile', compact('user', 'preferences', 'canAddSupervisor'));
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\PaymentImportException;
@@ -21,9 +22,14 @@ class PaymentController extends Controller
         return view('pages.payments', compact('payments'));
     }
 
-    public function importForm()
+    public function importForm(SubscriptionService $subscriptionService)
     {
-        return view('pages.payments.import');
+        $user = Auth::user();
+        $drivers = $user->drivers()->where('active', true)->get();
+        $features = $subscriptionService->getSubscriptionFeatures($user);
+        $maxFiles = $features['max_files'] ?? 0;
+
+        return view('pages.payments.import', compact('drivers', 'maxFiles'));
     }
 
     public function validateDriverPdf(Request $request)

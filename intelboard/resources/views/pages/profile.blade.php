@@ -70,9 +70,21 @@
             <div class="card custom-card">
                 <div class="card-body">
                     <!-- removed tab navigation to use a single form view -->
-                    <div class="text-muted fs-13">
-                        {{ __('messages.profile_settings_description') ?? '' }}
-                    </div>
+                    @if($canAddSupervisor ?? false)
+                        <a href="#" id="createSupervisorBtn" class="btn btn-md form-control btn-success">
+                            <i class="ri-user-add-fill me-2 fs-5"></i>{{ __('messages.add_supervisor') }}
+                        </a>
+                    @else
+                        <button type="button" class="btn btn-md form-control btn-secondary" disabled
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="{{ __('messages.add_supervisor_not_allowed') }}">
+                            <i class="ri-user-add-fill me-2 fs-5"></i>{{ __('messages.add_supervisor') }}
+                        </button>
+                        <small class="text-muted d-block mt-2 text-center">
+                            <i class="ri-information-line"></i> {{ __('messages.upgrade_to_add_supervisors') ?? 'Upgrade your plan to add supervisors' }}
+                        </small>
+                    @endif
                 </div>
             </div>
         </div>

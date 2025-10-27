@@ -115,6 +115,25 @@ return [
     'subscription'             => 'Abonnement',
     'until'                    => 'Jusqu\'au',
     'save_changes'             => 'Enregistrer les modifications',
+    'please_login'             => 'Veuillez vous connecter pour continuer',
+    'subscription_required'    => 'Un abonnement actif est requis pour effectuer cette action',
+    'add_supervisor_not_allowed' => 'Votre plan d\'abonnement ne permet pas d\'ajouter des superviseurs',
+    'custom_invoice_not_allowed' => 'Votre plan d\'abonnement ne permet pas de créer des factures personnalisées',
+    'checking'                 => 'Vérification...',
+    'checking_subscription_limits' => 'Vérification des limites d\'abonnement...',
+    'subscription_limit_reached' => 'Limite d\'abonnement atteinte',
+    'error'                    => 'Erreur',
+    'error_checking_limits'    => 'Une erreur s\'est produite lors de la vérification des limites d\'abonnement',
+    'upgrade_to_add_supervisors' => 'Améliorez votre forfait pour ajouter des superviseurs',
+    'add_supervisor'           => 'Ajouter un superviseur',
+    'max_files_allowed'        => 'Max Fichiers',
+    'too_many_files'           => 'Trop de fichiers',
+    'max_files_exceeded'       => 'Vous ne pouvez télécharger que',
+    'files_at_once'            => 'fichiers à la fois',
+    'select_files'             => 'Veuillez sélectionner des fichiers',
+    'warning'                  => 'Avertissement',
+    'error_occurred'           => 'Une erreur s\'est produite',
+    'success'                  => 'Succès',
 
     /*
     |--------------------------------------------------------------------------
@@ -124,7 +143,7 @@ return [
     'drivers'                => 'Chauffeurs',
 
     'user_drivers_count'           => 'Vous avez ajouté :count chauffeurs',
-    'max_drivers_reached'                => 'Nombre de chauffeurs en total atteint',
+    'max_drivers_reached'                => 'Vous avez atteint votre limite de chauffeurs (:current/:max chauffeurs)',
     'max_drivers_text' => 'Vous avez atteint le nombre maximal de chauffeurs pour votre type d\'abonnement.',
 
     'add_driver_btn'         => 'Ajouter un chauffeur',
@@ -640,3 +659,95 @@ return [
 
 
 ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Landing Page
+    |--------------------------------------------------------------------------
+    */
+    'home' => 'Accueil',
+    'features' => 'Fonctionnalités',
+    'workflow' => 'Flux de travail',
+    'analytics' => 'Analytique',
+    'user_roles' => 'Rôles utilisateur',
+    'pricing' => 'Tarification',
+    'login' => 'Connexion',
+    'get_started' => 'Commencer',
+    'learn_more' => 'En savoir plus',
+    
+    // Hero
+    'hero_title' => 'Gérez vos opérations logistiques avec',
+    'hero_description' => 'La plateforme tout-en-un pour les entreprises de logistique et de transport pour gérer les chauffeurs, suivre les factures et surveiller les paiements efficacement.',
+    
+    // Features
+    'core_features' => 'FONCTIONNALITÉS PRINCIPALES',
+    'everything_you_need' => 'Tout ce dont vous avez besoin pour réussir',
+    'features_description' => 'Intelboard fournit une suite complète d\'outils pour rationaliser chaque aspect de vos opérations commerciales.',
+    'driver_management' => 'Gestion des chauffeurs',
+    'driver_management_desc' => 'Créez et gérez des profils de chauffeurs détaillés, suivez les performances, définissez les commissions et consultez l\'historique des gains par semaine.',
+    'invoice_payment' => 'Facture et paiement',
+    'invoice_payment_desc' => 'Téléchargez des factures PDF avec validation automatisée. Suivez les paiements, calculez les avantages des chauffeurs et gérez l\'état des paiements en masse.',
+    'analytics_reporting' => 'Analytique et rapports',
+    'analytics_reporting_desc' => 'Accédez à des tableaux de bord interactifs montrant les performances des chauffeurs, les gains hebdomadaires et les statistiques graphiques clés de l\'entreprise.',
+    'financial_tracking' => 'Suivi financier',
+    'financial_tracking_desc' => 'Calculez automatiquement les commissions, les bonus, les pénalités et les paiements nets. Conservez un enregistrement clair de toutes les transactions financières.',
+    'multi_language_themes' => 'Multilingue et thèmes',
+    'multi_language_themes_desc' => 'Prise en charge complète de l\'anglais et du français, ainsi que des préférences spécifiques à l\'utilisateur pour le mode clair/sombre afin d\'améliorer la convivialité.',
+    
+    // Workflow
+    'how_it_works' => 'COMMENT ÇA MARCHE',
+    'simple_workflow' => 'Un flux de travail simple et puissant',
+    'add_drivers' => 'Ajouter des chauffeurs',
+    'add_drivers_desc' => 'Créez des profils pour vos chauffeurs avec toutes les informations nécessaires et les paramètres de paiement.',
+    'upload_invoices' => 'Télécharger des factures',
+    'upload_invoices_desc' => 'Téléchargez des factures PDF. Le système valide automatiquement les données par rapport aux profils des chauffeurs.',
+    'calculate_track' => 'Calculer et suivre',
+    'calculate_track_desc' => 'Intelboard calcule toutes les commissions, les avantages et le salaire net. Suivez l\'état des paiements de non payé à payé.',
+    'view_analytics' => 'Voir l\'analytique',
+    'view_analytics_desc' => 'Surveillez les performances, suivez les gains et générez des rapports à partir de votre tableau de bord interactif.',
+    
+    // Analytics
+    'analytics_reporting_section' => 'ANALYTIQUE ET RAPPORTS',
+    'data_driven_decisions' => 'Décisions basées sur les données',
+    'analytics_lead' => 'Dépassez les feuilles de calcul. Notre tableau de bord analytique interactif vous donne une vue en temps réel de la santé de votre entreprise.',
+    'view_total_invoices' => 'Voir le total des factures par rapport aux avantages des chauffeurs.',
+    'analyze_weekly_earnings' => 'Analyser les statistiques des gains hebdomadaires.',
+    'track_average_metrics' => 'Suivre les métriques moyennes pour tous les chauffeurs.',
+    'monitor_key_stats' => 'Surveiller les statistiques clés de l\'entreprise d\'un coup d\'œil.',
+    
+    // Pricing
+    'pricing_plans' => 'Plans de tarification',
+    'choose_right_plan' => 'Choisissez le bon plan pour vos besoins',
+    'choose_plan_desc' => 'Choisissez un plan qui correspond à vos besoins avec des fonctionnalités évolutives et une grande valeur.',
+    'monthly' => 'Mensuel',
+    'quarterly' => 'Trimestriel',
+    'yearly' => 'Annuel',
+    'save_10' => 'Économisez 10%',
+    'save_20' => 'Économisez 20%',
+    'per_month' => '/ mois',
+    
+    // Bronze Plan
+    'bronze' => 'Bronze',
+    'bronze_desc' => 'Parfait pour les débutants avec peu de chauffeurs.',
+    'add_up_to_10_drivers' => 'Ajoutez jusqu\'à 10 chauffeurs.',
+    'add_unlimited_drivers' => 'Ajoutez un nombre illimité de chauffeurs.',
+    'view_weekly_stats' => 'Voir les statistiques hebdomadaires sur le tableau de bord.',
+    'choose_daily_weekly_monthly' => 'Choisissez les statistiques quotidiennes, hebdomadaires, mensuelles.',
+    'auto_calculate_invoice' => 'Calculer automatiquement une facture.',
+    'auto_calculate_multiple' => 'Calculer automatiquement plusieurs factures à la fois.',
+    'add_supervisor_account' => 'Ajouter un compte superviseur.',
+    'create_custom_invoice' => 'Créer une facture d\'entreprise personnalisée.',
+    
+    // Gold Plan
+    'gold' => 'Or',
+    'gold_desc' => 'Conçu pour plus de chauffeurs et plusieurs entrepôts.',
+    'add_up_to_50_drivers' => 'Ajoutez jusqu\'à 50 chauffeurs.',
+    'auto_calculate_up_to_10' => 'Calculer automatiquement jusqu\'à 10 factures à la fois.',
+    
+    // Diamond Plan
+    'diamond' => 'Diamant',
+    'diamond_desc' => 'Pour les courtiers avec le plus grand nombre de chauffeurs.',
+    'view_stats_dashboard' => 'Voir les statistiques sur le tableau de bord.',
+    'auto_calculate_unlimited' => 'Calculer automatiquement un nombre illimité de factures à la fois.',
+    'vip_support' => 'Niveau de support VIP.',
+    'first_access_features' => 'Premier accès aux nouvelles fonctionnalités.',

@@ -19,7 +19,7 @@
             <div class="card custom-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div class="card-title">{{ __('messages.drivers_list') ?? 'Drivers List' }}</div>
-                    <a href="{{ route('drivers.create') }}" class="btn btn-sm btn-primary">
+                    <a href="{{ route('drivers.create') }}" id="createDriverBtn" class="btn btn-sm btn-primary">
                         <i class="ri-add-line me-2"></i>{{ __('messages.add_driver') ?? 'Add Driver' }}
                     </a>
                 </div>
@@ -28,7 +28,7 @@
                         <div class="d-flex gap-2 align-items-center">
                             <div style="flex: 1;">
                                 <input type="text" id="searchInput" class="form-control form-control-sm"
-                                    placeholder="{{ __('messages.search_by_name_or_driver_id') }}">
+                                       placeholder="{{ __('messages.search_by_name_or_driver_id') }}">
                             </div>
                             <button type="button" class="btn btn-sm btn-secondary" id="clearBtn">
                                 <i class="ri-close-line"></i>
@@ -47,34 +47,34 @@
                         <div class="table-responsive">
                             <table class="table table-hover" id="driversTable">
                                 <thead>
-                                    <tr>
-                                        <th style="width: 40px;">
-                                            <input type="checkbox" id="selectAll" class="form-check-input">
-                                        </th>
-                                        <th class="d-none d-md-table-cell">{{ __('messages.driver_id') ?? 'Driver ID' }}
-                                        </th>
-                                        <th>{{ __('messages.full_name') ?? 'Full Name' }}</th>
-                                        <th class="d-none d-md-table-cell">
-                                            {{ __('messages.default_percentage') ?? 'License #' }}</th>
-                                        <th class="d-none d-md-table-cell">
-                                            {{ __('messages.default_rental_price') ?? 'SSN' }}</th>
-                                        <th class="d-none d-md-table-cell">{{ __('messages.status') ?? 'Status' }}</th>
-                                        <th>{{ __('messages.actions') ?? 'Actions' }}</th>
-                                    </tr>
+                                <tr>
+                                    <th style="width: 40px;">
+                                        <input type="checkbox" id="selectAll" class="form-check-input">
+                                    </th>
+                                    <th class="d-none d-md-table-cell">{{ __('messages.driver_id') ?? 'Driver ID' }}
+                                    </th>
+                                    <th>{{ __('messages.full_name') ?? 'Full Name' }}</th>
+                                    <th class="d-none d-md-table-cell">
+                                        {{ __('messages.default_percentage') ?? 'License #' }}</th>
+                                    <th class="d-none d-md-table-cell">
+                                        {{ __('messages.default_rental_price') ?? 'SSN' }}</th>
+                                    <th class="d-none d-md-table-cell">{{ __('messages.status') ?? 'Status' }}</th>
+                                    <th>{{ __('messages.actions') ?? 'Actions' }}</th>
+                                </tr>
                                 </thead>
                                 <tbody id="tableBody">
-                                    @foreach ($drivers as $driver)
-                                        <tr class="driver-row" data-driver-id="{{ strtolower($driver->driver_id) }}"
-                                            data-driver-name="{{ strtolower($driver->full_name) }}">
-                                            <td>
-                                                <input type="checkbox" class="form-check-input driver-checkbox"
-                                                    value="{{ $driver->id }}">
-                                            </td>
-                                            <td class="d-none d-md-table-cell"><strong>{{ $driver->driver_id }}</strong>
-                                            </td>
-                                            <td>
-                                                <span class="d-none d-md-inline">{{ $driver->full_name }}</span>
-                                                <span class="d-md-none">
+                                @foreach ($drivers as $driver)
+                                    <tr class="driver-row" data-driver-id="{{ strtolower($driver->driver_id) }}"
+                                        data-driver-name="{{ strtolower($driver->full_name) }}">
+                                        <td>
+                                            <input type="checkbox" class="form-check-input driver-checkbox"
+                                                   value="{{ $driver->id }}">
+                                        </td>
+                                        <td class="d-none d-md-table-cell"><strong>{{ $driver->driver_id }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="d-none d-md-inline">{{ $driver->full_name }}</span>
+                                            <span class="d-md-none">
                                                     @php
                                                         $names = explode(' ', trim($driver->full_name));
                                                         $firstName = $names[0] ?? '';
@@ -84,46 +84,47 @@
                                                             '  .' .
                                                             (strlen($lastName) > 0 ? substr($lastName, 0, 1) : '');
                                                     @endphp
-                                                    {{ trim($initials) }}
+                                                {{ trim($initials) }}
                                                 </span>
-                                            </td>
-                                            <td class="d-none d-md-table-cell">{{ $driver->default_percentage ?? 'N/A' }}%
-                                            </td>
-                                            <td class="d-none d-md-table-cell">
-                                                {{ $driver->default_rental_price ?? 'N/A' }}$</td>
-                                            <td class="d-none d-md-table-cell">
-                                                @if ($driver->active)
-                                                    <span
-                                                        class="badge bg-success-transparent">{{ __('messages.active') ?? 'Active' }}</span>
-                                                @else
-                                                    <span
-                                                        class="badge bg-danger-transparent">{{ __('messages.inactive') ?? 'Inactive' }}</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <div class="d-flex gap-1">
-                                                    <a href="{{ route('drivers.show', $driver) }}"
-                                                        class="btn btn-sm btn-info">
-                                                        <i class="ri-eye-line"></i>
-                                                    </a>
-                                                    <a href="{{ route('drivers.edit', $driver) }}"
-                                                        class="btn btn-sm btn-warning">
-                                                        <i class="ri-edit-line"></i>
-                                                    </a>
-                                                    <form action="{{ route('drivers.destroy', $driver) }}" method="POST"
-                                                        style="display:inline;" class="confirm-delete-form">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="button"
+                                        </td>
+                                        <td class="d-none d-md-table-cell">{{ $driver->default_percentage ?? 'N/A' }}%
+                                        </td>
+                                        <td class="d-none d-md-table-cell">
+                                            {{ $driver->default_rental_price ?? 'N/A' }}$
+                                        </td>
+                                        <td class="d-none d-md-table-cell">
+                                            @if ($driver->active)
+                                                <span
+                                                    class="badge bg-success-transparent">{{ __('messages.active') ?? 'Active' }}</span>
+                                            @else
+                                                <span
+                                                    class="badge bg-danger-transparent">{{ __('messages.inactive') ?? 'Inactive' }}</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a href="{{ route('drivers.show', $driver) }}"
+                                                   class="btn btn-sm btn-info">
+                                                    <i class="ri-eye-line"></i>
+                                                </a>
+                                                <a href="{{ route('drivers.edit', $driver) }}"
+                                                   class="btn btn-sm btn-warning">
+                                                    <i class="ri-edit-line"></i>
+                                                </a>
+                                                <form action="{{ route('drivers.destroy', $driver) }}" method="POST"
+                                                      style="display:inline;" class="confirm-delete-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button"
                                                             class="btn btn-sm btn-danger confirm-delete-btn"
                                                             data-confirm-message="{{ __('messages.confirm_delete') ?? 'Are you sure?' }}">
-                                                            <i class="ri-delete-bin-2-fill"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                                                        <i class="ri-delete-bin-2-fill"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -151,17 +152,82 @@
     </style>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('searchInput');
             const clearBtn = document.getElementById('clearBtn');
             const tableBody = document.getElementById('tableBody');
             const recordCount = document.getElementById('recordCount');
             const noResults = document.getElementById('noResults');
             const table = document.getElementById('driversTable');
+            const createDriverBtn = document.getElementById('createDriverBtn');
 
             // Get total count
             const totalRows = tableBody.querySelectorAll('tr').length;
             updateRecordCount(totalRows);
+
+            // Check subscription limit before navigating to create driver page
+            createDriverBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const createUrl = this.href;
+
+                // Show loading state
+                ensureSwal().then(() => {
+                    Swal.fire({
+                        title: '{{ __('messages.checking') ?? 'Checking...' }}',
+                        text: '{{ __('messages.checking_subscription_limits') ?? 'Checking subscription limits...' }}',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Check limit via AJAX
+                    fetch('{{ route('drivers.check-limit') }}', {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw { status: response.status, data: data };
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        Swal.close();
+                        if (data.can_add) {
+                            // User can add drivers, proceed to create page
+                            window.location.href = createUrl;
+                        }
+                    })
+                    .catch(error => {
+                        Swal.close();
+                        if (error.status === 403 && error.data) {
+                            // Show subscription limit error
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __('messages.subscription_limit_reached') ?? 'Subscription Limit Reached' }}',
+                                html: error.data.message,
+                                confirmButtonText: '{{ __('messages.ok') ?? 'OK' }}',
+                                confirmButtonColor: '#d33'
+                            });
+                        } else {
+                            // Generic error
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __('messages.error') ?? 'Error' }}',
+                                text: '{{ __('messages.error_checking_limits') ?? 'An error occurred while checking subscription limits.' }}',
+                                confirmButtonText: '{{ __('messages.ok') ?? 'OK' }}'
+                            });
+                        }
+                    });
+                });
+            });
 
             // Select all checkbox
             const selectAllCheckbox = document.getElementById('selectAll');
@@ -180,7 +246,7 @@
                 }
             }
 
-            selectAllCheckbox.addEventListener('change', function() {
+            selectAllCheckbox.addEventListener('change', function () {
                 driverCheckboxes.forEach(checkbox => {
                     // Only check visible checkboxes
                     if (!checkbox.closest('tr').classList.contains('hidden')) {
@@ -192,7 +258,7 @@
 
             // Individual checkbox change
             driverCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
+                checkbox.addEventListener('change', function () {
                     const visibleCheckboxes = Array.from(driverCheckboxes).filter(cb => !cb.closest(
                         'tr').classList.contains('hidden'));
                     const allChecked = visibleCheckboxes.every(cb => cb.checked);
@@ -217,7 +283,7 @@
             }
 
             // Bulk delete functionality (uses SweetAlert2)
-            bulkDeleteBtn.addEventListener('click', function() {
+            bulkDeleteBtn.addEventListener('click', function () {
                 const selectedIds = Array.from(driverCheckboxes)
                     .filter(cb => cb.checked)
                     .map(cb => cb.value);
@@ -284,7 +350,7 @@
 
             // Individual delete buttons (use SweetAlert)
             document.querySelectorAll('.confirm-delete-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
+                btn.addEventListener('click', function (e) {
                     const message = this.getAttribute('data-confirm-message') ||
                         '{{ __('messages.confirm_delete') ?? 'Are you sure?' }}';
                     const form = this.closest('form');
@@ -308,7 +374,7 @@
             });
 
             // Search functionality
-            searchInput.addEventListener('keyup', function() {
+            searchInput.addEventListener('keyup', function () {
                 const searchTerm = this.value.toLowerCase().trim();
                 let visibleCount = 0;
 
@@ -317,7 +383,7 @@
                     const driverName = row.getAttribute('data-driver-name');
 
                     if (!searchTerm || driverId.includes(searchTerm) || driverName.includes(
-                            searchTerm)) {
+                        searchTerm)) {
                         row.classList.remove('hidden');
                         visibleCount++;
                     } else {
@@ -338,7 +404,7 @@
             });
 
             // Clear button
-            clearBtn.addEventListener('click', function() {
+            clearBtn.addEventListener('click', function () {
                 searchInput.value = '';
                 tableBody.querySelectorAll('.driver-row').forEach(row => {
                     row.classList.remove('hidden');

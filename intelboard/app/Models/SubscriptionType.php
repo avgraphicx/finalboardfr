@@ -12,8 +12,10 @@ class SubscriptionType extends Model
     protected $fillable = [
         'name',
         'max_drivers',
+        'max_files',
         'add_supervisor',
         'custom_invoice',
+        'stats_type',
         'price',
         'stripe_plan_id',
     ];
@@ -24,6 +26,8 @@ class SubscriptionType extends Model
             'add_supervisor' => 'boolean',
             'custom_invoice' => 'boolean',
             'price' => 'decimal:2',
+            'max_drivers' => 'integer',
+            'max_files' => 'integer',
         ];
     }
 

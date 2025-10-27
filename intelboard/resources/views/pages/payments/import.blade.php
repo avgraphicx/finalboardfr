@@ -31,18 +31,82 @@
         </div>
     @endif
 
-    <div class="row">
+    {{-- Debug: Remove this after testing --}}
+    <div class="alert alert-info">Max Files: {{ $maxFiles ?? 'NOT SET' }} | Display multi: {{ isset($maxFiles) && $maxFiles == 1 ? 'none' : 'block' }}</div>
+
+    <!-- Single Upload Section (shown when max_files >= 1 or unlimited) -->
+    <div class="row" id="singleUpload">
+        <div class="col-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        {{ __('messages.select_driver') }}
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form id="driverSelectionForm">
+                        <p class="text-muted">{{ __('messages.search_by_name_or_driver_id') }}</p>
+                        <select name="selected_driver" id="selectedDriver"
+                                class="js-example-templating js-persons form-control" required>
+                            <option value="">{{ __('messages.select_driver') }}</option>
+                            @foreach ($drivers as $driver)
+                                <option value="{{ $driver->id }}">{{ $driver->driver_id }} - {{ $driver->full_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="d-flex gap-2 mt-3">
+                            <button type="button" id="nextBtn" class="btn btn-primary">
+                                <i class="ri-arrow-right-line"></i> {{ __('messages.next') ?? 'Next' }}
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="fileUploadSection" style="display: none;">
+                        <form id="singleFileForm" action="{{ route('payments.previewBatch') }}" method="POST"
+                              enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="driver_id" id="hiddenDriverId">
+                            <p class="text-muted">{{ __('messages.upload_invoice_pdf_for_selected_driver') }}</p>
+                            <div class="mb-3">
+                                <label class="form-label">{{ __('messages.upload_invoices') }}</label>
+                                <input class="form-control" id="singlePdfUpload" type="file" name="pdfs[]"
+                                       accept=".pdf" required>
+                                <div class="form-text">{{ __('messages.drag_and_drop') }}</div>
+                            </div>
+                            <div class="d-flex gap-2 mt-3">
+                                <button type="button" id="backBtn" class="btn btn-secondary">
+                                    <i class="ri-arrow-left-line"></i> {{ __('messages.back') ?? 'Back' }}
+                                </button>
+                                <button type="submit" id="confirmBtn" class="btn btn-primary">
+                                    <i class="ri-eye-line"></i> {{ __('messages.preview') }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multi File Upload Section (hidden when max_files = 1) -->
+    <div class="row" id="multiFileUploadSection" style="display: {{ isset($maxFiles) && $maxFiles == 1 ? 'none' : 'block' }}">
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <div class="card-title">{{ __('messages.upload_invoices') }}</div>
+                    @if($maxFiles > 0)
+                        <span class="badge bg-info-transparent">
+                            {{ __('messages.max_files_allowed') ?? 'Max Files' }}: {{ $maxFiles }}
+                        </span>
+                    @endif
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('payments.previewBatch') }}" method="POST" enctype="multipart/form-data">
+                    <form id="multiFileForm" action="{{ route('payments.previewBatch') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">{{ __('messages.upload_invoices') }}</label>
-                            <input class="form-control" type="file" name="pdfs[]" multiple accept=".pdf" required>
+                            <input class="form-control" id="multiPdfUpload" type="file" name="pdfs[]" multiple accept=".pdf" required>
                             <div class="form-text">{{ __('messages.drag_and_drop') }}</div>
                         </div>
                         <div class="d-flex gap-2 mt-3">
@@ -61,4 +125,136 @@
 @endsection
 
 @section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const maxFiles = {{ $maxFiles }};
+
+        document.addEventListener('DOMContentLoaded', function () {
+            @if($maxFiles == 1)
+            // Single file upload logic
+            const nextBtn = document.getElementById('nextBtn');
+            const backBtn = document.getElementById('backBtn');
+            const selectedDriver = document.getElementById('selectedDriver');
+            const driverSelectionForm = document.getElementById('driverSelectionForm');
+            const fileUploadSection = document.getElementById('fileUploadSection');
+            const singleFileForm = document.getElementById('singleFileForm');
+            const hiddenDriverId = document.getElementById('hiddenDriverId');
+            const singlePdfUpload = document.getElementById('singlePdfUpload');
+
+            // Next button - show file upload section
+            nextBtn.addEventListener('click', function () {
+                if (!selectedDriver.value) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '{{ __('messages.warning') }}',
+                        text: '{{ __('messages.select_driver') }}',
+                    });
+                    return;
+                }
+                hiddenDriverId.value = selectedDriver.value;
+                driverSelectionForm.style.display = 'none';
+                fileUploadSection.style.display = 'block';
+            });
+
+            // Back button - return to driver selection
+            backBtn.addEventListener('click', function () {
+                fileUploadSection.style.display = 'none';
+                driverSelectionForm.style.display = 'block';
+                singlePdfUpload.value = '';
+            });
+
+            // Form submission validation
+            singleFileForm.addEventListener('submit', function (e) {
+                if (!singlePdfUpload.files.length) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '{{ __('messages.warning') }}',
+                        text: '{{ __('messages.upload_invoices') ?? 'Please select a file' }}',
+                    });
+                    return;
+                }
+
+                e.preventDefault();
+
+                // Validate PDF belongs to selected driver
+                const formData = new FormData();
+                formData.append('pdf', singlePdfUpload.files[0]);
+                formData.append('driver_id', hiddenDriverId.value);
+                formData.append('_token', '{{ csrf_token() }}');
+
+                fetch('{{ route('payments.validateDriverPdf') }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.valid) {
+                            singleFileForm.submit();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __('messages.error') }}',
+                                text: data.message || '{{ __('messages.error') }}',
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('{{ __('messages.error') }}:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: '{{ __('messages.error') }}',
+                            text: '{{ __('messages.error_occurred') }}',
+                        });
+                    });
+            });
+            @else
+            // Multi file upload logic
+            const multiFileForm = document.getElementById('multiFileForm');
+            const multiPdfUpload = document.getElementById('multiPdfUpload');
+
+            multiFileForm.addEventListener('submit', function (e) {
+                const fileCount = multiPdfUpload.files.length;
+
+                // Check if max_files is set and files exceed the limit
+                if (maxFiles > 0 && fileCount > maxFiles) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: '{{ __('messages.too_many_files') ?? 'Too Many Files' }}',
+                        text: '{{ __('messages.max_files_exceeded') ?? 'You can only upload' }} ' + maxFiles + ' {{ __('messages.files_at_once') ?? 'files at once' }}',
+                        confirmButtonText: '{{ __('messages.ok') ?? 'OK' }}',
+                        confirmButtonColor: '#d33'
+                    });
+                    return;
+                }
+
+                if (fileCount === 0) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '{{ __('messages.warning') }}',
+                        text: '{{ __('messages.select_files') }}',
+                    });
+                }
+            });
+
+            // Also add change event to show warning immediately
+            multiPdfUpload.addEventListener('change', function() {
+                const fileCount = this.files.length;
+
+                if (maxFiles > 0 && fileCount > maxFiles) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '{{ __('messages.too_many_files') ?? 'Too Many Files' }}',
+                        text: '{{ __('messages.max_files_exceeded') ?? 'You can only upload' }} ' + maxFiles + ' {{ __('messages.files_at_once') ?? 'files at once' }}',
+                        confirmButtonText: '{{ __('messages.ok') ?? 'OK' }}',
+                        confirmButtonColor: '#d33'
+                    });
+                    this.value = ''; // Clear the selection
+                }
+            });
+            @endif
+        });
+    </script>
 @endsection

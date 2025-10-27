@@ -41,6 +41,9 @@ Route::get('welcome', function () {
     return view('landing');
 })->name('landing');
 
+Route::get('subscribe', [PublicSubscriptionController::class, 'show'])->name('subscriptions.checkout');
+Route::post('subscribe', [PublicSubscriptionController::class, 'store'])->name('subscriptions.storePublic');
+
 /******** Language Switcher (Unprotected) ********/
 Route::get('/lang/{locale}', function (string $locale) {
     if (in_array($locale, ['en', 'fr'])) {
@@ -85,13 +88,27 @@ Route::middleware(['auth'])->group(function () {
     /******** Drivers Management ********/
     Route::delete('drivers/bulk-destroy', [DriverController::class, 'bulkDestroy'])->name('drivers.bulkDestroy');
     Route::get('drivers/{driver}/invoices-data', [DriverController::class, 'invoicesData'])->name('drivers.invoices-data');
-    Route::resource('drivers', DriverController::class);
+    Route::get('drivers/check-limit', [DriverController::class, 'checkLimit'])->name('drivers.check-limit');
+
+    // Driver resource routes with subscription limit on create/store
+    Route::resource('drivers', DriverController::class)->except(['create', 'store']);
+    Route::middleware(['subscription.limit:driver'])->group(function () {
+        Route::get('drivers/create', [DriverController::class, 'create'])->name('drivers.create');
+        Route::post('drivers', [DriverController::class, 'store'])->name('drivers.store');
+    });
+
     Route::get('drivers/data', [DriverController::class, 'getData'])->name('drivers.data');
     Route::patch('drivers/{driver}/toggle-active', [DriverController::class, 'toggleActive'])->name('drivers.toggle-active');
     Route::get('drivers/{driver}/earnings', [DriverController::class, 'earnings'])->name('drivers.earnings');
 
     /******** Invoices Management ********/
-    Route::resource('invoices', InvoiceController::class);
+    // Invoice resource routes with subscription limit on custom invoice creation
+    Route::resource('invoices', InvoiceController::class)->except(['create', 'store']);
+    Route::middleware(['subscription.limit:custom_invoice'])->group(function () {
+        Route::get('invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
+        Route::post('invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+    });
+
     Route::post('invoices/{invoice}/mark-paid', [InvoiceController::class, 'markPaid'])->name('invoices.mark-paid');
     Route::post('invoices/{invoice}/mark-unpaid', [InvoiceController::class, 'markUnpaid'])->name('invoices.mark-unpaid');
     Route::post('invoices/mark-paid-bulk', [InvoiceController::class, 'markPaidBulk'])->name('invoices.mark-paid-bulk');

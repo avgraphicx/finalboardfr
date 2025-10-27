@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -27,7 +28,7 @@ class UserController extends Controller
     /**
      * Store a newly created user.
      */
-    public function store(Request $request)
+    public function store(Request $request, SubscriptionService $subscriptionService)
     {
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
@@ -38,6 +39,17 @@ class UserController extends Controller
             'active' => 'boolean',
             'company_name' => 'nullable|string|max:255',
         ]);
+
+        // If creating a supervisor (role=3), check subscription limits for brokers
+        if ($validated['role'] == 3) {
+            $creator = auth()->user();
+            // Only check limits if creator is a broker (role=2)
+            if ($creator->role == 2 && !$subscriptionService->canAddSupervisor($creator)) {
+                return back()
+                    ->withInput()
+                    ->with('error', __('messages.add_supervisor_not_allowed'));
+            }
+        }
 
         User::create($validated);
         return redirect()->route('users.index')->with('success', 'User created successfully');
