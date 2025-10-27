@@ -58,11 +58,11 @@
                     @endif
                     <span class="d-block fs-13 text-muted">
                         {{ __('messages.subscription') }} :
-                        {{ $user->subscription?->subscriptionType?->name ?? 'None' }}
+                        {{ $user->legacySubscription?->subscriptionType?->name ?? 'None' }}
                     </span>
                     <span class="d-block fs-13 text-muted">
                         {{ __('messages.until') }} :
-                        {{ $user->subscription?->ends_at?->format('Y-m-d') ?? 'N/A' }}
+                        {{ $user->legacySubscription?->ends_at?->format('Y-m-d') ?? 'N/A' }}
                     </span>
                 </div>
             </div>

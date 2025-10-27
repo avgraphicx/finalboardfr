@@ -14,6 +14,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SubController;
+use Laravel\Cashier\Http\Controllers\WebhookController as CashierWebhookController;
+
+Route::post('stripe/webhook', [CashierWebhookController::class, 'handleWebhook'])
+    ->name('cashier.webhook');
 
 /******** Authentication Routes (Unprotected) ********/
 

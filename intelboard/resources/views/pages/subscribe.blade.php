@@ -7,6 +7,16 @@
                 <div class="card">
                     <div class="card-header">Subscribe</div>
                     <div class="card-body">
+                        @if ($errors->has('error'))
+                            <div class="alert alert-danger">
+                                {{ $errors->first('error') }}
+                            </div>
+                        @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger">
+                                {{ session('error') }}
+                            </div>
+                        @endif
                         <form id="payment-form" action="{{ route('subscribe') }}" method="POST">
                             @csrf
                             <input type="hidden" name="price_id" value="{{ $price_id }}">

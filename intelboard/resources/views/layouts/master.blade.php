@@ -72,6 +72,8 @@
     <div class="main-content app-content plr-2">
         {{-- <div class="container-fluid page-container main-body-container"> --}}
 
+        @include('layouts.components.alerts')
+
         @yield('content')
 
         {{-- </div> --}}

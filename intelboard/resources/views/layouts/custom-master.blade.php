@@ -38,6 +38,8 @@
     @include('layouts.components.custom-switcher')
     <!-- End Switcher -->
 
+    @include('layouts.components.alerts')
+
     @yield('content')
 
     <!-- Bootstrap JS -->

@@ -19,11 +19,11 @@ class SubscriptionService
         }
 
         // Load subscription with subscriptionType if not already loaded
-        if (!$user->relationLoaded('subscription')) {
-            $user->load('subscription.subscriptionType');
+        if (!$user->relationLoaded('legacySubscription')) {
+            $user->load('legacySubscription.subscriptionType');
         }
 
-        $subscription = $user->subscription;
+        $subscription = $user->legacySubscription;
 
         if (!$subscription || !$subscription->isActive()) {
             return null;

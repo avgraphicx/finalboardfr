@@ -36,7 +36,7 @@
 
                         @php
                             $currentDrivers = $driversCount;
-                            $userSubscription = auth()->user()->subscription;
+                            $userSubscription = auth()->user()->legacySubscription;
                             $maxDrivers = $userSubscription
                                 ? $userSubscription->subscriptionType->max_drivers
                                 : PHP_INT_MAX;

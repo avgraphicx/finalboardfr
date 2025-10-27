@@ -13,11 +13,17 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
-'google' => [
-    'client_id' => env('GOOGLE_CLIENT_ID'),
-    'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-    'redirect' => env('GOOGLE_REDIRECT'),
-],
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT'),
+    ],
+
+    'stripe' => [
+        'prices' => [
+            'bronze_monthly' => env('STRIPE_BRONZE_MONTHLY_PRICE_ID'),
+        ],
+    ],
 
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),

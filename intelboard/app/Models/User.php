@@ -87,7 +87,7 @@ class User extends Authenticatable
         return $this->hasMany(Invoice::class, 'broker_id');
     }
 
-    public function subscription(): HasOne
+    public function legacySubscription(): HasOne
     {
         return $this->hasOne(Subscription::class, 'broker_id');
     }

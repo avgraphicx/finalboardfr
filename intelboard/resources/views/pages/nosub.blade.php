@@ -163,7 +163,7 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscribe.view', ['price_id' => 'price_1PQSfhRpS4YVz6cW3gQ8gohK']) }}"
+                                                <a href="{{ route('subscribe.view', ['price_id' => config('services.stripe.prices.bronze_monthly', 'price_1SMxsiETu0vpttZp0J2cHWl6')]) }}"
                                                     class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
                                             </div>
                                         </div>

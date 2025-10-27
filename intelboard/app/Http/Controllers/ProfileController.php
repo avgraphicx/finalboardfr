@@ -17,7 +17,7 @@ class ProfileController extends Controller
     public function show(SubscriptionService $subscriptionService): View
     {
         /** @var \App\Models\User $user */
-        $user = Auth::user()->load(['subscription.subscriptionType', 'preferences']);
+        $user = Auth::user()->load(['legacySubscription.subscriptionType', 'preferences']);
         $preferences = $user->preferences ?? null;
         $canAddSupervisor = $subscriptionService->canAddSupervisor($user);
 
@@ -30,7 +30,7 @@ class ProfileController extends Controller
     public function edit(SubscriptionService $subscriptionService): View
     {
         /** @var \App\Models\User $user */
-        $user = Auth::user()->load(['subscription.subscriptionType', 'preferences']);
+        $user = Auth::user()->load(['legacySubscription.subscriptionType', 'preferences']);
         $preferences = $user->preferences ?? null;
         $canAddSupervisor = $subscriptionService->canAddSupervisor($user);
 

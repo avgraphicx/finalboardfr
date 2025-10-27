@@ -15,9 +15,15 @@ class CheckSubscription
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && !$request->user()->subscription) {
-            // This user is not a paying customer...
-            return redirect()->route('no.subscription');
+        $user = $request->user();
+
+        if ($user) {
+            $hasCashierSubscription = $user->subscribed('default');
+            $hasLegacySubscription = $user->legacySubscription?->isActive();
+
+            if (!$hasCashierSubscription && !$hasLegacySubscription) {
+                return redirect()->route('no.subscription');
+            }
         }
 
         return $next($request);
