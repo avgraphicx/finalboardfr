@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('messages.checkout_page_title') }} - Intelboard</title>
+    <title>{{ __('messages.checkout_page_title') }} - {{ __('messages.intelboard') }}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         crossorigin="anonymous">
@@ -107,14 +107,15 @@
             <div class="row gy-4">
                 <div class="col-lg-4">
                     <div class="plan-card active h-100">
-                        <span class="text-uppercase small fw-bold text-primary">{{ __('messages.checkout_selected_plan') }}</span>
+                        <span
+                            class="text-uppercase small fw-bold text-primary">{{ __('messages.checkout_selected_plan') }}</span>
                         <h2 class="h3 mt-2">{{ $selectedPlan->name }}</h2>
                         <p class="text-muted">{{ __('messages.checkout_plan_summary') }}</p>
 
                         <div class="d-flex align-items-baseline gap-2 mt-3">
                             <span class="h2 fw-semibold text-dark">
                                 @if ($selectedPlan->formatted_price)
-                                    ${{ $selectedPlan->formatted_price }}
+                                    {{ __('messages.price_prefix') }}{{ $selectedPlan->formatted_price }}
                                 @else
                                     {{ __('messages.checkout_price_contact') }}
                                 @endif
@@ -148,7 +149,8 @@
                                                 <h4 class="h6 fw-semibold mb-1">{{ $plan->name }}</h4>
                                                 <p class="mb-0 text-muted">
                                                     @if ($plan->formatted_price)
-                                                        ${{ $plan->formatted_price }} {{ __('messages.month_suffix') }}
+                                                        {{ __('messages.price_prefix') }}{{ $plan->formatted_price }}
+                                                        {{ __('messages.month_suffix') }}
                                                     @else
                                                         {{ __('messages.checkout_price_contact') }}
                                                     @endif
@@ -169,13 +171,14 @@
                 <div class="col-lg-8">
                     <div class="plan-card checkout-form">
                         <h2 class="h4 fw-semibold mb-3">{{ __('messages.checkout_form_title') }}</h2>
-                        <form method="POST" action="{{ route('subscriptions.checkout.store') }}" novalidate>
+                        <form method="POST" action="{{ route('subscriptions.storePublic') }}" novalidate>
                             @csrf
                             <input type="hidden" name="plan" value="{{ $selectedPlan->slug }}">
 
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label" for="lead-name">{{ __('messages.checkout_name_label') }}</label>
+                                    <label class="form-label"
+                                        for="lead-name">{{ __('messages.checkout_name_label') }}</label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
                                         id="lead-name" name="name" value="{{ old('name') }}" required>
                                     @error('name')
@@ -183,7 +186,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" for="lead-email">{{ __('messages.checkout_email_label') }}</label>
+                                    <label class="form-label"
+                                        for="lead-email">{{ __('messages.checkout_email_label') }}</label>
                                     <input type="email" class="form-control @error('email') is-invalid @enderror"
                                         id="lead-email" name="email" value="{{ old('email') }}" required>
                                     @error('email')
@@ -191,7 +195,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" for="lead-company">{{ __('messages.checkout_company_label') }}</label>
+                                    <label class="form-label"
+                                        for="lead-company">{{ __('messages.checkout_company_label') }}</label>
                                     <input type="text" class="form-control @error('company') is-invalid @enderror"
                                         id="lead-company" name="company" value="{{ old('company') }}">
                                     @error('company')
@@ -199,7 +204,8 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" for="lead-phone">{{ __('messages.checkout_phone_label') }}</label>
+                                    <label class="form-label"
+                                        for="lead-phone">{{ __('messages.checkout_phone_label') }}</label>
                                     <input type="text" class="form-control @error('phone') is-invalid @enderror"
                                         id="lead-phone" name="phone" value="{{ old('phone') }}">
                                     @error('phone')
