@@ -34,6 +34,7 @@ class ExpenseController extends Controller
         $data = $request->validate([
             'title'     => 'required|string|max:255',
             'amount'    => 'required|numeric',
+            'date'      => 'nullable|date',
             'week'      => 'required|integer',
             'for'       => 'required|string|max:255',
             'note'      => 'nullable|string',
@@ -70,6 +71,7 @@ class ExpenseController extends Controller
         $data = $request->validate([
             'title'     => 'required|string|max:255',
             'amount'    => 'required|numeric',
+            'date'      => 'nullable|date',
             'week'      => 'required|integer',
             'for'       => 'required|string|max:255',
             'note'      => 'nullable|string',

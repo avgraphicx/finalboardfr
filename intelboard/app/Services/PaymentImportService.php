@@ -18,6 +18,14 @@ class PaymentImportService
     }
 
     /**
+     * Parse a PDF and return the extraction data (driver ID, etc.)
+     */
+    public function parsePdf(UploadedFile $pdf): PaymentExtraction
+    {
+        return $this->parser->parse($pdf);
+    }
+
+    /**
      * Parse and prepare a payment summary without persisting it.
      *
      * @throws PaymentImportException
@@ -93,7 +101,7 @@ class PaymentImportService
      */
     public function previewBatch(array $files): array
     {
-        $token = (string) Str::uuid();
+        $token = (string)Str::uuid();
         $seenKeys = [];
         $sessionItems = [];
         $responseItems = [];
@@ -140,8 +148,12 @@ class PaymentImportService
                     $seenKeys[$key] = true;
 
                     // Check DB duplicate WITH warehouse
+                    // Extract week number from "YYYY-WW" format for comparison
+                    $weekParts = explode('-', $extraction->weekIdentifier());
+                    $weekNum = isset($weekParts[1]) ? (int)$weekParts[1] : (int)$extraction->weekIdentifier();
+
                     $exists = Invoice::where('driver_id', $driver->id)
-                        ->where('week_number', $extraction->weekIdentifier())
+                        ->where('week_number', $weekNum)
                         ->where('warehouse_name', $snapshot['warehouse'])
                         ->exists();
                     if ($exists) {
@@ -324,12 +336,12 @@ class PaymentImportService
 
     private function composeSnapshot(Driver $driver, PaymentExtraction $extraction): array
     {
-        $defaultRentalPrice = (float) ($driver->default_rental_price ?? 0);
-        $defaultPercentage = (float) ($driver->default_percentage ?? 0);
+        $defaultRentalPrice = (float)($driver->default_rental_price ?? 0);
+        $defaultPercentage = (float)($driver->default_percentage ?? 0);
 
-        $brokerVanCut = (float) ($extraction->parcelRowsCount * $defaultRentalPrice);
-        $brokerPayCut = (float) ($extraction->totalInvoice * ($defaultPercentage / 100));
-        $finalAmount = (float) ($extraction->totalInvoice - $brokerVanCut - $brokerPayCut);
+        $brokerVanCut = (float)($extraction->parcelRowsCount * $defaultRentalPrice);
+        $brokerPayCut = (float)($extraction->totalInvoice * ($defaultPercentage / 100));
+        $finalAmount = (float)($extraction->totalInvoice - $brokerVanCut - $brokerPayCut);
 
         return array_merge(
             $extraction->toArray(),
@@ -346,8 +358,12 @@ class PaymentImportService
 
     private function guardAgainstDuplicate(int $driverId, PaymentExtraction $extraction): void
     {
+        // Extract week number from "YYYY-WW" format
+        $weekParts = explode('-', $extraction->weekIdentifier());
+        $weekNum = isset($weekParts[1]) ? (int)$weekParts[1] : (int)$extraction->weekIdentifier();
+
         $exists = Invoice::where('driver_id', $driverId)
-            ->where('week_number', $extraction->weekIdentifier())
+            ->where('week_number', $weekNum)
             ->where('warehouse_name', $extraction->warehouse)
             ->exists();
 

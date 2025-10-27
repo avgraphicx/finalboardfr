@@ -375,30 +375,30 @@
                 </label>
             </div>
 
-    <div class="mb-3"><label>Full Name</label><input type="text" name="full_name" class="form-control"
+    <div class="mb-3"><label>{{ __('messages.full_name') }}</label><input type="text" name="full_name" class="form-control"
             value="${driverData.full_name}">
     </div>
-    <div class="mb-3"><label>Driver ID</label><input type="text" name="driver_id" class="form-control"
+    <div class="mb-3"><label>{{ __('messages.driver_id_label') }}</label><input type="text" name="driver_id" class="form-control"
             value="${driverData.driver_id}" maxlength="5">
-        <div id="inputHelp" class="form-text">Format : X1111</div>
+        <div id="inputHelp" class="form-text">{{ __('messages.driver_id_format') }}</div>
     </div>
-    <div class="mb-3"><label>Phone Number</label><input type="text" name="phone_number" class="form-control"
+    <div class="mb-3"><label>{{ __('messages.phone_number') }}</label><input type="text" name="phone_number" class="form-control"
             value="${driverData.phone_number}" pattern="\\d{10}" minlength="10" maxlength="10">
-        <div id="inputHelp" class="form-text">Format : 1234567890</div>
+        <div id="inputHelp" class="form-text">{{ __('messages.phone_number_format') }}</div>
     </div>
-    <div class="mb-3"><label>License Number</label><input type="text" name="license_number" class="form-control"
+    <div class="mb-3"><label>{{ __('messages.license_number') }}</label><input type="text" name="license_number" class="form-control"
             value="${driverData.license_number}">
     </div>
-    <div class="mb-3"><label>SSN</label><input type="text" name="ssn" class="form-control"
+    <div class="mb-3"><label>{{ __('messages.ssn') }}</label><input type="text" name="ssn" class="form-control"
             value="${driverData.ssn}" pattern="\\d{9}" minlength="9" maxlength="9">
-        <div id="inputHelp" class="form-text">Format : 123456789</div>
+        <div id="inputHelp" class="form-text">{{ __('messages.ssn_format') }}</div>
     </div>
-    <div class="mb-3"><label>Default Percentage</label><input type="number" name="default_percentage"
+    <div class="mb-3"><label>{{ __('messages.default_percentage') }}</label><input type="number" name="default_percentage"
             class="form-control" value="${driverData.default_percentage}" min="1" max="999">
     </div>
-    <div class="mb-3"><label>Default Rental Price</label><input type="number" name="default_rental_price"
+    <div class="mb-3"><label>{{ __('messages.default_rental_price') }}</label><input type="number" name="default_rental_price"
             class="form-control" value="${driverData.default_rental_price}" min="1" max="999">
-    </div>            <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>            <button type="submit" class="btn btn-primary">{{ __('messages.save_changes') }}</button>
         </form>
                 `;
 

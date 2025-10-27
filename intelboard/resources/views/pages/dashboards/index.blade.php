@@ -9,12 +9,13 @@
         <div class="d-flex align-center justify-content-between flex-wrap">
             <h1 class="page-title fw-medium fs-18 mb-0">{{ __('messages.stats') }}</h1>
             <ol class="breadcrumb mb-0">
+
                 <li class="breadcrumb-item active" aria-current="page">{{ __('messages.dashboard') }}</li>
             </ol>
         </div>
     </div>
     <!-- End::page-header -->
-    {{-- <ul>
+    {{-- <ul>x
             <li>Total Drivers: {{ $stats['total_drivers'] }}</li>
             <li>Total Payments: {{ $stats['total_payments'] }}</li>
             <li>Total Invoice Amount: ${{ number_format($stats['total_invoice_amount'], 2) }}</li>
@@ -94,11 +95,11 @@
         </div>
 
         <div class="col">
-            <div class="card custom-card widget-cardt falconx">
+            <div class="card custom-card widget-cardt success">
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-3 flex-wrap">
                         <div class="lh-1">
-                            <span class="avatar avatar-md bg-falconx">
+                            <span class="avatar avatar-md bg-success">
                                 <i class="ri-receipt-line fs-5"></i>
                             </span>
                         </div>
@@ -113,11 +114,11 @@
             </div>
         </div>
         <div class="col">
-            <div class="card custom-card widget-cardt falconx">
+            <div class="card custom-card widget-cardt success">
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-3 flex-wrap">
                         <div class="lh-1">
-                            <span class="avatar avatar-md bg-falconx">
+                            <span class="avatar avatar-md bg-success">
                                 <i class="ri-bill-line fs-5"></i>
                             </span>
                         </div>
@@ -139,11 +140,11 @@
     <!-- Start::row-2 -->
     <div class="row row-cols-xxl-5">
         <div class="col">
-            <div class="card custom-card widget-cardt falconx">
+            <div class="card custom-card widget-cardt success">
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-3 flex-wrap">
                         <div class="lh-1">
-                            <span class="avatar avatar-md bg-falconx">
+                            <span class="avatar avatar-md bg-success">
                                 <i class="ri-discount-percent-fill fs-5"></i>
                             </span>
                         </div>
@@ -159,11 +160,11 @@
         </div>
 
         <div class="col">
-            <div class="card custom-card widget-cardt falconx">
+            <div class="card custom-card widget-cardt success">
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-3 flex-wrap">
                         <div class="lh-1">
-                            <span class="avatar avatar-md bg-falconx">
+                            <span class="avatar avatar-md bg-success">
                                 <i class="ri-money-dollar-circle-fill fs-5"></i>
                             </span>
                         </div>
@@ -216,11 +217,11 @@
             </div>
         </div>
         <div class="col">
-            <div class="card custom-card widget-cardt falconx">
+            <div class="card custom-card widget-cardt success">
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-3 flex-wrap">
                         <div class="lh-1">
-                            <span class="avatar avatar-md bg-falconx">
+                            <span class="avatar avatar-md bg-success">
                                 <i class="ri-bill-line fs-5"></i>
                             </span>
                         </div>
@@ -298,17 +299,17 @@
         @endif
         @if (!empty($stats['top_driver_int']))
             <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="card custom-card widget-cardl falconx">
+                <div class="card custom-card widget-cardl success">
                     <div class="card-body">
                         <div class="d-flex align-items-start justify-content-between mb-2">
                             <div class="flex-fill">
                                 <div class="mb-2">{{ __('messages.top_driver_int') }}</div>
-                                <h4 class="fw-semibold falconx mb-0">
+                                <h4 class="fw-semibold success mb-0">
                                     {{ $stats['top_driver_int']['driver']->full_name }}
                                 </h4>
                             </div>
                             <div>
-                                <span class="avatar avatar-md bg-amberx">
+                                <span class="avatar avatar-md bg-success">
                                     <i class="ri-receipt-line fs-5"></i>
                                 </span>
                             </div>
@@ -324,17 +325,17 @@
         @endif
         @if (!empty($stats['top_driver_own']))
             <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="card custom-card widget-cardl falconx">
+                <div class="card custom-card widget-cardl success">
                     <div class="card-body">
                         <div class="d-flex align-items-start justify-content-between mb-2">
                             <div class="flex-fill">
                                 <div class="mb-2">{{ __('messages.top_driver_own') }}</div>
-                                <h4 class="fw-semibold falconx mb-0">
+                                <h4 class="fw-semibold success mb-0">
                                     {{ $stats['top_driver_own']['driver']->full_name }}
                                 </h4>
                             </div>
                             <div>
-                                <span class="avatar avatar-md bg-falconx">
+                                <span class="avatar avatar-md bg-success">
                                     <i class="ri-receipt-line fs-5"></i>
                                 </span>
                             </div>
@@ -369,14 +370,14 @@
     <script src="{{ asset('build/assets/libs/apexcharts/apexcharts.js') }}"></script>
     <script src="{{ asset('build/assets/apexcharts-line-DekI3owz.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Prepare data for broker earnings by week
             var earningsData = @json($stats['broker_earnings_by_week']);
             // Extract categories (weeks) and series values
-            var weeks = earningsData.map(function(item) {
+            var weeks = earningsData.map(function (item) {
                 return item.week_number;
             });
-            var earnings = earningsData.map(function(item) {
+            var earnings = earningsData.map(function (item) {
                 return item.earnings;
             });
 
@@ -403,7 +404,7 @@
                         text: '{{ __('messages.earnings') }}'
                     },
                     labels: {
-                        formatter: function(val) {
+                        formatter: function (val) {
                             return '$' + val;
                         }
                     }

@@ -15,7 +15,8 @@ class InvoiceController extends Controller
     {
         $user = Auth::user();
         $invoices = Invoice::where('broker_id', $user->id)->with('driver')->paginate(20);
-        return view('pages.invoices.index', compact('invoices'));
+        $drivers = $user->drivers()->where('active', true)->get();
+        return view('pages.invoices.index', compact('invoices', 'drivers'));
     }
 
     /**

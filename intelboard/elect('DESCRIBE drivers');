@@ -1,0 +1,60 @@
+[90m= [39m[
+    {#6259
+      +"[1mTables_in_iboardnew[22m": "[32maudit_logs[39m",
+    },
+    {#6257
+      +"[1mTables_in_iboardnew[22m": "[32mcache[39m",
+    },
+    {#6256
+      +"[1mTables_in_iboardnew[22m": "[32mcache_locks[39m",
+    },
+    {#6255
+      +"[1mTables_in_iboardnew[22m": "[32mcompanies[39m",
+    },
+    {#6260
+      +"[1mTables_in_iboardnew[22m": "[32mdrivers[39m",
+    },
+    {#6261
+      +"[1mTables_in_iboardnew[22m": "[32mexpenses[39m",
+    },
+    {#6262
+      +"[1mTables_in_iboardnew[22m": "[32mfailed_jobs[39m",
+    },
+    {#6263
+      +"[1mTables_in_iboardnew[22m": "[32minvoices[39m",
+    },
+    {#6264
+      +"[1mTables_in_iboardnew[22m": "[32mjob_batches[39m",
+    },
+    {#6265
+      +"[1mTables_in_iboardnew[22m": "[32mjobs[39m",
+    },
+    {#6266
+      +"[1mTables_in_iboardnew[22m": "[32mmigrations[39m",
+    },
+    {#6267
+      +"[1mTables_in_iboardnew[22m": "[32mpassword_reset_tokens[39m",
+    },
+    {#6268
+      +"[1mTables_in_iboardnew[22m": "[32msessions[39m",
+    },
+    {#6269
+      +"[1mTables_in_iboardnew[22m": "[32mstats_cache[39m",
+    },
+    {#6270
+      +"[1mTables_in_iboardnew[22m": "[32msubscription_types[39m",
+    },
+    {#6271
+      +"[1mTables_in_iboardnew[22m": "[32msubscriptions[39m",
+    },
+    {#6272
+      +"[1mTables_in_iboardnew[22m": "[32muser_activity[39m",
+    },
+    {#6273
+      +"[1mTables_in_iboardnew[22m": "[32muser_preferences[39m",
+    },
+    {#6274
+      +"[1mTables_in_iboardnew[22m": "[32musers[39m",
+    },
+  ]
+

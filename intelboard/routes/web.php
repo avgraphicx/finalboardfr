@@ -36,13 +36,35 @@ Route::get('register/complete', function () {
     return view('auth.register-complete');
 })->name('register.complete');
 
+/******** Landing Page (Unprotected) ********/
+Route::get('welcome', function () {
+    return view('landing');
+})->name('landing');
+
 /******** Language Switcher (Unprotected) ********/
 Route::get('/lang/{locale}', function (string $locale) {
     if (in_array($locale, ['en', 'fr'])) {
         Session::put('locale', $locale);
+
+        // Update user preferences if user is logged in
+        if (auth()->check()) {
+            \DB::table('user_preferences')
+                ->where('user_id', auth()->id())
+                ->update(['language' => $locale]);
+        }
     }
     return back();
 })->name('set.locale');
+
+/******** Theme Switcher (Protected) ********/
+Route::get('/theme/{theme}', function (string $theme) {
+    if (auth()->check() && in_array($theme, ['light', 'dark'])) {
+        \DB::table('user_preferences')
+            ->where('user_id', auth()->id())
+            ->update(['theme' => $theme]);
+    }
+    return back();
+})->name('set.theme')->middleware('auth');
 
 /******** Protected Application Routes ********/
 Route::middleware(['auth'])->group(function () {
@@ -61,9 +83,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('profile/login-activity', [ProfileController::class, 'loginActivity'])->name('profile.login-activity');
 
     /******** Drivers Management ********/
+    Route::delete('drivers/bulk-destroy', [DriverController::class, 'bulkDestroy'])->name('drivers.bulkDestroy');
+    Route::get('drivers/{driver}/invoices-data', [DriverController::class, 'invoicesData'])->name('drivers.invoices-data');
     Route::resource('drivers', DriverController::class);
     Route::get('drivers/data', [DriverController::class, 'getData'])->name('drivers.data');
-    Route::delete('drivers/bulk-destroy', [DriverController::class, 'bulkDestroy'])->name('drivers.bulkDestroy');
     Route::patch('drivers/{driver}/toggle-active', [DriverController::class, 'toggleActive'])->name('drivers.toggle-active');
     Route::get('drivers/{driver}/earnings', [DriverController::class, 'earnings'])->name('drivers.earnings');
 
@@ -84,6 +107,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('payments/mark-paid-bulk', [PaymentController::class, 'markPaidBulk'])->name('payments.markPaidBulk');
     Route::post('payments/{payment}/mark-paid', [PaymentController::class, 'markPaid'])->name('payments.markPaid');
     Route::post('payments/check-exists', [PaymentController::class, 'checkExists'])->name('payments.checkExists');
+    Route::post('payments/validate-driver-pdf', [PaymentController::class, 'validateDriverPdf'])->name('payments.validateDriverPdf');
 
     /******** Statistics & Analytics ********/
     Route::get('stats/weekly', [StatsController::class, 'index'])->name('stats.weekly');

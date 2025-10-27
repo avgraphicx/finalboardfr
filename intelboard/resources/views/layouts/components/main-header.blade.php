@@ -42,7 +42,19 @@
                 </a>
             </li>
             <li class="header-element header-theme-mode">
-                <a href="javascript:void(0);" class="header-link layout-setting">
+                @php
+                    $currentTheme = 'dark';
+                    if (auth()->check()) {
+                        $prefs = \DB::table('user_preferences')
+                            ->where('user_id', auth()->id())
+                            ->first();
+                        $currentTheme = $prefs->theme ?? 'dark';
+                    }
+                    $nextTheme = $currentTheme === 'dark' ? 'light' : 'dark';
+                @endphp
+                <a href="{{ auth()->check() ? route('set.theme', $nextTheme) : 'javascript:void(0);' }}"
+                    class="header-link layout-setting" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    title="Switch Theme">
                     <span class="light-layout">
                         <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon" viewBox="0 0 256 256">
                             <rect width="256" height="256" fill="none" />
@@ -95,8 +107,8 @@
                 <div class="main-header-dropdown dropdown-menu dropdown-menu-end" data-popper-placement="none">
                     <div class="p-3 bg-primary text-fixed-white">
                         <div class="d-flex align-items-center justify-content-between">
-                            <p class="mb-0 fs-16">Notifications</p>
-                            <a href="javascript:void(0);" class="badge bg-light text-default border">Clear All</a>
+                            <p class="mb-0 fs-16">{{ __('messages.notifications') }}</p>
+                            <a href="javascript:void(0);" class="badge bg-light text-default border">{{ __('messages.clear_all') }}</a>
                         </div>
                     </div>
                     <div class="dropdown-divider"></div>
@@ -169,7 +181,8 @@
                         <li>
                             <ul class="list-unstyled mb-0 sub-list">
                                 <li>
-                                    <a class="dropdown-item d-flex align-items-center" href="{{ url('profile') }}"><i
+                                    <a class="dropdown-item d-flex align-items-center"
+                                        href="{{ route('profile.edit') }}"><i
                                             class="ti ti-settings-cog me-2 fs-18"></i>{{ __('messages.settings') }}</a>
                                 </li>
                                 {{-- <li>

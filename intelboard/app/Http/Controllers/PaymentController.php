@@ -26,6 +26,58 @@ class PaymentController extends Controller
         return view('pages.payments.import');
     }
 
+    public function validateDriverPdf(Request $request)
+    {
+        $validated = $request->validate([
+            'pdf' => ['required', 'file', 'mimes:pdf', 'max:25600'],
+            'driver_id' => ['required', 'integer', 'exists:drivers,id'],
+        ]);
+
+        try {
+            // Get the selected driver
+            $selectedDriver = Driver::findOrFail($validated['driver_id']);
+
+            // Parse the PDF to extract driver ID
+            $extraction = $this->paymentImportService->parsePdf($request->file('pdf'));
+
+            // Find the driver from the PDF
+            $pdfDriver = Driver::where('driver_id', $extraction->driverId)->first();
+
+            if (!$pdfDriver) {
+                return response()->json([
+                    'valid' => false,
+                    'message' => __('messages.driver_not_found', ['driver_id' => $extraction->driverId]),
+                ], 200);
+            }
+
+            // Check if PDF driver matches selected driver
+            if ($pdfDriver->id !== $selectedDriver->id) {
+                return response()->json([
+                    'valid' => false,
+                    'message' => __('messages.pdf_driver_mismatch', [
+                        'selected_driver' => $selectedDriver->full_name,
+                        'pdf_driver' => $pdfDriver->full_name,
+                    ]) ?? 'PDF driver does not match selected driver. PDF contains: ' . $pdfDriver->full_name,
+                ], 200);
+            }
+
+            return response()->json([
+                'valid' => true,
+                'message' => 'PDF is valid for the selected driver.',
+            ], 200);
+        } catch (\Throwable $e) {
+            \Log::error('Error validating PDF driver', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'valid' => false,
+                'message' => __('messages.payment_error_processing'),
+            ], 200);
+        }
+    }
+
     public function previewBatch(Request $request)
     {
         $validated = $request->validate([

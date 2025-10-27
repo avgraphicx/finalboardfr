@@ -83,7 +83,8 @@
                         <li class="nav-item m-1" id="protab2">
                             <a href="javascript:void(0)" class="pe-none text-primary fw-medium nav-link" tabindex="-1">
                                 <i class="bi bi-person-circle me-1"></i>
-                                {{ $driver->createdBy?->full_name ?? 'N/A' }} - {{ $driver->created_at->toDateString() }}
+                                {{ $driver->createdBy?->full_name ?? 'N/A' }}
+                                - {{ $driver->created_at->toDateString() }}
                             </a>
                         </li>
                     </ul>
@@ -128,7 +129,8 @@
                                         <td>${{ number_format($invoice->invoice_total, 2) }}</td>
                                         <td>{{ $invoice->total_parcels }}</td>
                                         <td>{{ $invoice->days_worked }}</td>
-                                        <td>${{ number_format(($invoice->driver_percentage / 100) * $invoice->invoice_total, 2) }}
+                                        <td>
+                                            ${{ number_format(($invoice->driver_percentage / 100) * $invoice->invoice_total, 2) }}
                                         </td>
                                         <td class="fw-bold text-success">
                                             ${{ number_format($invoice->amount_to_pay_driver, 2) }}</td>
@@ -179,293 +181,108 @@
                     </div>
                 </div>
             </div>
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">{{ __('messages.weekly_stats') }}</div>
+                </div>
+                <div class="card-body">
+                    <div id="driverColStats"></div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
 
 @section('scripts')
+    <script src="{{ asset('build/assets/libs/apexcharts/apexcharts.js') }}"></script>
+    {{-- <script src="{{ asset('build/assets/apexcharts-line-DekI3owz.js') }}"></script> --}}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // === SSN TOGGLE ===
-            document.querySelectorAll('.ssn-value').forEach(function(element) {
-                element.closest('a').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const ssnSpan = element;
-                    const toggleIcon = this.querySelector('.ssn-toggle-icon');
-                    const actualSSN = ssnSpan.dataset.ssn;
-                    const isMasked = ssnSpan.textContent.includes('*');
-                    ssnSpan.textContent = isMasked ? actualSSN : '**********';
-                    toggleIcon.style.opacity = isMasked ? '0.6' : '1';
+            const data = @json($allInvoices);
+            console.log('Chart data from view:', data);
+
+            if (Array.isArray(data) && data.length > 0) {
+                // Filter only valid rows with numeric data
+                const cleanData = data.filter(inv =>
+                    inv &&
+                    inv.week_number !== null &&
+                    inv.invoice_total !== null &&
+                    inv.amount_to_pay_driver !== null
+                );
+
+                const weekNumbers = cleanData.map(inv => `W${inv.week_number}`);
+                const totalInvoices = cleanData.map(inv => Number(inv.invoice_total) || 0);
+                const benefits = cleanData.map(inv => Number(inv.amount_to_pay_driver) || 0);
+
+                console.log('Processed data:', {
+                    weekNumbers,
+                    totalInvoices,
+                    benefits
                 });
-            });
 
-            const selectAllCheckbox = document.getElementById('select-all-payments');
-            const invoiceCheckboxes = document.querySelectorAll('.invoice-checkbox');
-            const bulkActionContainer = document.createElement('div');
-            bulkActionContainer.innerHTML = `
-        <button id="bulk-mark-paid" class="btn btn-success mt-3 form-control" style="display:none;">
-            Mark <span id="selected-count">0</span> as paid <i class="bi bi-check-all"></i>
-        </button>
-    `;
-            document.querySelector('#latestPays .card-body').prepend(bulkActionContainer);
-
-            const bulkButton = document.getElementById('bulk-mark-paid');
-            const selectedCountSpan = document.getElementById('selected-count');
-
-            function updateBulkButton() {
-                const selected = Array.from(invoiceCheckboxes).filter(cb => cb.checked);
-                if (selected.length > 0) {
-                    selectedCountSpan.textContent = selected.length;
-                    bulkButton.style.display = 'inline-block';
-                } else {
-                    bulkButton.style.display = 'none';
+                // Prevent chart from rendering if all values are zero or empty
+                if (weekNumbers.length === 0 || totalInvoices.every(v => v === 0 && benefits.every(b => b === 0))) {
+                    console.warn('No valid data to render ApexCharts');
+                    document.querySelector("#driverColStats").innerHTML =
+                        '<div class="text-center text-muted py-5">{{ __('messages.no_valid_data_for_chart') }}</div>';
+                    return;
                 }
+
+                const options = {
+                    chart: {
+                        type: 'bar',
+                        height: 350,
+                        toolbar: {
+                            show: true
+                        }
+                    },
+                    series: [{
+                            name: 'Total Invoice',
+                            data: totalInvoices,
+                            color: '#667eea'
+                        },
+                        {
+                            name: 'Driver Benefit',
+                            data: benefits,
+                            color: '#10b981'
+                        }
+                    ],
+                    xaxis: {
+                        categories: weekNumbers,
+                        title: {
+                            text: 'Week Number'
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Amount ($)'
+                        },
+                        min: 0
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: val => `$${val.toFixed(2)}`
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: val => `$${val.toFixed(2)}`
+                        }
+                    },
+                    legend: {
+                        position: 'top'
+                    }
+                };
+
+                try {
+                    const chart = new ApexCharts(document.querySelector("#driverColStats"), options);
+                    chart.render();
+                    console.log('Chart rendered successfully');
+                } catch (error) {
+                    console.error('ApexCharts rendering failed:', error);
+                }
+            } else {
+                console.warn('No invoice data available for chart');
             }
-
-            selectAllCheckbox.addEventListener('change', function() {
-                const isChecked = this.checked;
-                invoiceCheckboxes.forEach(cb => cb.checked = isChecked);
-                updateBulkButton();
-            });
-
-            invoiceCheckboxes.forEach(cb => cb.addEventListener('change', updateBulkButton));
-
-            // === INDIVIDUAL DELETE ===
-            document.querySelectorAll('.delete-invoice-btn').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const invoiceId = this.dataset.invoiceId;
-
-                    Swal.fire({
-                        title: '{{ __('messages.confirm') }}?',
-                        text: '{{ __('messages.confirm_delete_driver') }}',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: '{{ __('messages.delete') }}',
-                        cancelButtonText: '{{ __('messages.cancel') }}',
-                        confirmButtonColor: '#dc3545',
-                        cancelButtonColor: '#6c757d'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            fetch(`{{ url('invoices') }}/${invoiceId}`, {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'X-CSRF-TOKEN': document.querySelector(
-                                            'meta[name="csrf-token"]').content,
-                                        'X-Requested-With': 'XMLHttpRequest'
-                                    }
-                                })
-                                .then(r => r.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        Swal.fire('{{ __('messages.success') }}!', data
-                                            .message, 'success').then(() => location
-                                            .reload());
-                                    } else {
-                                        Swal.fire('{{ __('messages.not_available') }}',
-                                            data.message, 'error');
-                                    }
-                                })
-                                .catch(() => Swal.fire(
-                                    '{{ __('messages.not_available') }}',
-                                    'An error occurred while deleting the invoice',
-                                    'error'));
-                        }
-                    });
-                });
-            });
-
-            // === INDIVIDUAL MARK AS PAID ===
-            document.querySelectorAll('.mark-paid-btn').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const invoiceId = this.dataset.invoiceId;
-
-                    fetch(`{{ url('invoices') }}/${invoiceId}/mark-paid`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]').content,
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire('{{ __('messages.success') }}!', data.message,
-                                    'success').then(() => location.reload());
-                            } else {
-                                Swal.fire('{{ __('messages.not_available') }}', data.message ||
-                                    'Error', 'error');
-                            }
-                        })
-                        .catch(() => Swal.fire('{{ __('messages.not_available') }}',
-                            'Error marking as paid', 'error'));
-                });
-            });
-
-            // === INDIVIDUAL MARK AS UNPAID ===
-            document.querySelectorAll('.mark-unpaid-btn').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const invoiceId = this.dataset.invoiceId;
-
-                    fetch(`{{ url('invoices') }}/${invoiceId}/mark-unpaid`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]').content,
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire('{{ __('messages.success') }}!', data.message,
-                                    'success').then(() => location.reload());
-                            } else {
-                                Swal.fire('{{ __('messages.not_available') }}', data.message ||
-                                    'Error', 'error');
-                            }
-                        })
-                        .catch(() => Swal.fire('{{ __('messages.not_available') }}',
-                            'Error marking as unpaid', 'error'));
-                });
-
-                // === BULK MARK AS PAID ===
-                bulkButton.addEventListener('click', function() {
-                    const selectedIds = Array.from(invoiceCheckboxes)
-                        .filter(cb => cb.checked)
-                        .map(cb => cb.dataset.invoiceId);
-
-                    if (selectedIds.length === 0) return;
-
-                    Swal.fire({
-                        title: '{{ __('messages.confirm') }}?',
-                        text: `Mark ${selectedIds.length} invoices as paid?`,
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: '{{ __('messages.mark_as_paid') }}',
-                        cancelButtonText: '{{ __('messages.cancel') }}',
-                        confirmButtonColor: '#198754',
-                        cancelButtonColor: '#6c757d'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            fetch('{{ route('invoices.mark-paid-bulk') }}', {
-                                    method: 'POST',
-                                    headers: {
-                                        'X-CSRF-TOKEN': document.querySelector(
-                                            'meta[name="csrf-token"]').content,
-                                        'X-Requested-With': 'XMLHttpRequest',
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                        invoice_ids: selectedIds
-                                    })
-                                })
-                                .then(r => r.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        Swal.fire('{{ __('messages.success') }}!', data
-                                            .message,
-                                            'success').then(() => location.reload());
-                                    } else {
-                                        Swal.fire('{{ __('messages.not_available') }}',
-                                            data
-                                            .message ||
-                                            '{{ __('messages.error_marking_invoices_paid') }}',
-                                            'error');
-                                    }
-                                })
-                                .catch(() => Swal.fire(
-                                    '{{ __('messages.not_available') }}',
-                                    '{{ __('messages.error_bulk_request') }}', 'error'
-                                ));
-                        }
-                    });
-                });
-
-                // === EDIT DRIVER INLINE ===
-                document.getElementById('editDriverBtn').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const driverData = @json($driver);
-                    const updateUrl = '{{ route('drivers.update', $driver->id) }}';
-                    const container = document.querySelector('.card-body.text-center');
-                    container.classList.remove('text-center');
-                    container.innerHTML = `
-        <form id="editDriverForm" action="${updateUrl}" method="POST" class="p-4">
-            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="_method" value="PUT">
-
-            <!-- Active Status Checkbox -->
-            <div class="form-check mb-3">
-                <input type="hidden" name="active" value="0">
-                <input type="checkbox" id="driverActiveToggle" name="active" value="1"
-                class="form-check-input form-checked-success" ${driverData.active ? 'checked' : ''}>
-                <label class="form-check-label ms-2" for="driverActiveToggle">
-                    ${driverData.active ? "{{ __('messages.active') }}" : "{{ __('messages.inactive') }}"}
-                </label>
-            </div>
-
-    <div class="mb-3"><label>Full Name</label><input type="text" name="full_name" class="form-control"
-            value="${driverData.full_name}">
-    </div>
-    <div class="mb-3"><label>Driver ID</label><input type="text" name="driver_id" class="form-control"
-            value="${driverData.driver_id}" maxlength="5">
-        <div id="inputHelp" class="form-text">Format : X1111</div>
-    </div>
-    <div class="mb-3"><label>Phone Number</label><input type="text" name="phone_number" class="form-control"
-            value="${driverData.phone_number}" pattern="\\d{10}" minlength="10" maxlength="10">
-        <div id="inputHelp" class="form-text">Format : 1234567890</div>
-    </div>
-    <div class="mb-3"><label>License Number</label><input type="text" name="license_number" class="form-control"
-            value="${driverData.license_number}">
-    </div>
-    <div class="mb-3"><label>SSN</label><input type="text" name="ssn" class="form-control"
-            value="${driverData.ssn}" pattern="\\d{9}" minlength="9" maxlength="9">
-        <div id="inputHelp" class="form-text">Format : 123456789</div>
-    </div>
-    <div class="mb-3"><label>Default Percentage</label><input type="number" name="default_percentage"
-            class="form-control" value="${driverData.default_percentage}" min="1" max="999">
-    </div>
-    <div class="mb-3"><label>Default Rental Price</label><input type="number" name="default_rental_price"
-            class="form-control" value="${driverData.default_rental_price}" min="1" max="999">
-    </div>            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
-                `;
-
-
-                    // Attach AJAX submit handler
-                    const editForm = document.getElementById('editDriverForm');
-                    editForm.addEventListener('submit', function(ev) {
-                        ev.preventDefault();
-                        const formData = new FormData(editForm);
-                        fetch(editForm.action, {
-                                method: 'POST',
-                                headers: {
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                },
-                                body: formData
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    Swal.fire('Success', data.message, 'success').then(
-                                        () => location.reload());
-                                } else {
-                                    Swal.fire('Error', data.message || 'Update failed',
-                                        'error');
-                                }
-                            })
-                            .catch(() => Swal.fire('Error', 'Unexpected error occurred',
-                                'error'));
-                    });
-                });
-            });
-
         });
-        {{-- close DOMContentLoaded listener --}}
     </script>
 @endsection

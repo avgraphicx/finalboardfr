@@ -121,7 +121,20 @@ class DriverController extends Controller
             ->orderByDesc('created_at')
             ->paginate(10);
 
-        return view('pages.drivers.show', compact('driver', 'invoices'));
+        // Get all invoices for chart (unpaginated)
+        $allInvoices = $driver->invoices()
+            ->orderBy('week_number', 'asc')
+            ->get()
+            ->map(function ($invoice) {
+                return [
+                    'week_number' => $invoice->week_number,
+                    'invoice_total' => $invoice->invoice_total,
+                    'amount_to_pay_driver' => $invoice->amount_to_pay_driver,
+                ];
+            })
+            ->values();
+
+        return view('pages.drivers.show', compact('driver', 'invoices', 'allInvoices'));
     }
 
     /**
@@ -176,10 +189,8 @@ class DriverController extends Controller
 
         $count = Driver::destroy($request->ids);
 
-        return response()->json([
-            'success' => true,
-            'message' => __('messages.drivers_deleted', ['count' => $count]) ?? "$count drivers successfully deleted.",
-        ]);
+        return redirect()->route('drivers.index')
+            ->with('success', __('messages.drivers_deleted', ['count' => $count]) ?? "$count drivers successfully deleted.");
     }
 
     /**
@@ -209,5 +220,25 @@ class DriverController extends Controller
         $totalParcels = $invoices->sum('total_parcels');
 
         return view('pages.drivers.earnings', compact('driver', 'earnings', 'totalInvoices', 'totalParcels'));
+    }
+
+    /**
+     * Get driver invoices data for chart visualization.
+     */
+    public function invoicesData(Driver $driver)
+    {
+        $invoices = $driver->invoices()
+            ->orderBy('week_number', 'asc')
+            ->get()
+            ->map(function ($invoice) {
+                return [
+                    'week_number' => $invoice->week_number,
+                    'invoice_total' => $invoice->invoice_total,
+                    'amount_to_pay_driver' => $invoice->amount_to_pay_driver,
+                ];
+            })
+            ->values();
+
+        return response()->json($invoices);
     }
 }

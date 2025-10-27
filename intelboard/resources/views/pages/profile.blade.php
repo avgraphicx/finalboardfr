@@ -30,14 +30,32 @@
                         }
                         $initials = substr($initials, 0, 2);
                     @endphp
-                    <span class="avatar avatar-xxl avatar-rounded bg-primary text-light">
-                        <span class="avatar-text fw-bold fs-5" style="color: white !important;">{{ $initials }}</span>
-                        <span id="active"
-                            class="badge rounded-pill
-                        @if ($user->active == '0') bg-danger @endif
-                        @if ($user->active == '1') bg-success @endif avatar-badge"></span>
-                    </span>
+                    @if ($user->logo)
+                        <div class="position-relative d-inline-block mb-3">
+                            <img src="{{ asset($user->logo) }}"
+                                 alt="{{ $user->company_name ?? $user->full_name }}"
+                                 class="img-fluid"
+                                 style="max-width: 100%; height: auto; border-radius: 8px; max-height: 200px; object-fit: contain;">
+                            <span id="active"
+                                  class="badge rounded-pill
+                            @if ($user->active == '0') bg-danger @endif
+                            @if ($user->active == '1') bg-success @endif"
+                                  style="position: absolute; bottom: 10px; right: 10px;"></span>
+                        </div>
+                    @else
+                        <span class="avatar avatar-xxl avatar-rounded bg-primary text-light">
+                            <span class="avatar-text fw-bold fs-5"
+                                  style="color: white !important;">{{ $initials }}</span>
+                            <span id="active"
+                                  class="badge rounded-pill
+                            @if ($user->active == '0') bg-danger @endif
+                            @if ($user->active == '1') bg-success @endif avatar-badge"></span>
+                        </span>
+                    @endif
                     <h6 class="fw-semibold mt-3 mb-1">{{ $user->full_name }}</h6>
+                    @if ($user->company_name)
+                        <span class="d-block fs-13 text-muted fw-medium mb-2">{{ $user->company_name }}</span>
+                    @endif
                     <span class="d-block fs-13 text-muted">
                         {{ __('messages.subscription') }} :
                         {{ $user->subscription?->subscriptionType?->name ?? 'None' }}
@@ -51,189 +69,112 @@
 
             <div class="card custom-card">
                 <div class="card-body">
-                    <ul class="nav nav-tabs flex-column nav-tabs-header mb-0 mail-sesttings-tab" role="tablist">
-                        <li class="nav-item m-1">
-                            <a class="nav-link active" data-bs-toggle="tab" role="tab" href="#personal-info"
-                                aria-selected="true">
-                                <i class="ri-id-card-line fs-5"></i>
-                                Personal Information
-                            </a>
-                        </li>
-                        <li class="nav-item m-1">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" href="#account-preferences"
-                                aria-selected="true">
-                                <i class="ri-user-settings-line fs-5"></i>
-                                Preferences
-                            </a>
-                        </li>
-                        <li class="nav-item m-1">
-                            <a class="nav-link" data-bs-toggle="tab" role="tab" href="#company-settings"
-                                aria-selected="true">
-                                <i class="ri-equalizer-line fs-5"></i>
-                                Company Settings
-                            </a>
-                        </li>
-                    </ul>
+                    <!-- removed tab navigation to use a single form view -->
+                    <div class="text-muted fs-13">
+                        {{ __('messages.profile_settings_description') ?? '' }}
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content -->
+        <!-- Main Content: Single combined form -->
         <div class="col-xl-9">
             <div class="card custom-card">
-                <div class="card-body">
-                    <div class="tab-content">
+                <form method="POST" action="{{ route('profile.update') }}" id="profileForm"
+                      enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
 
-                        <!-- PERSONAL INFO TAB -->
-                        <div class="tab-pane p-0 border-0" id="personal-info" role="tabpanel">
-                            <form method="POST" action="{{ route('profile.update-preferences') }}" id="preferencesForm">
-                                @csrf
-                                @method('PUT')
-                                <div class="card-body">
-                                    <div class="row gy-4 mb-4">
-                                        <div class="col-12">
-                                            <label for="name" class="form-label">{{ __('messages.full_name') }}</label>
-                                            <input type="text" class="form-control" id="name" disabled
-                                                placeholder="{{ $user->full_name }}" value="{{ $user->full_name }}">
-                                            <small class="text-muted">{{ __('messages.read_only') ?? 'Read only' }}</small>
-                                        </div>
-                                    </div>
-
-                                    <div class="row gy-4 mb-4">
-                                        <div class="col-xl-6">
-                                            <label for="email-address"
-                                                class="form-label">{{ __('messages.login_email_label') }} :</label>
-                                            <input type="text" class="form-control" id="email-address" disabled
-                                                placeholder="{{ $user->email }}" value="{{ $user->email }}">
-                                            <small class="text-muted">{{ __('messages.read_only') ?? 'Read only' }}</small>
-                                        </div>
-                                        <div class="col-xl-6">
-                                            <label for="phone-no" class="form-label">{{ __('messages.phone_number') }}
-                                                :</label>
-                                            <input type="text" class="form-control" id="phone-no" disabled
-                                                placeholder="{{ $user->phone_number }}" value="{{ $user->phone_number }}">
-                                            <small class="text-muted">{{ __('messages.read_only') ?? 'Read only' }}</small>
-                                        </div>
-                                    </div>
-
-                                    <div class="row gy-4 mb-4">
-                                        <div class="col-xl-6">
-                                            <label for="language-preference" class="form-label">
-                                                {{ __('messages.language_preference') ?? 'Language Preference' }} :
-                                            </label>
-                                            <select class="form-control" id="language-preference" name="language" required>
-                                                <option value="en" @selected(($preferences?->language ?? 'en') === 'en')>
-                                                    {{ __('messages.language_en') }}
-                                                </option>
-                                                <option value="fr" @selected(($preferences?->language ?? 'en') === 'fr')>
-                                                    {{ __('messages.language_fr') }}
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-xl-6">
-                                            <label for="theme-preference" class="form-label">
-                                                {{ __('messages.theme_preference') ?? 'Theme Preference' }} :
-                                            </label>
-                                            <select class="form-control" id="theme-preference" name="theme" required>
-                                                <option value="light" @selected(($preferences?->theme ?? 'light') === 'light')>
-                                                    {{ __('messages.light_theme') ?? 'Light' }}
-                                                </option>
-                                                <option value="dark" @selected(($preferences?->theme ?? 'light') === 'dark')>
-                                                    {{ __('messages.dark_theme') ?? 'Dark' }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="row gy-4">
-                                        <div class="col-xl-6">
-                                            <label for="password"
-                                                class="form-label">{{ __('messages.current_password') }} :</label>
-                                            <input type="password" class="form-control" id="password"
-                                                placeholder="••••••••••••">
-                                        </div>
-                                        <div class="col-xl-6">
-                                            <label for="newpassword" class="form-label">{{ __('messages.new_password') }}
-                                                :</label>
-                                            <input type="password" class="form-control" id="newpassword"
-                                                placeholder="••••••••••••">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="card-footer">
-                                    <div class="float-end">
-                                        <button type="submit" class="btn btn-primary label-btn label-end">
-                                            {{ __('messages.save_changes') ?? 'Save changes' }}
-                                            <i class="ri-save-fill label-btn-icon ms-2"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+                    <div class="card-body">
+                        <div class="row gy-4 mb-4">
+                            <div class="col-12">
+                                <label for="full_name" class="form-label">{{ __('messages.full_name') }}</label>
+                                <input type="text" name="full_name" id="full_name" class="form-control"
+                                       placeholder="{{ __('messages.full_name') }}"
+                                       value="{{ old('full_name', $user->full_name) }}">
+                            </div>
                         </div>
 
-                        <!-- ACCOUNT SETTINGS TAB -->
-                        <div class="tab-pane border-0 p-0" id="account-preferences" role="tabpanel">
-                            <form method="POST" action="{{ route('profile.update-preferences') }}"
-                                id="preferencesForm">
-                                @csrf
-                                @method('PUT')
-                                <div class="card-body">
-
-
-                                    <div class="row gy-4 mb-4">
-                                        <div class="col-xl-6">
-                                            <label for="language-preference" class="form-label">
-                                                {{ __('messages.language_preference') ?? 'Language Preference' }} :
-                                            </label>
-                                            <select class="form-control" id="language-preference" name="language"
-                                                required>
-                                                <option value="en" @selected(($preferences?->language ?? 'en') === 'en')>
-                                                    {{ __('messages.language_en') }}
-                                                </option>
-                                                <option value="fr" @selected(($preferences?->language ?? 'fr') === 'fr')>
-                                                    {{ __('messages.language_fr') }}
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-xl-6">
-                                            <label for="theme-preference" class="form-label">
-                                                {{ __('messages.theme_preference') ?? 'Theme Preference' }} :
-                                            </label>
-                                            <select class="form-control" id="theme-preference" name="theme" required>
-                                                <option value="light" @selected(($preferences?->theme ?? 'light') === 'light')>
-                                                    {{ __('messages.light_theme') ?? 'Light' }}
-                                                </option>
-                                                <option value="dark" @selected(($preferences?->theme ?? 'light') === 'dark')>
-                                                    {{ __('messages.dark_theme') ?? 'Dark' }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-
-                                </div>
-
-                                <div class="card-footer">
-                                    <div class="float-end">
-                                        <button type="submit" class="btn btn-primary label-btn label-end">
-                                            {{ __('messages.save_changes') ?? 'Save changes' }}
-                                            <i class="ri-save-fill label-btn-icon ms-2"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+                        <div class="row gy-4 mb-4">
+                            <div class="col-xl-6">
+                                <label for="email" class="form-label">{{ __('messages.login_email_label') }} :</label>
+                                <input type="email" name="email" id="email" class="form-control"
+                                       placeholder="{{ __('messages.login_email_label') }}"
+                                       value="{{ old('email', $user->email) }}">
+                            </div>
+                            <div class="col-xl-6">
+                                <label for="phone_number" class="form-label">{{ __('messages.phone_number') }} :</label>
+                                <input type="text" name="phone_number" id="phone_number" class="form-control"
+                                       placeholder="{{ __('messages.phone_number') }}"
+                                       value="{{ old('phone_number', $user->phone_number) }}">
+                            </div>
                         </div>
 
-                        <!-- EMAIL SETTINGS TAB -->
-                        <div class="tab-pane show active p-0 border-0" id="company-settings" role="tabpanel">
-
+                        <div class="row gy-4 mb-4">
+                            <div class="col-xl-6">
+                                <label for="company_name"
+                                       class="form-label">{{ __('messages.company_name') ?? 'Company name' }} :</label>
+                                <input type="text" name="company_name" id="company_name" class="form-control"
+                                       placeholder="{{ __('messages.company_name') ?? 'Company name' }}"
+                                       value="{{ old('company_name', $user->company_name ?? '') }}">
+                            </div>
+                            <div class="col-xl-6">
+                                <label for="logo" class="form-label">{{ __('messages.logo') ?? 'Logo' }} :</label>
+                                <input type="file" name="logo" id="logo" class="form-control form-control-sm"
+                                       accept="image/*">
+                            </div>
                         </div>
 
+                        <div class="row gy-4 mb-4">
+                            <div class="col-xl-6">
+                                <label for="language"
+                                       class="form-label">{{ __('messages.language_preference') ?? 'Language Preference' }}
+                                    :</label>
+                                <select class="form-control" id="language" name="language" required>
+                                    <option
+                                        value="en" @selected((old('language', $preferences?->language ?? 'en')) === 'en')>{{ __('messages.language_en') }}</option>
+                                    <option
+                                        value="fr" @selected((old('language', $preferences?->language ?? 'en')) === 'fr')>{{ __('messages.language_fr') }}</option>
+                                </select>
+                            </div>
+
+                            <div class="col-xl-6">
+                                <label for="theme"
+                                       class="form-label">{{ __('messages.theme_preference') ?? 'Theme Preference' }}
+                                    :</label>
+                                <select class="form-control" id="theme" name="theme" required>
+                                    <option
+                                        value="light" @selected((old('theme', $preferences?->theme ?? 'light')) === 'light')>{{ __('messages.light_theme') ?? 'Light' }}</option>
+                                    <option
+                                        value="dark" @selected((old('theme', $preferences?->theme ?? 'light')) === 'dark')>{{ __('messages.dark_theme') ?? 'Dark' }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row gy-4">
+                            <div class="col-xl-6">
+                                <label for="current_password" class="form-label">{{ __('messages.current_password') }}
+                                    :</label>
+                                <input type="password" name="current_password" id="current_password"
+                                       class="form-control" placeholder="••••••••">
+                            </div>
+                            <div class="col-xl-6">
+                                <label for="new_password" class="form-label">{{ __('messages.new_password') }} :</label>
+                                <input type="password" name="new_password" id="new_password" class="form-control"
+                                       placeholder="••••••••">
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+                    <div class="card-footer mb-4">
+                        <div class="float-end">
+                            <button type="submit" class="btn btn-primary label-btn label-end">
+                                {{ __('messages.save_changes') ?? 'Save changes' }}
+                                <i class="ri-save-fill label-btn-icon ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

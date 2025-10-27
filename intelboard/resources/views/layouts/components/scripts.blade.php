@@ -36,5 +36,20 @@
 
 <!-- Switcher -->
 <script src="{{ asset('build/assets/bootstrap-switch.min.js') }}"></script>
+<!-- Select2 Cdn -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+<!-- Internal Select-2.js -->
+<script>
+    (function() {
+        const serverTheme = @json($theme);
+        try {
+            // Ensure client-side code uses the server-selected theme
+            localStorage.setItem('theme', serverTheme);
+            document.documentElement.setAttribute('data-theme-mode', serverTheme);
+        } catch (e) {
+            // silent fail if storage not available
+        }
+    })();
+</script>
 @yield('scripts')

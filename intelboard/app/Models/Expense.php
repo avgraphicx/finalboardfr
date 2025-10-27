@@ -15,6 +15,7 @@ class Expense extends Model
     protected $fillable = [
         'title',
         'amount',
+        'date',
         'week',
         'for',
         'note',

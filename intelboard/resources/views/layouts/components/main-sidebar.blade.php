@@ -29,19 +29,29 @@
                 {{-- <li class="slide__category"><span class="category-name">Main</span></li> --}}
                 <!-- End::slide__category -->
                 <li class="slide">
-                    <a href="{{ route('drivers.index') }}" class="side-menu__item">
+                    <a href="{{ route('index') }}"
+                        class="side-menu__item {{ Route::currentRouteName() === 'index' ? 'active' : '' }}">
+                        <i class="bi bi-house-fill side-menu__icon"></i>
+                        <span class="side-menu__label">{{ __('messages.home') }}</span>
+                    </a>
+                </li>
+                <li class="slide">
+                    <a href="{{ route('drivers.index') }}"
+                        class="side-menu__item {{ Route::currentRouteName() === 'drivers.index' ? 'active' : '' }}">
                         <i class="bi bi-car-front-fill side-menu__icon"></i>
                         <span class="side-menu__label">{{ __('messages.drivers') }}</span>
                     </a>
                 </li>
                 <li class="slide">
-                    <a href="{{ route('invoices.index') }}" class="side-menu__item">
+                    <a href="{{ route('invoices.index') }}"
+                        class="side-menu__item {{ Route::currentRouteName() === 'invoices.index' ? 'active' : '' }}">
                         <i class="bi bi-receipt side-menu__icon"></i>
                         <span class="side-menu__label">{{ __('messages.payments') }}</span>
                     </a>
                 </li>
                 <li class="slide">
-                    <a href="{{ route('expenses.index') }}" class="side-menu__item">
+                    <a href="{{ route('expenses.index') }}"
+                        class="side-menu__item {{ Route::currentRouteName() === 'expenses.index' ? 'active' : '' }}">
                         <i class="bi bi-wallet2 side-menu__icon"></i>
                         <span class="side-menu__label">{{ __('messages.expenses') }}</span>
                     </a>
