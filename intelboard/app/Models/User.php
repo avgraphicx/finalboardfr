@@ -160,4 +160,35 @@ class User extends Authenticatable
     {
         return $this->logo ? asset('storage/' . $this->logo) : null;
     }
+
+    /**
+     * Retrieve the user's current active Cashier subscription.
+     */
+    public function currentCashierSubscription(): ?CashierSubscription
+    {
+        if ($this->relationLoaded('subscriptions')) {
+            return $this->subscriptions
+                ->sortByDesc('created_at')
+                ->first(function (CashierSubscription $subscription) {
+                    return $subscription->isActive();
+                });
+        }
+
+        return $this->subscriptions()
+            ->whereIn('stripe_status', ['active', 'trialing', 'incomplete'])
+            ->where(function ($query) {
+                $query->whereNull('ends_at')
+                    ->orWhere('ends_at', '>', now());
+            })
+            ->latest()
+            ->first();
+    }
+
+    /**
+     * Convenience accessor for the resolved subscription plan.
+     */
+    public function currentSubscriptionPlan(): ?SubscriptionType
+    {
+        return $this->currentCashierSubscription()?->plan;
+    }
 }

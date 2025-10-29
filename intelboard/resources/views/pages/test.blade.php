@@ -1,53 +1,68 @@
-@extends('layouts.custom-master')
+@extends('layouts.master')
+
+@section('styles')
+@endsection
 
 @section('content')
+    <!-- Start::page-header -->
+    <div class="page-header-breadcrumb mb-3">
+        <div class="d-flex align-center justify-content-between flex-wrap">
+            <h1 class="page-title fw-medium fs-18 mb-0">{{ __('messages.empty') }}</h1>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="javascript:void(0);">{{ __('messages.pages') }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ __('messages.empty') }}</li>
+            </ol>
+        </div>
+    </div>
+    <!-- End::page-header -->
+
+    <!-- Start::row-1 -->
     <div class="container">
         <div class="row">
             <div class="col-xl-8">
                 <div class="card custom-card border-0 shadow-none">
                     <div class="card-body">
-                        <h5 class="fw-semibold mb-3">Payment Method</h5>
-                        <p class="mb-2 mt-4 fw-medium">Card Details:</p>
-                        <form id="payment-form" action="{{ route('subscribe') }}" method="POST" novalidate>
-                            @csrf
-                            <input type="hidden" name="price_id" value="{{ $price_id }}">
+                        <div class="mb-4">
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    {{ __('messages.logout') }}
+                                </button>
+                            </form>
+                        </div>
+                        <div>
+                            <h5 class="fw-semibold mb-3">Payment Method</h5>
+                            <p class="mb-2 mt-4 fw-medium">Card Details:</p>
                             <div class="row gy-4">
-                                <div class="col-12">
-                                    <label class="form-label" for="card-holder-name">Card Holder Name</label>
-                                    <input type="text" class="form-control" id="card-holder-name"
-                                        name="card_holder_name" placeholder="Jane Doe" autocomplete="name">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="cardHolderName"
+                                        placeholder="Card Holder Name">
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label" for="card-element">Card Information</label>
-                                    <div id="card-element" class="form-control py-3"></div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="cardNumber" placeholder="Card Number">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="expDate" placeholder="Expiry Date">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="cvv" placeholder="CVV">
                                 </div>
                             </div>
-                            <div id="card-errors" class="text-danger fs-13 mt-2" role="alert"></div>
-                            <p class="mb-3 mt-2 fs-13 text-muted d-flex align-items-center gap-2">
+                            <p class="mb-3 mt-2 fs-13 text-muted">
                                 <span><i class="ti ti-lock fs-16"></i></span>
                                 <span>Your transaction is secured with encryption.</span>
                             </p>
-                            <button id="card-button" class="btn btn-primary mt-3"
-                                data-secret="{{ $intent->client_secret }}">
-                                Subscribe
-                            </button>
-                        </form>
+                            <a href="javascript:void(0);" class="btn btn-primary">
+                                Proceed to pay <i class="ti ti-arrow-right fs-18 ms-2 align-middle"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
+
             </div>
             <div class="col-xl-4">
                 <div class="card custom-card overflow-hidden">
                     <div class="card-body p-0">
-                        @if ($errors->has('error'))
-                            <div class="alert alert-danger">
-                                {{ $errors->first('error') }}
-                            </div>
-                        @endif
-                        @if (session('error'))
-                            <div class="alert alert-danger">
-                                {{ session('error') }}
-                            </div>
-                        @endif
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">
                                 <div class="d-flex align-items-center gap-3 flex-wrap flex-sm-nowrap">
@@ -134,58 +149,8 @@
             </div>
         </div>
     </div>
+    <!--End::row-1 -->
 @endsection
 
 @section('scripts')
-    <script src="https://js.stripe.com/v3/"></script>
-    <script>
-        const stripe = Stripe('{{ env('STRIPE_KEY') }}');
-        const elements = stripe.elements();
-        const cardElement = elements.create('card');
-        cardElement.mount('#card-element');
-
-        const cardHolderName = document.getElementById('card-holder-name');
-        const cardButton = document.getElementById('card-button');
-        const clientSecret = cardButton?.dataset.secret;
-        const form = document.getElementById('payment-form');
-        const cardErrors = document.getElementById('card-errors');
-
-        if (!form || !cardHolderName || !cardButton || !clientSecret) {
-            console.error('Stripe form is missing required elements.');
-            return;
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            cardButton.disabled = true;
-
-            const {
-                setupIntent,
-                error
-            } = await stripe.confirmCardSetup(
-                clientSecret, {
-                    payment_method: {
-                        card: cardElement,
-                        billing_details: {
-                            name: cardHolderName.value
-                        }
-                    }
-                }
-            );
-
-            if (error) {
-                cardButton.disabled = false;
-                if (cardErrors) {
-                    cardErrors.textContent = error.message;
-                }
-            } else {
-                let token = document.createElement('input');
-                token.setAttribute('type', 'hidden');
-                token.setAttribute('name', 'payment_method');
-                token.setAttribute('value', setupIntent.payment_method);
-                form.appendChild(token);
-                form.submit();
-            }
-        });
-    </script>
 @endsection

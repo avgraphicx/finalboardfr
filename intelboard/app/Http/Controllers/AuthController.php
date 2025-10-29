@@ -16,6 +16,10 @@ class AuthController extends Controller
      */
     public function showLogin()
     {
+        if (Auth::check()) {
+            return redirect()->route('index');
+        }
+
         return view('pages.sign-in-basic');
     }
 

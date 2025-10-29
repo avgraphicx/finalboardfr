@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SubscriptionType;
-use App\Models\Subscription;
+use App\Models\CashierSubscription;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -14,7 +14,10 @@ class SubscriptionController extends Controller
      */
     public function index()
     {
-        $subscriptions = Subscription::with('broker', 'subscriptionType')->paginate(20);
+        $subscriptions = CashierSubscription::with(['user', 'plan'])
+            ->orderByDesc('created_at')
+            ->paginate(20);
+
         return view('subscriptions.index', compact('subscriptions'));
     }
 
@@ -24,8 +27,9 @@ class SubscriptionController extends Controller
     public function create()
     {
         $brokers = User::brokers()->where('active', true)->get();
-        $types = SubscriptionType::all();
-        return view('subscriptions.create', compact('brokers', 'types'));
+        $plans = SubscriptionType::orderBy('price')->get();
+
+        return view('subscriptions.create', compact('brokers', 'plans'));
     }
 
     /**
@@ -34,60 +38,103 @@ class SubscriptionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'broker_id' => 'required|exists:users,id',
-            'subscription_type_id' => 'required|exists:subscription_types,id',
-            'stripe_subscription_id' => 'nullable|string',
-            'stripe_status' => 'required|in:active,inactive,past_due',
-            'started_at' => 'required|date',
-            'ends_at' => 'required|date|after:started_at',
-            'price_paid' => 'required|numeric|min:0',
-            'auto_renew' => 'boolean',
+            'user_id' => 'required|exists:users,id',
+            'type' => 'nullable|string|max:120',
+            'stripe_id' => 'required|string|max:190|unique:cashier_subscriptions,stripe_id',
+            'stripe_status' => 'required|string|in:active,trialing,incomplete,canceled,past_due,unpaid',
+            'subscription_type_id' => 'nullable|exists:subscription_types,id',
+            'stripe_price' => 'nullable|string|max:190',
+            'quantity' => 'nullable|integer|min:1',
+            'trial_ends_at' => 'nullable|date',
+            'ends_at' => 'nullable|date|after_or_equal:trial_ends_at',
         ]);
 
-        Subscription::create($validated);
-        return redirect()->route('subscriptions.index')->with('success', 'Subscription created successfully');
+        $plan = null;
+
+        if (!empty($validated['subscription_type_id'])) {
+            $plan = SubscriptionType::find($validated['subscription_type_id']);
+        }
+
+        $stripePrice = $validated['stripe_price'] ?? $plan?->stripe_plan_id;
+
+        CashierSubscription::create([
+            'user_id' => $validated['user_id'],
+            'type' => $validated['type'] ?? 'default',
+            'stripe_id' => $validated['stripe_id'],
+            'stripe_status' => $validated['stripe_status'],
+            'stripe_price' => $stripePrice,
+            'quantity' => $validated['quantity'] ?? 1,
+            'trial_ends_at' => $validated['trial_ends_at'] ?? null,
+            'ends_at' => $validated['ends_at'] ?? null,
+        ]);
+
+        return redirect()->route('subscriptions.index')
+            ->with('success', 'Subscription created successfully');
     }
 
     /**
      * Display the specified subscription.
      */
-    public function show(Subscription $subscription)
+    public function show(CashierSubscription $subscription)
     {
+        $subscription->loadMissing('user', 'plan');
+
         return view('subscriptions.show', compact('subscription'));
     }
 
     /**
      * Show the form for editing.
      */
-    public function edit(Subscription $subscription)
+    public function edit(CashierSubscription $subscription)
     {
-        $brokers = User::brokers()->get();
-        $types = SubscriptionType::all();
-        return view('subscriptions.edit', compact('subscription', 'brokers', 'types'));
+        $subscription->loadMissing('plan', 'user');
+        $plans = SubscriptionType::orderBy('price')->get();
+
+        return view('subscriptions.edit', compact('subscription', 'plans'));
     }
 
     /**
      * Update the specified subscription.
      */
-    public function update(Request $request, Subscription $subscription)
+    public function update(Request $request, CashierSubscription $subscription)
     {
         $validated = $request->validate([
-            'stripe_status' => 'sometimes|in:active,inactive,past_due',
-            'ends_at' => 'sometimes|date',
-            'price_paid' => 'sometimes|numeric|min:0',
-            'auto_renew' => 'sometimes|boolean',
+            'stripe_status' => 'sometimes|string|in:active,trialing,incomplete,canceled,past_due,unpaid',
+            'subscription_type_id' => 'nullable|exists:subscription_types,id',
+            'stripe_price' => 'nullable|string|max:190',
+            'quantity' => 'nullable|integer|min:1',
+            'trial_ends_at' => 'nullable|date',
+            'ends_at' => 'nullable|date|after_or_equal:trial_ends_at',
         ]);
 
-        $subscription->update($validated);
-        return redirect()->route('subscriptions.show', $subscription)->with('success', 'Subscription updated successfully');
+        $plan = null;
+
+        if (!empty($validated['subscription_type_id'])) {
+            $plan = SubscriptionType::find($validated['subscription_type_id']);
+        }
+
+        $stripePrice = $validated['stripe_price'] ?? $plan?->stripe_plan_id ?? $subscription->stripe_price;
+
+        $subscription->update([
+            'stripe_status' => $validated['stripe_status'] ?? $subscription->stripe_status,
+            'stripe_price' => $stripePrice,
+            'quantity' => $validated['quantity'] ?? $subscription->quantity,
+            'trial_ends_at' => $validated['trial_ends_at'] ?? $subscription->trial_ends_at,
+            'ends_at' => $validated['ends_at'] ?? $subscription->ends_at,
+        ]);
+
+        return redirect()->route('subscriptions.show', $subscription)
+            ->with('success', 'Subscription updated successfully');
     }
 
     /**
      * Remove the specified subscription.
      */
-    public function destroy(Subscription $subscription)
+    public function destroy(CashierSubscription $subscription)
     {
         $subscription->delete();
-        return redirect()->route('subscriptions.index')->with('success', 'Subscription deleted successfully');
+
+        return redirect()->route('subscriptions.index')
+            ->with('success', 'Subscription deleted successfully');
     }
 }

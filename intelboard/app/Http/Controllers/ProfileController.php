@@ -17,11 +17,13 @@ class ProfileController extends Controller
     public function show(SubscriptionService $subscriptionService): View
     {
         /** @var \App\Models\User $user */
-        $user = Auth::user()->load(['legacySubscription.subscriptionType', 'preferences']);
+        $user = Auth::user()->load(['subscriptions.plan', 'preferences']);
         $preferences = $user->preferences ?? null;
+        $currentSubscription = $subscriptionService->getActiveSubscription($user);
+        $currentPlan = $subscriptionService->getPlan($user);
         $canAddSupervisor = $subscriptionService->canAddSupervisor($user);
 
-        return view('pages.profile', compact('user', 'preferences', 'canAddSupervisor'));
+        return view('pages.profile', compact('user', 'preferences', 'canAddSupervisor', 'currentSubscription', 'currentPlan'));
     }
 
     /**
@@ -30,11 +32,13 @@ class ProfileController extends Controller
     public function edit(SubscriptionService $subscriptionService): View
     {
         /** @var \App\Models\User $user */
-        $user = Auth::user()->load(['legacySubscription.subscriptionType', 'preferences']);
+        $user = Auth::user()->load(['subscriptions.plan', 'preferences']);
         $preferences = $user->preferences ?? null;
+        $currentSubscription = $subscriptionService->getActiveSubscription($user);
+        $currentPlan = $subscriptionService->getPlan($user);
         $canAddSupervisor = $subscriptionService->canAddSupervisor($user);
 
-        return view('pages.profile', compact('user', 'preferences', 'canAddSupervisor'));
+        return view('pages.profile', compact('user', 'preferences', 'canAddSupervisor', 'currentSubscription', 'currentPlan'));
     }
 
     /**

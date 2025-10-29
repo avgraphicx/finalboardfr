@@ -665,6 +665,7 @@ return [
     'choose_plan_desc' => 'Choose a plan that fits your needs with scalable features and great value.',
     'monthly' => 'Monthly',
     'quarterly' => 'Quarterly',
+    'semiannually' => 'Semi-Annually',
     'yearly' => 'Yearly',
     'save_10' => '-10%',
     'save_20' => '-20%',

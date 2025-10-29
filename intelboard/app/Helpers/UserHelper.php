@@ -8,8 +8,8 @@ use App\Models\User;
  *
  * Usage:
  * currentUser()->company_name
- * currentUser()->legacySubscription->subscriptionType->max_drivers
- * currentUser()->legacySubscription->ends_at
+ * currentUser()->currentCashierSubscription()?->plan?->max_drivers
+ * currentUser()->currentCashierSubscription()?->ends_at
  *
  * @return \App\Models\User|null
  */
@@ -22,9 +22,9 @@ if (!function_exists('currentUser')) {
             return null;
         }
 
-        // Always eager load subscription and subscriptionType relationships
+        // Always eager load subscription relationships for downstream feature checks
         return $user->load([
-            'legacySubscription.subscriptionType',
+            'subscriptions.plan',
         ]);
     }
 }

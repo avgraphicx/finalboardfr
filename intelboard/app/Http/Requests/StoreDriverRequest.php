@@ -7,6 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\Rule;
+use App\Services\SubscriptionService;
 
 class StoreDriverRequest extends FormRequest
 {
@@ -26,31 +27,21 @@ class StoreDriverRequest extends FormRequest
             return false;
         }
 
-        // Eager load relationships for efficiency
-        $brokerUser->load('brokerProfile.subscriptionType');
-
-        $subscriptionType = $brokerUser->brokerProfile?->subscriptionType;
-
-        if (!$subscriptionType) {
-            // Deny if the broker has no subscription type defined
+        /** @var SubscriptionService $subscriptionService */
+        $subscriptionService = app(SubscriptionService::class);
+        if (!$subscriptionService->hasActiveSubscription($brokerUser)) {
+            // Deny if the broker has no active subscription plan defined
             return false;
         }
 
-        $maxDrivers = $subscriptionType->max_drivers;
+        $limitInfo = $subscriptionService->getDriverLimitInfo($brokerUser);
 
-        // A limit of 0 or null/negative could mean unlimited, adjust if needed.
-        // Here we assume a positive integer is a hard limit.
-        if ($maxDrivers <= 0) {
-            return true; // Unlimited drivers allowed
+        // A limit of 0 implies unlimited drivers.
+        if (($limitInfo['max'] ?? 0) <= 0) {
+            return true;
         }
 
-        // Get IDs of all users under this broker (the broker themselves + their supervisors)
-        $userIds = $brokerUser->createdUsers()->pluck('id')->push($brokerUser->id);
-
-        // Count all drivers created by the broker and their supervisors
-        $currentDriverCount = \App\Models\Driver::whereIn('created_by', $userIds)->count();
-
-        return $currentDriverCount < $maxDrivers;
+        return ($limitInfo['current'] ?? 0) < ($limitInfo['max'] ?? 0);
     }
 
     /**

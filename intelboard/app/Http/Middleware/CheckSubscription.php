@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\SubscriptionService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,10 +19,9 @@ class CheckSubscription
         $user = $request->user();
 
         if ($user) {
-            $hasCashierSubscription = $user->subscribed('default');
-            $hasLegacySubscription = $user->legacySubscription?->isActive();
+            $subscriptionService = app(SubscriptionService::class);
 
-            if (!$hasCashierSubscription && !$hasLegacySubscription) {
+            if (! $subscriptionService->hasActiveSubscription($user)) {
                 return redirect()->route('no.subscription');
             }
         }

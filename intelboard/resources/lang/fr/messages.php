@@ -184,7 +184,7 @@ return [
     'show_all_drivers'         => 'Afficher tout les chauffeurs',
     'previous'                 => 'Précédent',
     'next'                     => 'Suivant',
-    'confirm_delete_selected'=> 'Êtes-vous sûr de vouloir supprimer :count chauffeurs ?',
+    'confirm_delete_selected' => 'Êtes-vous sûr de vouloir supprimer :count chauffeurs ?',
     'confirm_delete_single'  => 'Êtes-vous sûr de vouloir supprimer :id - :name ?',
     'transactions_history'   => 'Historique des transactions',
 
@@ -345,7 +345,7 @@ return [
     'password_section'        => 'Changer le mot de passe',
     'current_password'        => 'Mot de passe actuel',
     'new_password'            => 'Nouveau mot de passe',
-    'new_password_placeholder'=> 'Entrer le nouveau mot de passe',
+    'new_password_placeholder' => 'Entrer le nouveau mot de passe',
     'current_password_incorrect' => 'Le mot de passe actuel est incorrect.',
     'password_changed_success'   => 'Mot de passe mis à jour avec succès.',
     'password_min_rule'          => 'Doit contenir au moins 8 caractères.',
@@ -464,7 +464,7 @@ return [
     'stats'    => 'Statistiques',
     'settings' => 'Paramètres',
     'footer_copyright' => 'Intelboard © 2024 - ',
-/*
+    /*
     |--------------------------------------------------------------------------
     | Dashboard Keys (NEWLY ADDED)
     |--------------------------------------------------------------------------
@@ -525,7 +525,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-        'total_drivers'                => 'Chauffeurs en total',
+    'total_drivers'                => 'Chauffeurs en total',
     'active_drivers'                 => 'Chauffeurs actifs',
     'top_driver_days'                 => 'Chauffeur / Jours',
     'top_driver_int'                 => 'Chauffeur / Factures Intelcom',
@@ -542,7 +542,7 @@ return [
     'drivers_missing_ssn'                 => 'Chauffeurs sans NAS',
     'drivers_missing_license'                 => 'Chauffeurs sans num permis',
     'total_unpaid_invoices'                 => 'Factures impayées',
-        'broker_earnings_by_week' => 'Vos revenus hebdomadaires',
+    'broker_earnings_by_week' => 'Vos revenus hebdomadaires',
     'broker_earnings'        => 'Revenus',
     'broker_weekly_earnings'        => 'Vos revenus / semaine',
     'week'                   => 'Semaine',
@@ -728,6 +728,7 @@ return [
     'choose_plan_desc' => 'Choisissez un plan qui correspond à vos besoins avec des fonctionnalités évolutives et une grande valeur.',
     'monthly' => 'Mensuel',
     'quarterly' => 'Trimestriel',
+    'semiannually' => 'Semestrielle',
     'yearly' => 'Annuel',
     'save_10' => 'Économisez 10%',
     'save_20' => 'Économisez 20%',
@@ -738,10 +739,10 @@ return [
     'bronze_desc' => 'Parfait pour les débutants avec peu de chauffeurs.',
     'add_up_to_10_drivers' => 'Ajoutez jusqu\'à 10 chauffeurs.',
     'add_unlimited_drivers' => 'Ajoutez un nombre illimité de chauffeurs.',
-    'view_weekly_stats' => 'Voir les statistiques hebdomadaires sur le tableau de bord.',
-    'choose_daily_weekly_monthly' => 'Choisissez les statistiques quotidiennes, hebdomadaires, mensuelles.',
+    'view_weekly_stats' => 'Voir les statistiques hebdomadaires.',
+    'choose_daily_weekly_monthly' => 'Statistiques par jour, semaine ou mois.',
     'auto_calculate_invoice' => 'Calculer automatiquement une facture.',
-    'auto_calculate_multiple' => 'Calculer automatiquement plusieurs factures à la fois.',
+    'auto_calculate_multiple' => 'Calcul de plusieurs factures simultanément.',
     'add_supervisor_account' => 'Ajouter un compte superviseur.',
     'create_custom_invoice' => 'Créer une facture d\'entreprise personnalisée.',
 
@@ -749,13 +750,23 @@ return [
     'gold' => 'Or',
     'gold_desc' => 'Conçu pour plus de chauffeurs et plusieurs entrepôts.',
     'add_up_to_50_drivers' => 'Ajoutez jusqu\'à 50 chauffeurs.',
-    'auto_calculate_up_to_10' => 'Calculer automatiquement jusqu\'à 10 factures à la fois.',
+    'auto_calculate_up_to_10' => 'Calculer jusqu\'à 10 factures à la fois.',
 
     // Diamond Plan
     'diamond' => 'Diamant',
     'diamond_desc' => 'Pour les courtiers avec le plus grand nombre de chauffeurs.',
     'view_stats_dashboard' => 'Voir les statistiques sur le tableau de bord.',
-    'auto_calculate_unlimited' => 'Calculer automatiquement un nombre illimité de factures à la fois.',
+    'auto_calculate_unlimited' => 'Calculer un nombre de factures illimité à la fois.',
     'vip_support' => 'Niveau de support VIP.',
     'first_access_features' => 'Premier accès aux nouvelles fonctionnalités.',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Subscription
+    |--------------------------------------------------------------------------
+    */
+    'no_active_subscription' => 'Aucun abonnement actif',
+    'choose_plan_to_continue' => ' Choisissez un plan pour continuer à utiliser Intelboard.',
+    'select_plan_below' => 'Sélectionnez un plan ci-dessous',
+
 ];

@@ -36,10 +36,11 @@
 
                         @php
                             $currentDrivers = $driversCount;
-                            $userSubscription = auth()->user()->legacySubscription;
-                            $maxDrivers = $userSubscription
-                                ? $userSubscription->subscriptionType->max_drivers
-                                : PHP_INT_MAX;
+                            $limitInfo = app(\App\Services\SubscriptionService::class)->getDriverLimitInfo(auth()->user());
+                            $maxDrivers = $limitInfo['max'] ?? PHP_INT_MAX;
+                            if ($maxDrivers <= 0) {
+                                $maxDrivers = PHP_INT_MAX;
+                            }
                         @endphp
                         <button id="open-create-driver" class="btn btn-primary" data-current-drivers="{{ $currentDrivers }}"
                             data-max-drivers="{{ $maxDrivers }}">

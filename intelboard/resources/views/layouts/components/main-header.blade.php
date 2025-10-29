@@ -171,8 +171,9 @@
                             <div>
                                 <span
                                     class="d-block fw-semibold lh-1">{{ optional(currentUser())->full_name ?? (auth()->user()?->full_name ?? '') }}</span>
-                                <span
-                                    class="text-muted fs-12">{{ optional(currentUser()->subscription_type)->name ?? '' }}</span>
+                                <span class="text-muted fs-12">
+                                    {{ currentUser()?->currentSubscriptionPlan()?->name ?? 'No active plan' }}
+                                </span>
                             </div>
                         </div>
                     </div>

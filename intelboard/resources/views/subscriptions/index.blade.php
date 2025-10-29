@@ -20,7 +20,7 @@
                                 <thead>
                                     <tr>
                                         <th>{{ __('messages.broker') ?? 'Broker' }}</th>
-                                        <th>{{ __('messages.type') ?? 'Type' }}</th>
+                                        <th>{{ __('messages.type') ?? 'Plan' }}</th>
                                         <th>{{ __('messages.status') ?? 'Status' }}</th>
                                         <th>{{ __('messages.ends_at') ?? 'Ends At' }}</th>
                                         <th>{{ __('messages.actions') ?? 'Actions' }}</th>
@@ -29,11 +29,20 @@
                                 <tbody>
                                     @foreach ($subscriptions as $sub)
                                         <tr>
-                                            <td>{{ optional($sub->broker)->full_name ?? 'Unknown' }}</td>
-                                            <td>{{ optional($sub->subscriptionType)->name ?? 'Unknown' }}</td>
-                                            <td>{{ $sub->stripe_status }}</td>
-                                            <td>{{ $sub->ends_at?->format('Y-m-d') }}</td>
+                                            <td>{{ optional($sub->user)->full_name ?? 'Unknown' }}</td>
                                             <td>
+                                                {{ $sub->plan?->name ?? 'Unknown' }}
+                                                @if ($sub->stripe_price)
+                                                    <span class="d-block text-muted fs-12">{{ $sub->stripe_price }}</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-capitalize">{{ $sub->stripe_status }}</td>
+                                            <td>{{ $sub->ends_at?->format('Y-m-d') ?? '—' }}</td>
+                                            <td class="d-flex gap-2">
+                                                <a href="{{ route('subscriptions.show', $sub) }}"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    <i class="ri-eye-line"></i>
+                                                </a>
                                                 <a href="{{ route('subscriptions.edit', $sub) }}"
                                                     class="btn btn-sm btn-warning">
                                                     <i class="ri-edit-line"></i>

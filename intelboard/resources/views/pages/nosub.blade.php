@@ -12,10 +12,46 @@
         .fs-20 {
             font-size: 20px;
         }
+
+        .landing-lang-switcher {
+            /* display: inline-flex;
+                align-items: center;
+                gap: 0.35rem; */
+            text-transform: uppercase;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .landing-lang-switcher img {
+            width: 24px;
+            height: 24px;
+            /* border-radius: 50%; */
+            object-fit: cover;
+        }
+    </style>
     </style>
 @endsection
 
 @section('content')
+    @php
+        $currentLocale = Session::get('locale', 'en');
+        $switchLocale = $currentLocale === 'fr' ? 'en' : 'fr';
+        $switchFlag =
+            $switchLocale === 'fr'
+                ? asset('build/assets/images/flags/french_flag.jpg')
+                : asset('build/assets/images/flags/us_flag.jpg');
+        $currentFlag =
+            $currentLocale === 'fr'
+                ? asset('build/assets/images/flags/french_flag.jpg')
+                : asset('build/assets/images/flags/us_flag.jpg');
+    @endphp
+    <div class="row text-center mt-3">
+        <a class="landing-lang-switcher nav-link p-0 me-2" href="{{ route('set.locale', $switchLocale) }}"
+            data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ __('messages.switch_language') }}">
+            <img src="{{ $currentFlag }}" alt="{{ strtoupper($currentLocale) }} Flag">
+            <span>{{ strtoupper($currentLocale) }}</span>
+        </a>
+    </div>
     <div class="row justify-content-center my-3 p-4" id="sub-alert">
         <div class="col-lg-9 col-md-12 col-sm-12">
 
@@ -55,8 +91,8 @@
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button type="button" class="nav-link rounded-pill fw-medium" data-bs-toggle="pill"
-                                    data-bs-target="#pricing-quarterly" aria-selected="false" role="tab"
-                                    tabindex="-1">{{ __('messages.quarterly') }} <span
+                                    data-bs-target="#pricing-semiannually" aria-selected="false" role="tab"
+                                    tabindex="-1">{{ __('messages.semiannually') }} <span
                                         class="badge bg-success-transparent text-warning ms-1">{{ __('messages.save_10') }}</span>
                                 </button>
                             </li>
@@ -217,10 +253,10 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Quarterly -->
-                        <div class="tab-pane p-0 border-0" id="pricing-quarterly" role="tabpanel">
+                        <!-- semiannually -->
+                        <div class="tab-pane p-0 border-0" id="pricing-semiannually" role="tabpanel">
                             <div class="row g-4">
-                                <!-- Bronze Plan (Quarterly) -->
+                                <!-- Bronze Plan (semiannually) -->
                                 <div class="col-lg-4 col-md-6">
                                     <div class="card custom-card dashboard-main-card pricing-card">
                                         <div class="card-body p-4">
@@ -267,7 +303,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Gold Plan (Quarterly) -->
+                                <!-- Gold Plan (semiannually) -->
                                 <div class="col-lg-4 col-md-6">
                                     <div class="card custom-card dashboard-main-card pricing-card">
                                         <div class="card-body p-4">
@@ -314,7 +350,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Diamond Plan (Quarterly) -->
+                                <!-- Diamond Plan (semiannually) -->
                                 <div class="col-lg-4 col-md-6">
                                     <div class="card custom-card dashboard-main-card pricing-card">
                                         <div class="card-body p-4">

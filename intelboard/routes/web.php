@@ -57,11 +57,34 @@ Route::get('register/complete', function () {
 })->name('register.complete');
 
 /******** Landing Page (Unprotected) ********/
-Route::get('welcome', function () {
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('index')
+        : redirect()->route('landing');
+})->name('home');
+
+Route::get('/home', function () {
+    return auth()->check()
+        ? redirect()->route('index')
+        : redirect()->route('landing');
+})->name('home.redirect');
+
+Route::middleware('auth')->get('/index', function () {
+    return redirect()->route('index');
+})->name('index.redirect');
+
+Route::get('landing', function () {
     return view('landing');
 })->name('landing');
+Route::get('test', function () {
+    return view('pages.test');
+})->name('test');
 
 Route::get('no-subscription', function () {
+    if (auth()->check() && auth()->user()->subscribed('default')) {
+        return redirect()->route('index');
+    }
+
     return view('pages.nosub');
 })->name('no.subscription');
 
@@ -96,7 +119,7 @@ Route::get('/theme/{theme}', function (string $theme) {
 Route::middleware(['auth', 'subscribed'])->group(function () {
 
     /******** Dashboard & Home ********/
-    Route::get('/', [DashboardController::class, 'index'])->name('index');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
     Route::post('/dashboard/refresh-stats', [DashboardController::class, 'refreshStats'])->name('dashboard.refresh-stats');
 
     /******** Profile Management ********/
@@ -168,5 +191,4 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
         Route::resource('audits', AuditLogController::class)->only(['index', 'show']);
         Route::get('audits/export/csv', [AuditLogController::class, 'export'])->name('audits.export');
     });
-
 });
