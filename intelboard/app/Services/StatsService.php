@@ -3,190 +3,232 @@
 namespace App\Services;
 
 use App\Models\Driver;
-use App\Models\Invoice;
 use App\Models\Expense;
+use App\Models\Invoice;
+use App\Support\TimeFilter;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class StatsService
 {
     /**
      * Collect dashboard statistics for the given broker.
-     *
-     * @param  object  $broker
-     * @return array
      */
-    public function getDashboardStats($broker): array
+    public function getDashboardStats($broker, ?TimeFilter $filter = null): array
     {
-        // Drivers belonging to this broker (created_by field in new schema)
-        $drivers   = Driver::where('created_by', $broker->id);
-        $driverIds = $drivers->pluck('id');
+        $filter ??= TimeFilter::default();
 
-        // Invoices for those drivers
-        $invoices = Invoice::whereIn('driver_id', $driverIds);
+        $rangeStart = $filter->startDate->copy()->startOfDay();
+        $rangeEnd = $filter->endDate->copy()->endOfDay();
+        $weekNumbers = $this->weekNumbersWithinRange($filter);
+
+        $driversQuery = Driver::where('created_by', $broker->id);
+        $driverIds = (clone $driversQuery)->pluck('id');
+
+        $invoicesBase = Invoice::where('broker_id', $broker->id)
+            ->whereIn('driver_id', $driverIds);
+
+        $invoicesInRange = (clone $invoicesBase)
+            ->when(! empty($weekNumbers), function (Builder $query) use ($weekNumbers) {
+                $query->whereIn('week_number', $weekNumbers);
+            });
 
         // ===== TOP DRIVER BY DAYS (days_worked) =====
-        $topRows = Invoice::with('driver')
-            ->whereIn('driver_id', $driverIds)
-            ->select('driver_id', DB::raw('SUM(days_worked) AS total_rows'))
-            ->groupBy('driver_id')
-            ->orderByDesc('total_rows')
-            ->first();
+        $topDriver = $this->resolveTopDriver(
+            (clone $invoicesInRange),
+            'days_worked',
+            'total_rows'
+        );
 
-        $topDriver = null;
-        if ($topRows && $topRows->driver) {
-            $topDriver = [
-                'driver_id'   => $topRows->driver_id,
-                'total_rows'  => $topRows->total_rows,
-                'driver'      => $topRows->driver,
-            ];
-        }
+        // ===== TOP DRIVER BY PARCELS =====
+        $topDriverParcels = $this->resolveTopDriver(
+            (clone $invoicesInRange),
+            'total_parcels',
+            'total_parcels'
+        );
 
-        // ===== TOP DRIVER BY INT INV (invoice_total) =====
-        $topInv = Invoice::with('driver')
-            ->whereIn('driver_id', $driverIds)
-            ->select('driver_id', DB::raw('SUM(invoice_total) AS total_invoice'))
-            ->groupBy('driver_id')
-            ->orderByDesc('total_invoice')
-            ->first();
+        // ===== TOP DRIVER BY INTELCOM INVOICE TOTAL =====
+        $topDriverInt = $this->resolveTopDriver(
+            (clone $invoicesInRange),
+            'invoice_total',
+            'total_invoice'
+        );
 
-        $topDriverInt = null;
-        if ($topInv && $topInv->driver) {
-            $topDriverInt = [
-                'driver_id'     => $topInv->driver_id,
-                'total_invoice' => $topInv->total_invoice,
-                'driver'        => $topInv->driver,
-            ];
-        }
+        // ===== TOP DRIVER BY FINAL AMOUNT (amount_to_pay_driver) =====
+        $topDriverOwn = $this->resolveTopDriver(
+            (clone $invoicesInRange),
+            'amount_to_pay_driver',
+            'final_amount'
+        );
 
-        // ===== TOP DRIVER BY BROKER EARNINGS (amount_to_pay_driver) =====
-        $topOwn = Invoice::with('driver')
-            ->whereIn('driver_id', $driverIds)
-            ->select('driver_id', DB::raw('SUM(amount_to_pay_driver) AS final_amount'))
-            ->groupBy('driver_id')
-            ->orderByDesc('final_amount')
-            ->first();
+        $totalDrivers = (clone $driversQuery)->count();
+        $activeDrivers = (clone $driversQuery)->where('active', 1)->count();
 
-        $topDriverOwn = null;
-        if ($topOwn && $topOwn->driver) {
-            $topDriverOwn = [
-                'driver_id'    => $topOwn->driver_id,
-                'final_amount' => $topOwn->final_amount,
-                'driver'       => $topOwn->driver,
-            ];
-        }
+        $invoiceCount = (clone $invoicesInRange)->count();
+        $unpaidInvoices = (clone $invoicesInRange)->where('is_paid', 0)->count();
+        $paidInvoices = (clone $invoicesInRange)->where('is_paid', 1)->count();
 
-        // ===== TOP DRIVER BY PARCELS (total_parcels) =====
-        $topParcels = Invoice::with('driver')
-            ->whereIn('driver_id', $driverIds)
-            ->select('driver_id', DB::raw('SUM(total_parcels) AS total_parcels'))
-            ->groupBy('driver_id')
-            ->orderByDesc('total_parcels')
-            ->first();
+        $totalInvoiceAmount = (clone $invoicesInRange)->sum('invoice_total');
+        $totalFinalAmount = (clone $invoicesInRange)->sum('amount_to_pay_driver');
+        $totalParcels = (clone $invoicesInRange)->sum('total_parcels');
+        $averageFinalAmount = (clone $invoicesInRange)->avg('amount_to_pay_driver') ?? 0;
+        $averageBrokerPercentage = $invoiceCount > 0
+            ? (clone $invoicesInRange)->avg('driver_percentage') ?? 0
+            : 0;
+        $averageVehicleRental = $invoiceCount > 0
+            ? (clone $invoicesInRange)->avg('vehicle_rental_price') ?? 0
+            : 0;
+        $activePercentage = $totalDrivers > 0
+            ? round(($activeDrivers / $totalDrivers) * 100, 1)
+            : 0;
 
-        $topDriverParcels = null;
-        if ($topParcels && $topParcels->driver) {
-            $topDriverParcels = [
-                'driver_id'      => $topParcels->driver_id,
-                'total_parcels'  => $topParcels->total_parcels,
-                'driver'         => $topParcels->driver,
-            ];
-        }
+        $expensesInRange = $this->expenseQueryForRange($broker->id, $rangeStart, $rangeEnd);
+        $expensesTotal = (clone $expensesInRange)->sum('amount');
 
-        $totalDrivers = $drivers->count();
-        $activeCount  = $drivers->where('active', 1)->count();
+        $totalBrokerEarnings = ((clone $invoicesInRange)->sum('broker_share') ?? 0) - $expensesTotal;
 
         return [
-            // ===== DRIVERS =====
-            'total_drivers'               => $totalDrivers,
-            'active_drivers'              => $activeCount,
-            // Drivers missing SSN or license
-            'drivers_missing_ssn'         => Driver::where('created_by', $broker->id)->whereNull('ssn')->count(),
-            'drivers_missing_license'     => Driver::where('created_by', $broker->id)->whereNull('license_number')->count(),
-            'active_driver_percentage' => $totalDrivers > 0
-                ? round(($activeCount / $totalDrivers) * 100, 1)
-                : 0,
-            'avg_rental_price'         => round($drivers->avg('default_rental_price'), 2),
-            // Drivers missing any key info (SSN or license)
-            'drivers_missing_info'         => Driver::where('created_by', $broker->id)
-                ->where(function ($q) {
-                    $q->whereNull('ssn')
-                        ->orWhereNull('license_number');
-                })
-                ->count(),
+            // Driver stats (not range bound)
+            'total_drivers' => $totalDrivers,
+            'active_drivers' => $activeDrivers,
+            'drivers_missing_ssn' => Driver::where('created_by', $broker->id)->whereNull('ssn')->count(),
+            'drivers_missing_license' => Driver::where('created_by', $broker->id)->whereNull('license_number')->count(),
+            'active_driver_percentage' => $activePercentage,
 
-            // ===== INVOICES =====
-            'total_payments'            => $invoices->count(),
-            'unpaid_invoices'           => $invoices->where('is_paid', 0)->count(),
-            'total_invoice_amount'      => round($invoices->sum('invoice_total'), 2),
-            'total_final_amount'        => round($invoices->sum('amount_to_pay_driver'), 2),
-            'total_parcels'             => (int) $invoices->sum('total_parcels'),
-            'avg_final_amount'          => round($invoices->avg('amount_to_pay_driver'), 2),
-            // total broker earnings = sum(broker_share) - sum(expense.amount) for this broker
-            'total_broker_earnings'     => round(
-                (float) $invoices->sum('broker_share') - (float) Expense::where('broker_id', $broker->id)->sum('amount'),
-                2
-            ),
-            'avg_broker_percentage'     => $invoices->count() > 0
-                ? round($invoices->avg('driver_percentage'), 2)
-                : 0,
-            'avg_vehicule_rental_price' => $invoices->count() > 0
-                ? round($invoices->avg('vehicle_rental_price'), 2)
-                : 0,
-            'unpaid_payments'           => $invoices->where('is_paid', 0)->count(),
-            'paid_payments'             => $invoices->where('is_paid', 1)->count(),
-            // ===== BROKER EARNINGS BY WEEK =====
-            // broker earnings by week: sum(broker_share) - sum(expenses.amount) grouped by week
-            'broker_earnings_by_week'   => $this->computeBrokerEarningsByWeek($driverIds, $broker->id),
+            // Financial/invoice stats (range bound)
+            'total_payments' => $invoiceCount,
+            'unpaid_invoices' => $unpaidInvoices,
+            'paid_payments' => $paidInvoices,
+            'unpaid_payments' => $unpaidInvoices,
+            'total_invoice_amount' => round($totalInvoiceAmount, 2),
+            'total_final_amount' => round($totalFinalAmount, 2),
+            'total_parcels' => (int) $totalParcels,
+            'avg_final_amount' => round($averageFinalAmount, 2),
+            'total_broker_earnings' => round($totalBrokerEarnings, 2),
+            'avg_broker_percentage' => round($averageBrokerPercentage, 2),
+            'avg_vehicule_rental_price' => round($averageVehicleRental, 2),
 
-            // ===== TOP DRIVERS =====
-            'top_driver'         => $topDriver,
+            // Broker earnings over time
+            'broker_earnings_series' => $this->computeBrokerEarningsSeries($driverIds, $broker->id, $filter, $weekNumbers),
+
+            // Top performers (range bound)
+            'top_driver' => $topDriver,
             'top_driver_parcels' => $topDriverParcels,
-            'top_driver_int'     => $topDriverInt,
-            'top_driver_own'     => $topDriverOwn,
+            'top_driver_int' => $topDriverInt,
+            'top_driver_own' => $topDriverOwn,
+
+            // Current filter snapshot
+            'time_filter' => $filter->toArray(),
         ];
     }
 
     /**
-     * Compute broker earnings per week: SUM(broker_share) - SUM(expense.amount)
+     * Resolve a top driver metric using the supplied aggregate field.
+     *
+     * @return array|null
+     */
+    protected function resolveTopDriver(Builder $invoices, string $aggregateField, string $alias): ?array
+    {
+        $topRecord = $invoices
+            ->with('driver')
+            ->select('driver_id', DB::raw("SUM({$aggregateField}) AS {$alias}"))
+            ->groupBy('driver_id')
+            ->orderByDesc($alias)
+            ->first();
+
+        if (! $topRecord || ! $topRecord->driver) {
+            return null;
+        }
+
+        return [
+            'driver_id' => $topRecord->driver_id,
+            $alias => $topRecord->{$alias},
+            'driver' => $topRecord->driver,
+        ];
+    }
+
+    /**
+     * Build the expense query constrained to the provided range.
+     */
+    protected function expenseQueryForRange(int $brokerId, Carbon $rangeStart, Carbon $rangeEnd): Builder
+    {
+        return Expense::where('broker_id', $brokerId)
+            ->whereNotNull('date')
+            ->whereBetween('date', [$rangeStart->toDateString(), $rangeEnd->toDateString()]);
+    }
+
+    /**
+     * Compute broker earnings by period (day/week/month) depending on the active filter.
      *
      * @param  \Illuminate\Support\Collection|array  $driverIds
-     * @param  int  $brokerId
-     * @return array
      */
-    protected function computeBrokerEarningsByWeek($driverIds, int $brokerId): array
+    protected function computeBrokerEarningsSeries($driverIds, int $brokerId, TimeFilter $filter, array $weekNumbers): array
     {
-        // Sum broker_share from invoices grouped by week_number
+        if (empty($weekNumbers)) {
+            return [];
+        }
+
         $invoiceSums = Invoice::whereIn('driver_id', $driverIds)
+            ->where('broker_id', $brokerId)
+            ->whereIn('week_number', $weekNumbers)
             ->select('week_number', DB::raw('SUM(COALESCE(broker_share,0)) as broker_sum'))
             ->groupBy('week_number')
-            ->get()
             ->pluck('broker_sum', 'week_number')
             ->toArray();
 
-        // Sum expenses grouped by week (expenses.week)
         $expenseSums = Expense::where('broker_id', $brokerId)
-            ->select('week', DB::raw('SUM(COALESCE(amount,0)) as expense_sum'))
-            ->groupBy('week')
-            ->get()
-            ->pluck('expense_sum', 'week')
+            ->whereNotNull('date')
+            ->whereBetween('date', [$filter->startDate->toDateString(), $filter->endDate->toDateString()])
+            ->get(['date', 'amount'])
+            ->groupBy(function ($expense) {
+                return Carbon::parse($expense->date)->isoWeek();
+            })
+            ->map(function ($group) {
+                return $group->sum('amount');
+            })
             ->toArray();
 
-        // merge week keys
-        $weeks = array_unique(array_merge(array_keys($invoiceSums), array_keys($expenseSums)));
-        sort($weeks, SORT_NUMERIC);
+        $presentWeeks = array_values(array_unique(array_merge(
+            array_keys($invoiceSums),
+            array_keys($expenseSums)
+        )));
 
-        $result = [];
-        foreach ($weeks as $week) {
+        if (empty($presentWeeks)) {
+            $presentWeeks = array_values(array_unique($weekNumbers));
+        }
+
+        sort($presentWeeks);
+
+        $series = [];
+        foreach ($presentWeeks as $week) {
             $brokerSum = isset($invoiceSums[$week]) ? (float) $invoiceSums[$week] : 0.0;
             $expenseSum = isset($expenseSums[$week]) ? (float) $expenseSums[$week] : 0.0;
             $earnings = round($brokerSum - $expenseSum, 2);
 
-            $result[] = [
-                'week_number' => $week,
-                'earnings'    => $earnings,
+            $series[] = [
+                'label' => __('messages.week') . ' ' . $week,
+                'earnings' => $earnings,
             ];
         }
 
-        return $result;
+        return $series;
+    }
+
+    /**
+     * Determine ISO week numbers within the provided filter range.
+     */
+    protected function weekNumbersWithinRange(TimeFilter $filter): array
+    {
+        $weeks = [];
+        $cursor = $filter->startDate->copy()->startOfWeek();
+        $end = $filter->endDate->copy()->endOfWeek();
+
+        while ($cursor->lte($end)) {
+            $weeks[] = (int) $cursor->isoWeek();
+            $cursor->addWeek();
+        }
+
+        return array_values(array_unique($weeks));
     }
 }

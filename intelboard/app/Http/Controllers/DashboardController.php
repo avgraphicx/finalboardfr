@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Driver;
 use App\Services\StatsService;
+use App\Support\TimeFilter;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -18,24 +19,33 @@ class DashboardController extends Controller
     /**
      * Display the main dashboard.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+        $filter = TimeFilter::fromRequest($request);
 
         // Get comprehensive stats using the service
-        $stats = $this->statsService->getDashboardStats($user);
+        $stats = $this->statsService->getDashboardStats($user, $filter);
 
-        return view('pages.dashboards.index', compact('stats'));
+        return view('pages.dashboards.index', [
+            'stats' => $stats,
+            'timeFilter' => $filter,
+        ]);
     }
 
     /**
      * Refresh stats (returns fresh data)
      */
-    public function refreshStats()
+    public function refreshStats(Request $request)
     {
         $user = Auth::user();
-        $stats = $this->statsService->getDashboardStats($user);
+        $filter = TimeFilter::fromRequest($request);
+        $stats = $this->statsService->getDashboardStats($user, $filter);
 
-        return response()->json(['success' => true, 'stats' => $stats]);
+        return response()->json([
+            'success' => true,
+            'stats' => $stats,
+            'filter' => $filter->toArray(),
+        ]);
     }
 }

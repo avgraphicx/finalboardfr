@@ -34,6 +34,56 @@
             </li>
         </ul> --}}
     @php
+        $filterDefaults = [
+            'period' => 'weekly',
+            'start_date' => now()->startOfWeek()->toDateString(),
+            'end_date' => now()->endOfWeek()->toDateString(),
+        ];
+        $filterData = array_merge($filterDefaults, $stats['time_filter'] ?? []);
+    @endphp
+
+    <form method="GET" action="{{ route('index') }}" class="card custom-card mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="time-period" class="form-label">{{ __('messages.filter_period') }}</label>
+                    <select name="period" id="time-period" class="form-select">
+                        <option value="daily" {{ $filterData['period'] === 'daily' ? 'selected' : '' }}>
+                            {{ __('messages.filter_daily') }}
+                        </option>
+                        <option value="weekly" {{ $filterData['period'] === 'weekly' ? 'selected' : '' }}>
+                            {{ __('messages.filter_weekly') }}
+                        </option>
+                        <option value="monthly" {{ $filterData['period'] === 'monthly' ? 'selected' : '' }}>
+                            {{ __('messages.filter_monthly') }}
+                        </option>
+                        <option value="range" {{ $filterData['period'] === 'range' ? 'selected' : '' }}>
+                            {{ __('messages.filter_range') }}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-4 {{ $filterData['period'] !== 'range' ? 'd-none' : '' }}" id="custom-range-fields">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label for="start-date" class="form-label">{{ __('messages.filter_from') }}</label>
+                            <input type="date" name="start_date" id="start-date" class="form-control"
+                                value="{{ $filterData['start_date'] }}">
+                        </div>
+                        <div class="col-6">
+                            <label for="end-date" class="form-label">{{ __('messages.filter_to') }}</label>
+                            <input type="date" name="end_date" id="end-date" class="form-control"
+                                value="{{ $filterData['end_date'] }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">{{ __('messages.filter_apply') }}</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    @php
         $complianceCards = [
             [
                 'title' => __('messages.drivers_missing_ssn'),
@@ -187,7 +237,7 @@
         <div class="col-12">
             <div class="card custom-card widget-cardt mintx">
                 <div class="card-header">
-                    <div class="card-title">{{ __('messages.broker_weekly_earnings') }}</div>
+                    <div class="card-title">{{ __('messages.broker_earnings_over_time') }}</div>
                 </div>
                 <div class="card-body">
                     <div id="zoom-chart"></div>
@@ -202,11 +252,26 @@
     <script src="{{ asset('build/assets/apexcharts-line-DekI3owz.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Prepare data for broker earnings by week
-            var earningsData = @json($stats['broker_earnings_by_week']);
-            // Extract categories (weeks) and series values
-            var weeks = earningsData.map(function(item) {
-                return item.week_number;
+            var periodSelect = document.getElementById('time-period');
+            var rangeFields = document.getElementById('custom-range-fields');
+
+            if (periodSelect && rangeFields) {
+                var toggleRangeFields = function() {
+                    if (periodSelect.value === 'range') {
+                        rangeFields.classList.remove('d-none');
+                    } else {
+                        rangeFields.classList.add('d-none');
+                    }
+                };
+                toggleRangeFields();
+                periodSelect.addEventListener('change', toggleRangeFields);
+            }
+
+            // Prepare data for broker earnings over selected period
+            var earningsData = @json($stats['broker_earnings_series']);
+
+            var labels = earningsData.map(function(item) {
+                return item.label;
             });
             var earnings = earningsData.map(function(item) {
                 return item.earnings;
@@ -225,7 +290,7 @@
                     data: earnings
                 }],
                 xaxis: {
-                    categories: weeks,
+                    categories: labels,
                     title: {
                         text: '{{ __('messages.week') }}'
                     }
