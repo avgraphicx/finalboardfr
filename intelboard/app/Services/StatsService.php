@@ -17,11 +17,10 @@ class StatsService
      */
     public function getDashboardStats($broker, ?TimeFilter $filter = null): array
     {
-        $filter ??= TimeFilter::default();
-
-        $rangeStart = $filter->startDate->copy()->startOfDay();
-        $rangeEnd = $filter->endDate->copy()->endOfDay();
-        $weekNumbers = $this->weekNumbersWithinRange($filter);
+        $applyFilter = $filter instanceof TimeFilter;
+        $rangeStart = $applyFilter ? $filter->startDate->copy()->startOfDay() : null;
+        $rangeEnd = $applyFilter ? $filter->endDate->copy()->endOfDay() : null;
+        $weekNumbers = $applyFilter ? $this->weekNumbersWithinRange($filter) : [];
 
         $driversQuery = Driver::where('created_by', $broker->id);
         $driverIds = (clone $driversQuery)->pluck('id');
@@ -29,35 +28,35 @@ class StatsService
         $invoicesBase = Invoice::where('broker_id', $broker->id)
             ->whereIn('driver_id', $driverIds);
 
-        $invoicesInRange = (clone $invoicesBase)
-            ->when(! empty($weekNumbers), function (Builder $query) use ($weekNumbers) {
-                $query->whereIn('week_number', $weekNumbers);
-            });
+        $invoicesForStats = (clone $invoicesBase);
+        if ($applyFilter && ! empty($weekNumbers)) {
+            $invoicesForStats->whereIn('week_number', $weekNumbers);
+        }
 
         // ===== TOP DRIVER BY DAYS (days_worked) =====
         $topDriver = $this->resolveTopDriver(
-            (clone $invoicesInRange),
+            (clone $invoicesForStats),
             'days_worked',
             'total_rows'
         );
 
         // ===== TOP DRIVER BY PARCELS =====
         $topDriverParcels = $this->resolveTopDriver(
-            (clone $invoicesInRange),
+            (clone $invoicesForStats),
             'total_parcels',
             'total_parcels'
         );
 
         // ===== TOP DRIVER BY INTELCOM INVOICE TOTAL =====
         $topDriverInt = $this->resolveTopDriver(
-            (clone $invoicesInRange),
+            (clone $invoicesForStats),
             'invoice_total',
             'total_invoice'
         );
 
         // ===== TOP DRIVER BY FINAL AMOUNT (amount_to_pay_driver) =====
         $topDriverOwn = $this->resolveTopDriver(
-            (clone $invoicesInRange),
+            (clone $invoicesForStats),
             'amount_to_pay_driver',
             'final_amount'
         );
@@ -65,28 +64,32 @@ class StatsService
         $totalDrivers = (clone $driversQuery)->count();
         $activeDrivers = (clone $driversQuery)->where('active', 1)->count();
 
-        $invoiceCount = (clone $invoicesInRange)->count();
-        $unpaidInvoices = (clone $invoicesInRange)->where('is_paid', 0)->count();
-        $paidInvoices = (clone $invoicesInRange)->where('is_paid', 1)->count();
+        $invoiceCount = (clone $invoicesForStats)->count();
+        $unpaidInvoices = (clone $invoicesForStats)->where('is_paid', 0)->count();
+        $paidInvoices = (clone $invoicesForStats)->where('is_paid', 1)->count();
 
-        $totalInvoiceAmount = (clone $invoicesInRange)->sum('invoice_total');
-        $totalFinalAmount = (clone $invoicesInRange)->sum('amount_to_pay_driver');
-        $totalParcels = (clone $invoicesInRange)->sum('total_parcels');
-        $averageFinalAmount = (clone $invoicesInRange)->avg('amount_to_pay_driver') ?? 0;
+        $totalInvoiceAmount = (clone $invoicesForStats)->sum('invoice_total');
+        $totalFinalAmount = (clone $invoicesForStats)->sum('amount_to_pay_driver');
+        $totalParcels = (clone $invoicesForStats)->sum('total_parcels');
+        $averageFinalAmount = (clone $invoicesForStats)->avg('amount_to_pay_driver') ?? 0;
         $averageBrokerPercentage = $invoiceCount > 0
-            ? (clone $invoicesInRange)->avg('driver_percentage') ?? 0
+            ? (clone $invoicesForStats)->avg('driver_percentage') ?? 0
             : 0;
         $averageVehicleRental = $invoiceCount > 0
-            ? (clone $invoicesInRange)->avg('vehicle_rental_price') ?? 0
+            ? (clone $invoicesForStats)->avg('vehicle_rental_price') ?? 0
             : 0;
         $activePercentage = $totalDrivers > 0
             ? round(($activeDrivers / $totalDrivers) * 100, 1)
             : 0;
 
-        $expensesInRange = $this->expenseQueryForRange($broker->id, $rangeStart, $rangeEnd);
-        $expensesTotal = (clone $expensesInRange)->sum('amount');
+        $expensesQuery = Expense::where('broker_id', $broker->id);
+        if ($applyFilter && $rangeStart && $rangeEnd) {
+            $expensesQuery->whereNotNull('date')
+                ->whereBetween('date', [$rangeStart->toDateString(), $rangeEnd->toDateString()]);
+        }
+        $expensesTotal = (clone $expensesQuery)->sum('amount');
 
-        $totalBrokerEarnings = ((clone $invoicesInRange)->sum('broker_share') ?? 0) - $expensesTotal;
+        $totalBrokerEarnings = ((clone $invoicesForStats)->sum('broker_share') ?? 0) - $expensesTotal;
 
         return [
             // Driver stats (not range bound)
@@ -110,7 +113,7 @@ class StatsService
             'avg_vehicule_rental_price' => round($averageVehicleRental, 2),
 
             // Broker earnings over time
-            'broker_earnings_series' => $this->computeBrokerEarningsSeries($driverIds, $broker->id, $filter, $weekNumbers),
+            'broker_earnings_series' => $this->computeBrokerEarningsSeries($driverIds, $broker->id, $filter, $weekNumbers, $applyFilter),
 
             // Top performers (range bound)
             'top_driver' => $topDriver,
@@ -119,7 +122,7 @@ class StatsService
             'top_driver_own' => $topDriverOwn,
 
             // Current filter snapshot
-            'time_filter' => $filter->toArray(),
+            'time_filter' => $applyFilter ? $filter->toArray() : null,
         ];
     }
 
@@ -149,23 +152,46 @@ class StatsService
     }
 
     /**
-     * Build the expense query constrained to the provided range.
-     */
-    protected function expenseQueryForRange(int $brokerId, Carbon $rangeStart, Carbon $rangeEnd): Builder
-    {
-        return Expense::where('broker_id', $brokerId)
-            ->whereNotNull('date')
-            ->whereBetween('date', [$rangeStart->toDateString(), $rangeEnd->toDateString()]);
-    }
-
-    /**
      * Compute broker earnings by period (day/week/month) depending on the active filter.
      *
      * @param  \Illuminate\Support\Collection|array  $driverIds
      */
-    protected function computeBrokerEarningsSeries($driverIds, int $brokerId, TimeFilter $filter, array $weekNumbers): array
+    protected function computeBrokerEarningsSeries($driverIds, int $brokerId, ?TimeFilter $filter, array $weekNumbers, bool $applyFilter): array
     {
-        if (empty($weekNumbers)) {
+        if (! $applyFilter) {
+            $invoiceSums = Invoice::whereIn('driver_id', $driverIds)
+                ->where('broker_id', $brokerId)
+                ->select('week_number', DB::raw('SUM(COALESCE(broker_share,0)) as broker_sum'))
+                ->groupBy('week_number')
+                ->pluck('broker_sum', 'week_number')
+                ->toArray();
+
+            $expenseSums = Expense::where('broker_id', $brokerId)
+                ->select('week', DB::raw('SUM(COALESCE(amount,0)) as expense_sum'))
+                ->groupBy('week')
+                ->pluck('expense_sum', 'week')
+                ->toArray();
+
+            $weeks = array_unique(array_merge(array_keys($invoiceSums), array_keys($expenseSums)));
+            sort($weeks, SORT_NUMERIC);
+
+            $series = [];
+            foreach ($weeks as $week) {
+                if ($week === null) {
+                    continue;
+                }
+                $brokerSum = isset($invoiceSums[$week]) ? (float) $invoiceSums[$week] : 0.0;
+                $expenseSum = isset($expenseSums[$week]) ? (float) $expenseSums[$week] : 0.0;
+                $series[] = [
+                    'label' => __('messages.week') . ' ' . $week,
+                    'earnings' => round($brokerSum - $expenseSum, 2),
+                ];
+            }
+
+            return $series;
+        }
+
+        if ($filter === null || empty($weekNumbers)) {
             return [];
         }
 

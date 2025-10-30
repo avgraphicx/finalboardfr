@@ -436,6 +436,8 @@ return [
     'no_payments_found'               => 'Aucun paiement trouvé',
     'error_marking_payments_paid'     => 'Erreur lors du marquage des paiements comme payés',
     'error_bulk_request'              => 'Erreur lors du traitement de la demande en masse',
+    'invoice_marked_paid'             => 'La facture a été marquée comme payée.',
+    'invoice_marked_unpaid'           => 'La facture a été marquée comme impayée.',
     'upload_only_pdf'                 => 'Seuls les fichiers PDF sont autorisés',
     'drivers_found'                   => 'chauffeurs trouvés',
     'drivers_not_found'               => 'Chauffeur non trouvé',
@@ -741,8 +743,8 @@ return [
     'quarterly' => 'Trimestriel',
     'semiannually' => 'Semestrielle',
     'yearly' => 'Annuel',
-    'save_10' => 'Économisez 10%',
-    'save_20' => 'Économisez 20%',
+    'save_10' => '-10%',
+    'save_20' => '-25%',
     'per_month' => '/ mois',
 
     // Bronze Plan

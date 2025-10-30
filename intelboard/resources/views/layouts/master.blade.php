@@ -43,6 +43,8 @@
     <!-- APP CSS & APP SCSS -->
     @vite(['resources/sass/app.scss'])
 
+
+
     @yield('styles')
 
 </head>
@@ -107,6 +109,8 @@
 
     <!-- Sticky JS -->
     <script src="{{ asset('build/assets/sticky.js') }}"></script>
+
+
 
     <!-- Custom-Switcher JS -->
     @vite('resources/assets/js/custom-switcher.js')

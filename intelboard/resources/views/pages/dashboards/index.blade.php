@@ -40,48 +40,50 @@
             'end_date' => now()->endOfWeek()->toDateString(),
         ];
         $filterData = array_merge($filterDefaults, $stats['time_filter'] ?? []);
-    @endphp
+@endphp
 
-    <form method="GET" action="{{ route('index') }}" class="card custom-card mb-4">
-        <div class="card-body">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label for="time-period" class="form-label">{{ __('messages.filter_period') }}</label>
-                    <select name="period" id="time-period" class="form-select">
-                        <option value="daily" {{ $filterData['period'] === 'daily' ? 'selected' : '' }}>
-                            {{ __('messages.filter_daily') }}
-                        </option>
-                        <option value="weekly" {{ $filterData['period'] === 'weekly' ? 'selected' : '' }}>
-                            {{ __('messages.filter_weekly') }}
-                        </option>
-                        <option value="monthly" {{ $filterData['period'] === 'monthly' ? 'selected' : '' }}>
-                            {{ __('messages.filter_monthly') }}
-                        </option>
-                        <option value="range" {{ $filterData['period'] === 'range' ? 'selected' : '' }}>
-                            {{ __('messages.filter_range') }}
-                        </option>
-                    </select>
-                </div>
-                <div class="col-md-4 {{ $filterData['period'] !== 'range' ? 'd-none' : '' }}" id="custom-range-fields">
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <label for="start-date" class="form-label">{{ __('messages.filter_from') }}</label>
-                            <input type="date" name="start_date" id="start-date" class="form-control"
-                                value="{{ $filterData['start_date'] }}">
-                        </div>
-                        <div class="col-6">
-                            <label for="end-date" class="form-label">{{ __('messages.filter_to') }}</label>
-                            <input type="date" name="end_date" id="end-date" class="form-control"
-                                value="{{ $filterData['end_date'] }}">
+    @if ($canUseAdvancedFilters)
+        <form method="GET" action="{{ route('index') }}" class="card custom-card mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="time-period" class="form-label">{{ __('messages.filter_period') }}</label>
+                        <select name="period" id="time-period" class="form-select">
+                            <option value="daily" {{ $filterData['period'] === 'daily' ? 'selected' : '' }}>
+                                {{ __('messages.filter_daily') }}
+                            </option>
+                            <option value="weekly" {{ $filterData['period'] === 'weekly' ? 'selected' : '' }}>
+                                {{ __('messages.filter_weekly') }}
+                            </option>
+                            <option value="monthly" {{ $filterData['period'] === 'monthly' ? 'selected' : '' }}>
+                                {{ __('messages.filter_monthly') }}
+                            </option>
+                            <option value="range" {{ $filterData['period'] === 'range' ? 'selected' : '' }}>
+                                {{ __('messages.filter_range') }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 {{ $filterData['period'] !== 'range' ? 'd-none' : '' }}" id="custom-range-fields">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label for="start-date" class="form-label">{{ __('messages.filter_from') }}</label>
+                                <input type="date" name="start_date" id="start-date" class="form-control"
+                                    value="{{ $filterData['start_date'] }}">
+                            </div>
+                            <div class="col-6">
+                                <label for="end-date" class="form-label">{{ __('messages.filter_to') }}</label>
+                                <input type="date" name="end_date" id="end-date" class="form-control"
+                                    value="{{ $filterData['end_date'] }}">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">{{ __('messages.filter_apply') }}</button>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">{{ __('messages.filter_apply') }}</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </form>
+        </form>
+    @endif
 
     @php
         $complianceCards = [
@@ -249,7 +251,6 @@
 
 @section('scripts')
     <script src="{{ asset('build/assets/libs/apexcharts/apexcharts.js') }}"></script>
-    <script src="{{ asset('build/assets/apexcharts-line-DekI3owz.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var periodSelect = document.getElementById('time-period');

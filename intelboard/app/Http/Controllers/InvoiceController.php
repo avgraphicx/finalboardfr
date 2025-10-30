@@ -117,7 +117,13 @@ class InvoiceController extends Controller
             'is_paid' => true,
             'paid_at' => now()->toDateString(),
         ]);
-        return response()->json(['success' => true, 'message' => 'Invoice marked as paid']);
+        $message = __('messages.invoice_marked_paid');
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return back()->with('success', $message);
     }
 
     /**
@@ -129,7 +135,13 @@ class InvoiceController extends Controller
             'is_paid' => false,
             'paid_at' => null,
         ]);
-        return response()->json(['success' => true, 'message' => 'Invoice marked as unpaid']);
+        $message = __('messages.invoice_marked_unpaid');
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return back()->with('success', $message);
     }
 
     /**

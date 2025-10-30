@@ -107,10 +107,19 @@
                         </a>
                         @if (!$invoice->is_paid)
                             <form action="{{ route('invoices.mark-paid', $invoice) }}" method="POST"
-                                style="display:inline;">
+                                class="invoice-status-form">
                                 @csrf
                                 <button type="submit" class="btn btn-success">
                                     <i class="ri-check-line me-2"></i>{{ __('messages.mark_paid') ?? 'Mark as Paid' }}
+                                </button>
+                            </form>
+                        @else
+                            <form action="{{ route('invoices.mark-unpaid', $invoice) }}" method="POST"
+                                class="invoice-status-form">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-warning">
+                                    <i
+                                        class="ri-refresh-line me-2"></i>{{ __('messages.btn_mark_unpaid') ?? 'Mark as Unpaid' }}
                                 </button>
                             </form>
                         @endif
@@ -149,4 +158,29 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/notie/4.3.1/notie.min.js"></script>
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.notie) {
+                    notie.setOptions({
+                        transitionCurve: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
+                        animationDelay: 350,
+                        alertTime: 4
+                    });
+
+                    notie.alert({
+                        type: 1,
+                        text: "{{ session('success') }}",
+                        stay: false,
+                        time: 3,
+                        position: 'top'
+                    });
+                }
+            });
+        </script>
+    @endif
 @endsection

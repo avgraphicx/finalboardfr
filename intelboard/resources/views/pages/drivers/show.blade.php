@@ -329,4 +329,77 @@
             }
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+            const markPaidRoute = "{{ route('invoices.mark-paid', ['invoice' => '__invoice__']) }}";
+            const markUnpaidRoute = "{{ route('invoices.mark-unpaid', ['invoice' => '__invoice__']) }}";
+
+            const showAlert = (type, message) => {
+                if (window.notie) {
+                    notie.alert({
+                        type,
+                        text: message,
+                        stay: false,
+                        time: 3,
+                        position: 'top'
+                    });
+                } else {
+                    alert(message);
+                }
+            };
+
+            const postInvoiceAction = async (url, button, successMessage) => {
+                if (!csrfToken) {
+                    showAlert(3, 'Missing CSRF token.');
+                    return;
+                }
+
+                button.disabled = true;
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showAlert(1, data.message || successMessage);
+                        setTimeout(() => window.location.reload(), 700);
+                    } else {
+                        showAlert(3, data.message || '{{ __('messages.not_available') }}');
+                        button.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Invoice status update failed:', error);
+                    showAlert(3, '{{ __('messages.not_available') }}');
+                    button.disabled = false;
+                }
+            };
+
+            document.querySelectorAll('.mark-paid-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const invoiceId = this.dataset.invoiceId;
+                    const url = markPaidRoute.replace('__invoice__', invoiceId);
+                    postInvoiceAction(url, this, '{{ __('messages.invoice_marked_paid') }}');
+                });
+            });
+
+            document.querySelectorAll('.mark-unpaid-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const invoiceId = this.dataset.invoiceId;
+                    const url = markUnpaidRoute.replace('__invoice__', invoiceId);
+                    postInvoiceAction(url, this, '{{ __('messages.invoice_marked_unpaid') }}');
+                });
+            });
+        });
+    </script>
 @endsection
