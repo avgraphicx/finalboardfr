@@ -32,14 +32,27 @@ class ExpenseController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title'     => 'required|string|max:255',
             'amount'    => 'required|numeric',
             'date'      => 'nullable|date',
-            'week'      => 'required|integer',
             'for'       => 'required|string|max:255',
             'note'      => 'nullable|string',
         ]);
+
+        // Compute week number from date if provided (extract ISO week number or week of year)
+        if (!empty($data['date'])) {
+            try {
+                $dt = \Carbon\Carbon::parse($data['date']);
+                $data['week'] = (int)$dt->format('W');
+            } catch (\Throwable $e) {
+                // if parse fails, leave week null
+                $data['week'] = null;
+            }
+        } else {
+            $data['week'] = null;
+        }
+
         $data['broker_id'] = Auth::id();
+
         Expense::create($data);
         return redirect()->route('expenses.index')->with('success', 'Expense created.');
     }
@@ -69,13 +82,21 @@ class ExpenseController extends Controller
     {
         $this->authorize('update', $expense);
         $data = $request->validate([
-            'title'     => 'required|string|max:255',
             'amount'    => 'required|numeric',
             'date'      => 'nullable|date',
-            'week'      => 'required|integer',
             'for'       => 'required|string|max:255',
             'note'      => 'nullable|string',
         ]);
+
+        if (!empty($data['date'])) {
+            try {
+                $dt = \Carbon\Carbon::parse($data['date']);
+                $data['week'] = (int)$dt->format('W');
+            } catch (\Throwable $e) {
+                $data['week'] = $expense->week;
+            }
+        }
+
         $expense->update($data);
         return redirect()->route('expenses.index')->with('success', 'Expense updated.');
     }

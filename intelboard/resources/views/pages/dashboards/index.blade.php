@@ -15,6 +15,33 @@
         </div>
     </div>
     <!-- End::page-header -->
+    <!-- Controls: date range + granularity -->
+    <form id="dashboard-filter" class="mb-3" method="get" action="{{ url()->current() }}">
+        <div class="row g-2 align-items-center">
+            <div class="col-auto">
+                <label class="form-label mb-0">{{ __('messages.search_by_date') }}</label>
+            </div>
+            <div class="col-auto">
+                <input type="date" name="from" class="form-control" value="{{ $from ?? '' }}">
+            </div>
+            <div class="col-auto">
+                <input type="date" name="to" class="form-control" value="{{ $to ?? '' }}">
+            </div>
+            <div class="col-auto">
+                <select name="granularity" class="form-select">
+                    <option value="day" {{ isset($granularity) && $granularity == 'day' ? 'selected' : '' }}>
+                        {{ __('messages.day') }}</option>
+                    <option value="week" {{ !isset($granularity) || $granularity == 'week' ? 'selected' : '' }}>
+                        {{ __('messages.week') }}</option>
+                    <option value="month" {{ isset($granularity) && $granularity == 'month' ? 'selected' : '' }}>
+                        {{ __('messages.month') }}</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">{{ __('messages.filters') }}</button>
+            </div>
+        </div>
+    </form>
     {{-- <ul>x
             <li>Total Drivers: {{ $stats['total_drivers'] }}</li>
             <li>Total Payments: {{ $stats['total_payments'] }}</li>
@@ -34,213 +61,182 @@
             </li>
         </ul> --}}
     <!-- Start::row-1 -->
-    <div class="row row-cols-xxl-5">
-        <div class="col">
-            <div class="card custom-card widget-cardt primary">
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                        <div class="lh-1">
-                            <span class="avatar avatar-md bg-primary">
-                                <i class="ri-car-fill fs-5"></i>
-                            </span>
-                        </div>
-                        <div class="flex-fill">
-                            <span class="d-block">{{ __('messages.total_drivers') }}</span>
-                            <h5 class="fw-semibold">{{ $stats['total_drivers'] }}</h5>
-                            {{-- <span class="badge bg-primary-transparent">{{ __('messages.payments') }}:
-                                {{ $allStats['paymentStats']['totalPayments'] }}</span> --}}
-                        </div>
-                    </div>
-                </div>
+    @php
+        $rowA = [
+            [
+                'label' => __('messages.total_drivers'),
+                'value' => $stats['total_drivers'] ?? 0,
+                'color' => 'primary',
+                'icon' => 'ri-car-fill',
+            ],
+            [
+                'label' => __('messages.active_drivers'),
+                'value' => $stats['active_drivers'] ?? 0,
+                'color' => 'primary',
+                'icon' => 'ri-car-fill',
+                'meta' => ($stats['active_driver_percentage'] ?? 0) . '%',
+            ],
+            [
+                'label' => __('messages.total_parcels_delivered'),
+                'value' => $stats['total_parcels'] ?? 0,
+                'color' => 'warning',
+                'icon' => 'ri-box-3-fill',
+            ],
+            [
+                'label' => __('messages.total_intelcom_invoices'),
+                'value' => $stats['total_invoice_amount'] ?? 0,
+                'color' => 'success',
+                'icon' => 'ri-receipt-line',
+                'is_money' => true,
+            ],
+        ];
+
+        $rowB = [
+            [
+                'label' => __('messages.total_own_invoices'),
+                'value' => $stats['total_final_amount'] ?? 0,
+                'color' => 'success',
+                'icon' => 'ri-bill-line',
+                'is_money' => true,
+            ],
+            [
+                'label' => __('messages.avg_broker_percentage'),
+                'value' => $stats['avg_broker_percentage'] ?? 0,
+                'color' => 'success',
+                'icon' => 'ri-discount-percent-fill',
+                'meta' => '%',
+            ],
+            [
+                'label' => __('messages.avg_vehicule_rental_price'),
+                'value' => $stats['avg_vehicule_rental_price'] ?? 0,
+                'color' => 'success',
+                'icon' => 'ri-money-dollar-circle-fill',
+                'is_money' => true,
+            ],
+            [
+                'label' => __('messages.drivers_missing_ssn'),
+                'value' => $stats['drivers_missing_ssn'] ?? 0,
+                'color' => 'danger',
+                'icon' => 'ri-user-unfollow-fill',
+            ],
+        ];
+    @endphp
+
+    <div class="row">
+        @foreach ($rowA as $card)
+            <div class="col-md-6 col-lg-6 col-xl-3 mb-3">
+                @include('components.dashboard-card', [
+                    'label' => $card['label'],
+                    'value' => $card['value'],
+                    'meta' => $card['meta'] ?? null,
+                    'color' => $card['color'] ?? 'primary',
+                    'icon' => $card['icon'] ?? null,
+                    'is_money' => $card['is_money'] ?? false,
+                ])
             </div>
-        </div>
-
-        <div class="col">
-            <div class="card custom-card widget-cardt primary">
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                        <div class="lh-1">
-                            <span class="avatar avatar-md bg-primary">
-                                <i class="ri-car-fill fs-5"></i>
-                            </span>
-                        </div>
-                        <div class="flex-fill">
-                            <span class="d-block">{{ __('messages.active_drivers') }}</span>
-                            <h5 class="fw-semibold">{{ $stats['active_drivers'] }}</h5>
-                        </div>
-                        <div class="fs-15 text-success">{{ $stats['active_driver_percentage'] }}%</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card custom-card widget-cardt warning">
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                        <div class="lh-1">
-                            <span class="avatar avatar-md bg-warning">
-                                <i class="ri-box-3-fill fs-5"></i>
-                            </span>
-                        </div>
-
-                        <div class="flex-fill">
-                            <span class="d-block">{{ __('messages.total_parcels_delivered') }}</span>
-                            <h5 class="fw-semibold">{{ $stats['total_parcels'] }}</h5>
-                        </div>
-                        {{-- <div class="fs-15 text-success">{{ $stats['active_driver_percentage'] }}%</div> --}}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card custom-card widget-cardt success">
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                        <div class="lh-1">
-                            <span class="avatar avatar-md bg-success">
-                                <i class="ri-receipt-line fs-5"></i>
-                            </span>
-                        </div>
-
-                        <div class="flex-fill">
-                            <span class="d-block">{{ __('messages.total_intelcom_invoices') }}</span>
-                            <h5 class="fw-semibold">{{ $stats['total_invoice_amount'] }}$</h5>
-                        </div>
-                        {{-- <div class="fs-15 text-success">{{ $stats['active_driver_percentage'] }}%</div> --}}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card custom-card widget-cardt success">
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                        <div class="lh-1">
-                            <span class="avatar avatar-md bg-success">
-                                <i class="ri-bill-line fs-5"></i>
-                            </span>
-                        </div>
-
-                        <div class="flex-fill">
-                            <span class="d-block">{{ __('messages.total_own_invoices') }}</span>
-                            <h5 class="fw-semibold">{{ $stats['total_final_amount'] }}$</h5>
-                        </div>
-                        {{-- <div class="fs-15 text-success">{{ $stats['active_driver_percentage'] }}%</div> --}}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
+        @endforeach
     </div>
-    <!--End::row-1 -->
 
-    <!-- Start::row-2 -->
-    <div class="row row-cols-xxl-5">
-        <div class="col">
-            <div class="card custom-card widget-cardt success">
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                        <div class="lh-1">
-                            <span class="avatar avatar-md bg-success">
-                                <i class="ri-discount-percent-fill fs-5"></i>
-                            </span>
-                        </div>
-                        <div class="flex-fill">
-                            <span class="d-block">{{ __('messages.avg_broker_percentage') }}</span>
-                            <h5 class="fw-semibold">{{ $stats['avg_broker_percentage'] }}%</h5>
-                            {{-- <span class="badge bg-primary-transparent">{{ __('messages.payments') }}:
-                                {{ $allStats['paymentStats']['totalPayments'] }}</span> --}}
-                        </div>
-                    </div>
-                </div>
+    <div class="row">
+        @foreach ($rowB as $card)
+            <div class="col-md-6 col-lg-6 col-xl-3 mb-3">
+                @include('components.dashboard-card', [
+                    'label' => $card['label'],
+                    'value' => $card['value'],
+                    'meta' => $card['meta'] ?? null,
+                    'color' => $card['color'] ?? 'primary',
+                    'icon' => $card['icon'] ?? null,
+                    'is_money' => $card['is_money'] ?? false,
+                ])
             </div>
-        </div>
-
-        <div class="col">
-            <div class="card custom-card widget-cardt success">
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                        <div class="lh-1">
-                            <span class="avatar avatar-md bg-success">
-                                <i class="ri-money-dollar-circle-fill fs-5"></i>
-                            </span>
-                        </div>
-                        <div class="flex-fill">
-                            <span class="d-block">{{ __('messages.avg_vehicule_rental_price') }}</span>
-                            <h5 class="fw-semibold">{{ $stats['avg_vehicule_rental_price'] }}$</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card custom-card widget-cardt danger">
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                        <div class="lh-1">
-                            <span class="avatar avatar-md bg-danger">
-                                <i class="ri-user-unfollow-fill fs-5"></i>
-                            </span>
-                        </div>
-
-                        <div class="flex-fill">
-                            <span class="d-block">{{ __('messages.drivers_missing_ssn') }}</span>
-                            <h5 class="fw-semibold">{{ $stats['drivers_missing_ssn'] }}</h5>
-                        </div>
-                        {{-- <div class="fs-15 text-success">{{ $stats['active_driver_percentage'] }}%</div> --}}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="card custom-card widget-cardt danger">
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                        <div class="lh-1">
-                            <span class="avatar avatar-md bg-danger">
-                                <i class="ri-user-unfollow-fill fs-5"></i>
-                            </span>
-                        </div>
-
-                        <div class="flex-fill">
-                            <span class="d-block">{{ __('messages.drivers_missing_license') }}</span>
-                            <h5 class="fw-semibold">{{ $stats['drivers_missing_license'] }}</h5>
-                        </div>
-                        {{-- <div class="fs-15 text-success">{{ $stats['active_driver_percentage'] }}%</div> --}}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card custom-card widget-cardt success">
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                        <div class="lh-1">
-                            <span class="avatar avatar-md bg-success">
-                                <i class="ri-bill-line fs-5"></i>
-                            </span>
-                        </div>
-
-                        <div class="flex-fill">
-                            <span class="d-block">{{ __('messages.total_unpaid_invoices') }}</span>
-                            <h5 class="fw-semibold">{{ $stats['unpaid_invoices'] }}</h5>
-                        </div>
-                        {{-- <div class="fs-15 text-success">{{ $stats['active_driver_percentage'] }}%</div> --}}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
+        @endforeach
     </div>
     <!--End::row-2 -->
 
-    <!--Start::row-3 -->
+    <!-- Start::row-3 -->
+    <div class="row">
+        <div class="col-md-6 col-lg-6 col-xl-3">
+            <div class="card custom-card widget-cardl danger">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-2">
+                        <div class="flex-fill">
+                            <div class="mb-2">{{ __('messages.drivers_missing_license') }}</div>
+                            <h4 class="fw-semibold danger mb-0">{{ $stats['drivers_missing_license'] }}</h4>
+                        </div>
+                        <div>
+                            <span class="avatar avatar-md bg-danger">
+                                <i class="ri-user-unfollow-fill fs-5"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-muted">&nbsp;</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-6 col-xl-3">
+            <div class="card custom-card widget-cardl success">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-2">
+                        <div class="flex-fill">
+                            <div class="mb-2">{{ __('messages.total_unpaid_invoices') }}</div>
+                            <h4 class="fw-semibold success mb-0">{{ $stats['unpaid_invoices'] }}</h4>
+                        </div>
+                        <div>
+                            <span class="avatar avatar-md bg-success">
+                                <i class="ri-bill-line fs-5"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-muted">&nbsp;</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total broker earnings -->
+        <div class="col-md-6 col-lg-6 col-xl-3">
+            <div class="card custom-card widget-cardl info">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-2">
+                        <div class="flex-fill">
+                            <div class="mb-2">{{ __('messages.total_broker_earnings') }}</div>
+                            <h4 class="fw-semibold info mb-0">${{ $stats['total_broker_earnings'] ?? 0 }}</h4>
+                        </div>
+                        <div>
+                            <span class="avatar avatar-md bg-info">
+                                <i class="ri-wallet-3-fill fs-5"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-muted">&nbsp;</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total payments (count) -->
+        <div class="col-md-6 col-lg-6 col-xl-3">
+            <div class="card custom-card widget-cardl secondary">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between mb-2">
+                        <div class="flex-fill">
+                            <div class="mb-2">{{ __('messages.total_paid_payments') }}</div>
+                            <h4 class="fw-semibold secondary mb-0">
+                                ${{ number_format($stats['paid_payments_amount'] ?? 0, 2) }}</h4>
+                        </div>
+                        <div>
+                            <span class="avatar avatar-md bg-secondary">
+                                <i class="ri-file-list-3-line fs-5"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-muted">&nbsp;</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End::row-3 -->
+
+    <!--Start::row-4 (top drivers) -->
     <div class="row">
         @if (!empty($stats['top_driver']))
             <div class="col-md-6 col-lg-6 col-xl-3">
@@ -263,8 +259,6 @@
                         <div class="d-flex fs-13 align-items-center justify-content-between">
                             <div class="text-muted">{{ $stats['top_driver']['total_rows'] }}
                                 {{ __('messages.days') }}</div>
-                            {{-- <div class="text-danger fw-medium d-inline-flex"><i
-                                    class="ti ti-trending-down align-middle me-1"></i>1.07%</div> --}}
                         </div>
                     </div>
                 </div>
@@ -290,8 +284,6 @@
                         <div class="d-flex fs-13 align-items-center justify-content-between">
                             <div class="text-muted">{{ $stats['top_driver_parcels']['total_parcels'] }}
                                 {{ __('messages.parcels') }}</div>
-                            {{-- <div class="text-danger fw-medium d-inline-flex"><i
-                                    class="ti ti-trending-down align-middle me-1"></i>1.07%</div> --}}
                         </div>
                     </div>
                 </div>
@@ -316,8 +308,6 @@
                         </div>
                         <div class="d-flex fs-13 align-items-center justify-content-between">
                             <div class="text-muted">{{ $stats['top_driver_int']['total_invoice'] }}$</div>
-                            {{-- <div class="text-danger fw-medium d-inline-flex"><i
-                                    class="ti ti-trending-down align-middle me-1"></i>1.07%</div> --}}
                         </div>
                     </div>
                 </div>
@@ -342,15 +332,13 @@
                         </div>
                         <div class="d-flex fs-13 align-items-center justify-content-between">
                             <div class="text-muted">{{ $stats['top_driver_own']['final_amount'] }}$</div>
-                            {{-- <div class="text-danger fw-medium d-inline-flex"><i
-                                    class="ti ti-trending-down align-middle me-1"></i>1.07%</div> --}}
                         </div>
                     </div>
                 </div>
             </div>
         @endif
     </div>
-    <!--End::row-3 -->
+    <!--End::row-4 -->
 
     <!--Start::row-4 -->
     <div class="col-12">
@@ -370,14 +358,14 @@
     <script src="{{ asset('build/assets/libs/apexcharts/apexcharts.js') }}"></script>
     <script src="{{ asset('build/assets/apexcharts-line-DekI3owz.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Prepare data for broker earnings by week
-            var earningsData = @json($stats['broker_earnings_by_week']);
-            // Extract categories (weeks) and series values
-            var weeks = earningsData.map(function (item) {
-                return item.week_number;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prepare data for broker earnings by period (day/week/month)
+            var earningsData = @json($stats['broker_earnings_by_period']);
+            // Extract categories (period labels) and series values
+            var weeks = earningsData.map(function(item) {
+                return item.period;
             });
-            var earnings = earningsData.map(function (item) {
+            var earnings = earningsData.map(function(item) {
                 return item.earnings;
             });
 
@@ -404,7 +392,7 @@
                         text: '{{ __('messages.earnings') }}'
                     },
                     labels: {
-                        formatter: function (val) {
+                        formatter: function(val) {
                             return '$' + val;
                         }
                     }

@@ -28,10 +28,19 @@
     @endif
 
     @php
-        $importables = collect($items)->filter(fn($i) => ($i['status'] ?? '') === 'ok')->values();
-        $duplicatesDb = collect($items)->filter(fn($i) => ($i['status'] ?? '') === 'duplicate_in_db')->values();
-        $duplicatesBatch = collect($items)->filter(fn($i) => ($i['status'] ?? '') === 'duplicate_in_batch')->values();
-        $missingDrivers = collect($items)->filter(fn($i) => ($i['status'] ?? '') === 'missing_driver')->values();
+        $importables = collect($items)->filter(fn($i) => ($i['status'] ?? '') === 'ok')->sortBy('driver_id')->values();
+        $duplicatesDb = collect($items)
+            ->filter(fn($i) => ($i['status'] ?? '') === 'duplicate_in_db')
+            ->sortBy('driver_id')
+            ->values();
+        $duplicatesBatch = collect($items)
+            ->filter(fn($i) => ($i['status'] ?? '') === 'duplicate_in_batch')
+            ->sortBy('driver_id')
+            ->values();
+        $missingDrivers = collect($items)
+            ->filter(fn($i) => ($i['status'] ?? '') === 'missing_driver')
+            ->sortBy('driver_id')
+            ->values();
         $parseErrors = collect($items)->filter(fn($i) => ($i['status'] ?? '') === 'parse_error')->values();
     @endphp
 
@@ -72,8 +81,14 @@
                         {{ __('messages.drivers_not_found') }}:</strong>
                     <ul class="mb-0">
                         @foreach ($missingDrivers as $i)
-                            <li>{{ $i['file_name'] }} — {{ $i['driver_id'] ?? '' }} ({{ $i['week_number'] ?? '' }})
-                                [{{ $i['warehouse'] ?? 'N/A' }}]</li>
+                            @php
+                                // Extract the 5 characters after "-C0" if present
+                                $shortId = $i['driver_id'] ?? '';
+                                if (preg_match('/-C0([A-Za-z0-9]{5})/', $shortId, $m)) {
+                                    $shortId = $m[1];
+                                }
+                            @endphp
+                            <li>{{ $shortId }}</li>
                         @endforeach
                     </ul>
                 </div>

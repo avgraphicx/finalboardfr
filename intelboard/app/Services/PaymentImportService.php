@@ -13,9 +13,7 @@ use Illuminate\Support\Str;
 
 class PaymentImportService
 {
-    public function __construct(private readonly PdfPaymentParser $parser)
-    {
-    }
+    public function __construct(private readonly PdfPaymentParser $parser) {}
 
     /**
      * Parse a PDF and return the extraction data (driver ID, etc.)
@@ -83,6 +81,10 @@ class PaymentImportService
             'days_worked' => $snapshot['parcel_rows_count'],
             'vehicle_rental_price' => $snapshot['vehicule_rental_price'],
             'driver_percentage' => $snapshot['broker_percentage'],
+            // Persist computed broker cuts so reports and aggregations have concrete values
+            'broker_van_cut' => $snapshot['broker_van_cut'] ?? 0,
+            'broker_pay_cut' => $snapshot['broker_pay_cut'] ?? 0,
+            'broker_share' => ($snapshot['broker_van_cut'] ?? 0) + ($snapshot['broker_pay_cut'] ?? 0),
             'bonus' => 0,
             'cash_advance' => 0,
             'penalty' => 0,
@@ -302,6 +304,10 @@ class PaymentImportService
                     'days_worked' => $snapshot['parcel_rows_count'],
                     'vehicle_rental_price' => $snapshot['vehicule_rental_price'],
                     'driver_percentage' => $snapshot['broker_percentage'],
+                    // Persist computed broker cuts so reports and aggregations have concrete values
+                    'broker_van_cut' => $snapshot['broker_van_cut'] ?? 0,
+                    'broker_pay_cut' => $snapshot['broker_pay_cut'] ?? 0,
+                    'broker_share' => ($snapshot['broker_van_cut'] ?? 0) + ($snapshot['broker_pay_cut'] ?? 0),
                     'bonus' => 0,
                     'cash_advance' => 0,
                     'penalty' => 0,

@@ -38,7 +38,7 @@
                     </div>
 
                     <div class="mb-3" id="bulkActionContainer" style="display: none;">
-                        <button type="button" class="btn btn-sm btn-danger" id="bulkDeleteBtn">
+                        <button type="button" class="btn btn-sm btn-danger form-control" id="bulkDeleteBtn">
                             <i class="ri-delete-bin-2-line me-1"></i>Delete <span id="selectedCount">0</span> Driver(s)
                         </button>
                     </div>
@@ -406,20 +406,25 @@
                 updateRecordCount(visibleCount);
             });
 
-            // Clear button
-            clearBtn.addEventListener('click', function() {
-                searchInput.value = '';
-                tableBody.querySelectorAll('.driver-row').forEach(row => {
-                    row.classList.remove('hidden');
+            // Clear button (optional)
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    tableBody.querySelectorAll('.driver-row').forEach(row => {
+                        row.classList.remove('hidden');
+                    });
+                    noResults.classList.add('d-none');
+                    table.style.display = '';
+                    updateRecordCount(totalRows);
+                    searchInput.focus();
                 });
-                noResults.classList.add('d-none');
-                table.style.display = '';
-                updateRecordCount(totalRows);
-                searchInput.focus();
-            });
+            }
 
             function updateRecordCount(count) {
-                recordCount.textContent = `Showing ${count} of ${totalRows}`;
+                // recordCount is optional (commented out in some layouts). Guard before using it.
+                if (recordCount) {
+                    recordCount.textContent = `Showing ${count} of ${totalRows}`;
+                }
             }
         });
     </script>

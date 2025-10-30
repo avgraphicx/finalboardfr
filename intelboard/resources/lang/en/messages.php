@@ -191,6 +191,11 @@ return [
     'warning' => 'Warning',
     'error_occurred' => 'An error occurred',
     'success' => 'Success',
+    'preview' => 'Preview',
+    'uploading_files' => 'Uploading files, please wait...',
+    'upload_progress' => 'Upload Progress',
+    'create' => 'Create',
+    'add_new' => 'Add New',
 
     /*
     |--------------------------------------------------------------------------
@@ -529,6 +534,8 @@ return [
     'broker_earnings_by_week' => 'Your Weekly Earnings',
     'weekly_stats' => 'Weekly Stats',
     'no_payments_found' => 'No payments found yet.',
+    'total_broker_earnings' => 'Total Broker Earnings',
+    'total_paid_payments' => 'Total Paid Payments',
 
     /*
     |--------------------------------------------------------------------------
@@ -743,6 +750,12 @@ return [
     |--------------------------------------------------------------------------
     */
     'intelboard' => 'Intelboard',
+    'add_expense' => 'Add Expense',
+    'date' => 'Date',
+    'pick_date' => 'Pick a date',
+    'amount' => 'Amount',
+    'for' => 'For',
+    'note' => 'Note',
     'clear_all' => 'Clear All',
     'search_anything' => 'Search Anything ...',
     'no_valid_data_for_chart' => 'No valid data for chart',

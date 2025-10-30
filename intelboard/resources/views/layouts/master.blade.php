@@ -77,6 +77,7 @@
 
         <!-- Start::app-content -->
         <div class="main-content app-content mb-6 plr-2 pb-4">
+            <div class="p-2"></div>
             {{-- <div class="container-fluid page-container main-body-container"> --}}
 
             @include('layouts.components.alerts')

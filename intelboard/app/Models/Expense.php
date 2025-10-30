@@ -13,7 +13,6 @@ class Expense extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'title',
         'amount',
         'date',
         'week',
