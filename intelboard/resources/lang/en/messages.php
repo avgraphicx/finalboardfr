@@ -233,7 +233,9 @@ return [
     'create_driver' => 'Create Driver',
     'total_drivers' => 'Total Drivers',
     'active_drivers' => 'Active Drivers',
+    'active_vs_total_drivers' => 'Active Drivers / Total Drivers',
     'top_driver_days' => 'Driver / Days',
+    'top_performers' => 'Top Performers',
     'days' => 'Days',
     'parcels_delivered' => 'Parcels delivered',
     'add_driver_btn' => 'Add Driver',
@@ -527,6 +529,7 @@ return [
     'avg_broker_percentage' => 'Average Broker Percentage',
     'drivers_missing_ssn' => 'Drivers Missing SSN',
     'drivers_missing_license' => 'Drivers Missing License',
+    'compliance' => 'Compliance',
     'total_unpaid_invoices' => 'Total Unpaid Invoices',
     'top_driver_parcels' => 'Driver / Parcels',
     'top_driver_int' => 'Driver / Intelcom Invoices',
@@ -534,8 +537,6 @@ return [
     'broker_earnings_by_week' => 'Your Weekly Earnings',
     'weekly_stats' => 'Weekly Stats',
     'no_payments_found' => 'No payments found yet.',
-    'total_broker_earnings' => 'Total Broker Earnings',
-    'total_paid_payments' => 'Total Paid Payments',
 
     /*
     |--------------------------------------------------------------------------

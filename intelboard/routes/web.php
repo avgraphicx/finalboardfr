@@ -120,7 +120,6 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
 
     /******** Dashboard & Home ********/
     Route::get('dashboard', [DashboardController::class, 'index'])->name('index');
-    Route::get('dashboard/debug-stats', [DashboardController::class, 'debugStats'])->name('dashboard.debug-stats');
     Route::post('/dashboard/refresh-stats', [DashboardController::class, 'refreshStats'])->name('dashboard.refresh-stats');
 
     /******** Profile Management ********/

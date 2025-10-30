@@ -15,33 +15,6 @@
         </div>
     </div>
     <!-- End::page-header -->
-    <!-- Controls: date range + granularity -->
-    <form id="dashboard-filter" class="mb-3" method="get" action="{{ url()->current() }}">
-        <div class="row g-2 align-items-center">
-            <div class="col-auto">
-                <label class="form-label mb-0">{{ __('messages.search_by_date') }}</label>
-            </div>
-            <div class="col-auto">
-                <input type="date" name="from" class="form-control" value="{{ $from ?? '' }}">
-            </div>
-            <div class="col-auto">
-                <input type="date" name="to" class="form-control" value="{{ $to ?? '' }}">
-            </div>
-            <div class="col-auto">
-                <select name="granularity" class="form-select">
-                    <option value="day" {{ isset($granularity) && $granularity == 'day' ? 'selected' : '' }}>
-                        {{ __('messages.day') }}</option>
-                    <option value="week" {{ !isset($granularity) || $granularity == 'week' ? 'selected' : '' }}>
-                        {{ __('messages.week') }}</option>
-                    <option value="month" {{ isset($granularity) && $granularity == 'month' ? 'selected' : '' }}>
-                        {{ __('messages.month') }}</option>
-                </select>
-            </div>
-            <div class="col-auto">
-                <button type="submit" class="btn btn-primary">{{ __('messages.filters') }}</button>
-            </div>
-        </div>
-    </form>
     {{-- <ul>x
             <li>Total Drivers: {{ $stats['total_drivers'] }}</li>
             <li>Total Payments: {{ $stats['total_payments'] }}</li>
@@ -60,298 +33,168 @@
                 @endif
             </li>
         </ul> --}}
-    <!-- Start::row-1 -->
     @php
-        $rowA = [
+        $complianceCards = [
             [
-                'label' => __('messages.total_drivers'),
-                'value' => $stats['total_drivers'] ?? 0,
-                'color' => 'primary',
-                'icon' => 'ri-car-fill',
+                'title' => __('messages.drivers_missing_ssn'),
+                'value' => number_format($stats['drivers_missing_ssn'] ?? 0),
+                'icon' => 'ri-user-unfollow-fill',
+                'color' => 'danger',
             ],
             [
-                'label' => __('messages.active_drivers'),
-                'value' => $stats['active_drivers'] ?? 0,
-                'color' => 'primary',
-                'icon' => 'ri-car-fill',
-                'meta' => ($stats['active_driver_percentage'] ?? 0) . '%',
-            ],
-            [
-                'label' => __('messages.total_parcels_delivered'),
-                'value' => $stats['total_parcels'] ?? 0,
-                'color' => 'warning',
-                'icon' => 'ri-box-3-fill',
-            ],
-            [
-                'label' => __('messages.total_intelcom_invoices'),
-                'value' => $stats['total_invoice_amount'] ?? 0,
-                'color' => 'success',
-                'icon' => 'ri-receipt-line',
-                'is_money' => true,
+                'title' => __('messages.drivers_missing_license'),
+                'value' => number_format($stats['drivers_missing_license'] ?? 0),
+                'icon' => 'ri-user-unfollow-fill',
+                'color' => 'danger',
             ],
         ];
 
-        $rowB = [
+        $driverCards = [
             [
-                'label' => __('messages.total_own_invoices'),
-                'value' => $stats['total_final_amount'] ?? 0,
-                'color' => 'success',
-                'icon' => 'ri-bill-line',
-                'is_money' => true,
-            ],
-            [
-                'label' => __('messages.avg_broker_percentage'),
-                'value' => $stats['avg_broker_percentage'] ?? 0,
-                'color' => 'success',
-                'icon' => 'ri-discount-percent-fill',
-                'meta' => '%',
-            ],
-            [
-                'label' => __('messages.avg_vehicule_rental_price'),
-                'value' => $stats['avg_vehicule_rental_price'] ?? 0,
-                'color' => 'success',
-                'icon' => 'ri-money-dollar-circle-fill',
-                'is_money' => true,
-            ],
-            [
-                'label' => __('messages.drivers_missing_ssn'),
-                'value' => $stats['drivers_missing_ssn'] ?? 0,
-                'color' => 'danger',
-                'icon' => 'ri-user-unfollow-fill',
+                'title' => __('messages.active_vs_total_drivers'),
+                'value' => number_format($stats['active_drivers'] ?? 0) . ' / ' . number_format($stats['total_drivers'] ?? 0),
+                'icon' => 'ri-steering-2-fill',
+                'color' => 'primary',
+                'hint' => number_format($stats['active_driver_percentage'] ?? 0, 1) . '%',
             ],
         ];
+
+        $parcelCards = [
+            [
+                'title' => __('messages.total_parcels_delivered'),
+                'value' => number_format($stats['total_parcels'] ?? 0),
+                'icon' => 'ri-box-3-fill',
+                'color' => 'warning',
+            ],
+        ];
+
+        $financeCards = [
+            [
+                'title' => __('messages.total_intelcom_invoices'),
+                'value' => '$' . number_format($stats['total_invoice_amount'] ?? 0, 2),
+                'icon' => 'ri-receipt-line',
+                'color' => 'success',
+            ],
+            [
+                'title' => __('messages.total_own_invoices'),
+                'value' => '$' . number_format($stats['total_final_amount'] ?? 0, 2),
+                'icon' => 'ri-bill-line',
+                'color' => 'success',
+            ],
+            [
+                'title' => __('messages.avg_broker_percentage'),
+                'value' => number_format($stats['avg_broker_percentage'] ?? 0, 2) . '%',
+                'icon' => 'ri-discount-percent-fill',
+                'color' => 'success',
+            ],
+            [
+                'title' => __('messages.avg_vehicule_rental_price'),
+                'value' => '$' . number_format($stats['avg_vehicule_rental_price'] ?? 0, 2),
+                'icon' => 'ri-money-dollar-circle-fill',
+                'color' => 'success',
+            ],
+            [
+                'title' => __('messages.total_broker_earnings'),
+                'value' => '$' . number_format($stats['total_broker_earnings'] ?? 0, 2),
+                'icon' => 'ri-wallet-3-fill',
+                'color' => 'info',
+            ],
+            [
+                'title' => __('messages.total_payments'),
+                'value' => number_format($stats['paid_payments'] ?? 0),
+                'icon' => 'ri-file-list-3-line',
+                'color' => 'secondary',
+            ],
+            [
+                'title' => __('messages.total_unpaid_invoices'),
+                'value' => number_format($stats['unpaid_invoices'] ?? 0),
+                'icon' => 'ri-bill-line',
+                'color' => 'secondary',
+            ],
+        ];
+
+        $metricCards = array_merge($complianceCards, $driverCards, $parcelCards, $financeCards);
+
+        $topDriverCards = [];
+
+        if (!empty($stats['top_driver'])) {
+            $topDriverCards[] = [
+                'title' => __('messages.top_driver_days'),
+                'value' => $stats['top_driver']['driver']->full_name,
+                'icon' => 'ri-user-star-fill',
+                'color' => 'lavenderx',
+                'hint' => number_format($stats['top_driver']['total_rows'] ?? 0) . ' ' . __('messages.days'),
+                'href' => url('drivers/' . $stats['top_driver']['driver']->id),
+            ];
+        }
+
+        if (!empty($stats['top_driver_parcels'])) {
+            $topDriverCards[] = [
+                'title' => __('messages.top_driver_parcels'),
+                'value' => $stats['top_driver_parcels']['driver']->full_name,
+                'icon' => 'ri-user-star-fill',
+                'color' => 'warning',
+                'hint' => number_format($stats['top_driver_parcels']['total_parcels'] ?? 0) . ' ' . __('messages.parcels'),
+            ];
+        }
+
+        if (!empty($stats['top_driver_int'])) {
+            $topDriverCards[] = [
+                'title' => __('messages.top_driver_int'),
+                'value' => $stats['top_driver_int']['driver']->full_name,
+                'icon' => 'ri-receipt-line',
+                'color' => 'success',
+                'hint' => '$' . number_format($stats['top_driver_int']['total_invoice'] ?? 0, 2),
+            ];
+        }
+
+        if (!empty($stats['top_driver_own'])) {
+            $topDriverCards[] = [
+                'title' => __('messages.top_driver_own'),
+                'value' => $stats['top_driver_own']['driver']->full_name,
+                'icon' => 'ri-receipt-line',
+                'color' => 'success',
+                'hint' => '$' . number_format($stats['top_driver_own']['final_amount'] ?? 0, 2),
+            ];
+        }
     @endphp
 
-    <div class="row">
-        @foreach ($rowA as $card)
-            <div class="col-md-6 col-lg-6 col-xl-3 mb-3">
-                @include('components.dashboard-card', [
-                    'label' => $card['label'],
-                    'value' => $card['value'],
-                    'meta' => $card['meta'] ?? null,
-                    'color' => $card['color'] ?? 'primary',
-                    'icon' => $card['icon'] ?? null,
-                    'is_money' => $card['is_money'] ?? false,
-                ])
+    @foreach (collect($metricCards)->chunk(4) as $chunk)
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-3">
+            @foreach ($chunk as $card)
+                <div class="col">
+                    <x-dashboard-card :title="$card['title']" :value="$card['value']" :icon="$card['icon']" :color="$card['color']"
+                        :hint="$card['hint'] ?? null" :href="$card['href'] ?? null" />
+                </div>
+            @endforeach
+        </div>
+    @endforeach
+
+    @if (!empty($topDriverCards))
+        @foreach (collect($topDriverCards)->chunk(4) as $chunk)
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-3">
+                @foreach ($chunk as $card)
+                    <div class="col">
+                        <x-dashboard-card :title="$card['title']" :value="$card['value']" :icon="$card['icon']" :color="$card['color']"
+                            :hint="$card['hint'] ?? null" :href="$card['href'] ?? null" />
+                    </div>
+                @endforeach
             </div>
         @endforeach
-    </div>
+    @endif
 
     <div class="row">
-        @foreach ($rowB as $card)
-            <div class="col-md-6 col-lg-6 col-xl-3 mb-3">
-                @include('components.dashboard-card', [
-                    'label' => $card['label'],
-                    'value' => $card['value'],
-                    'meta' => $card['meta'] ?? null,
-                    'color' => $card['color'] ?? 'primary',
-                    'icon' => $card['icon'] ?? null,
-                    'is_money' => $card['is_money'] ?? false,
-                ])
-            </div>
-        @endforeach
-    </div>
-    <!--End::row-2 -->
-
-    <!-- Start::row-3 -->
-    <div class="row">
-        <div class="col-md-6 col-lg-6 col-xl-3">
-            <div class="card custom-card widget-cardl danger">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between mb-2">
-                        <div class="flex-fill">
-                            <div class="mb-2">{{ __('messages.drivers_missing_license') }}</div>
-                            <h4 class="fw-semibold danger mb-0">{{ $stats['drivers_missing_license'] }}</h4>
-                        </div>
-                        <div>
-                            <span class="avatar avatar-md bg-danger">
-                                <i class="ri-user-unfollow-fill fs-5"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="text-muted">&nbsp;</div>
+        <div class="col-12">
+            <div class="card custom-card widget-cardt mintx">
+                <div class="card-header">
+                    <div class="card-title">{{ __('messages.broker_weekly_earnings') }}</div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-6 col-xl-3">
-            <div class="card custom-card widget-cardl success">
                 <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between mb-2">
-                        <div class="flex-fill">
-                            <div class="mb-2">{{ __('messages.total_unpaid_invoices') }}</div>
-                            <h4 class="fw-semibold success mb-0">{{ $stats['unpaid_invoices'] }}</h4>
-                        </div>
-                        <div>
-                            <span class="avatar avatar-md bg-success">
-                                <i class="ri-bill-line fs-5"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="text-muted">&nbsp;</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total broker earnings -->
-        <div class="col-md-6 col-lg-6 col-xl-3">
-            <div class="card custom-card widget-cardl info">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between mb-2">
-                        <div class="flex-fill">
-                            <div class="mb-2">{{ __('messages.total_broker_earnings') }}</div>
-                            <h4 class="fw-semibold info mb-0">${{ $stats['total_broker_earnings'] ?? 0 }}</h4>
-                        </div>
-                        <div>
-                            <span class="avatar avatar-md bg-info">
-                                <i class="ri-wallet-3-fill fs-5"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="text-muted">&nbsp;</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total payments (count) -->
-        <div class="col-md-6 col-lg-6 col-xl-3">
-            <div class="card custom-card widget-cardl secondary">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between mb-2">
-                        <div class="flex-fill">
-                            <div class="mb-2">{{ __('messages.total_paid_payments') }}</div>
-                            <h4 class="fw-semibold secondary mb-0">
-                                ${{ number_format($stats['paid_payments_amount'] ?? 0, 2) }}</h4>
-                        </div>
-                        <div>
-                            <span class="avatar avatar-md bg-secondary">
-                                <i class="ri-file-list-3-line fs-5"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="text-muted">&nbsp;</div>
+                    <div id="zoom-chart"></div>
                 </div>
             </div>
         </div>
     </div>
-    <!--End::row-3 -->
-
-    <!--Start::row-4 (top drivers) -->
-    <div class="row">
-        @if (!empty($stats['top_driver']))
-            <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="card custom-card widget-cardl lavenderx">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between mb-2">
-                            <div class="flex-fill">
-                                <div class="mb-2">{{ __('messages.top_driver_days') }}</div>
-                                <a href="drivers/{{ $stats['top_driver']['driver']->id }}">
-                                    <h4 class="fw-semibold lavenderx mb-0">{{ $stats['top_driver']['driver']->full_name }}
-                                    </h4>
-                                </a>
-                            </div>
-                            <div>
-                                <span class="avatar avatar-md bg-lavenderx">
-                                    <i class="ri-user-star-fill fs-5"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="d-flex fs-13 align-items-center justify-content-between">
-                            <div class="text-muted">{{ $stats['top_driver']['total_rows'] }}
-                                {{ __('messages.days') }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if (!empty($stats['top_driver_parcels']))
-            <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="card custom-card widget-cardl warning">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between mb-2">
-                            <div class="flex-fill">
-                                <div class="mb-2">{{ __('messages.top_driver_parcels') }}</div>
-                                <h4 class="fw-semibold text-warning mb-0">
-                                    {{ $stats['top_driver_parcels']['driver']->full_name }}
-                                </h4>
-                            </div>
-                            <div>
-                                <span class="avatar avatar-md bg-warning">
-                                    <i class="ri-user-star-fill fs-5"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="d-flex fs-13 align-items-center justify-content-between">
-                            <div class="text-muted">{{ $stats['top_driver_parcels']['total_parcels'] }}
-                                {{ __('messages.parcels') }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if (!empty($stats['top_driver_int']))
-            <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="card custom-card widget-cardl success">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between mb-2">
-                            <div class="flex-fill">
-                                <div class="mb-2">{{ __('messages.top_driver_int') }}</div>
-                                <h4 class="fw-semibold success mb-0">
-                                    {{ $stats['top_driver_int']['driver']->full_name }}
-                                </h4>
-                            </div>
-                            <div>
-                                <span class="avatar avatar-md bg-success">
-                                    <i class="ri-receipt-line fs-5"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="d-flex fs-13 align-items-center justify-content-between">
-                            <div class="text-muted">{{ $stats['top_driver_int']['total_invoice'] }}$</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        @if (!empty($stats['top_driver_own']))
-            <div class="col-md-6 col-lg-6 col-xl-3">
-                <div class="card custom-card widget-cardl success">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between mb-2">
-                            <div class="flex-fill">
-                                <div class="mb-2">{{ __('messages.top_driver_own') }}</div>
-                                <h4 class="fw-semibold success mb-0">
-                                    {{ $stats['top_driver_own']['driver']->full_name }}
-                                </h4>
-                            </div>
-                            <div>
-                                <span class="avatar avatar-md bg-success">
-                                    <i class="ri-receipt-line fs-5"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="d-flex fs-13 align-items-center justify-content-between">
-                            <div class="text-muted">{{ $stats['top_driver_own']['final_amount'] }}$</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-    </div>
-    <!--End::row-4 -->
-
-    <!--Start::row-4 -->
-    <div class="col-12">
-        <div class="card custom-card widget-cardt mintx">
-            <div class="card-header">
-                <div class="card-title">{{ __('messages.broker_weekly_earnings') }}</div>
-            </div>
-            <div class="card-body">
-                <div id="zoom-chart"></div>
-            </div>
-        </div>
-    </div>
-    <!--End::row-4 -->
 @endsection
 
 @section('scripts')
@@ -359,11 +202,11 @@
     <script src="{{ asset('build/assets/apexcharts-line-DekI3owz.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Prepare data for broker earnings by period (day/week/month)
-            var earningsData = @json($stats['broker_earnings_by_period']);
-            // Extract categories (period labels) and series values
+            // Prepare data for broker earnings by week
+            var earningsData = @json($stats['broker_earnings_by_week']);
+            // Extract categories (weeks) and series values
             var weeks = earningsData.map(function(item) {
-                return item.period;
+                return item.week_number;
             });
             var earnings = earningsData.map(function(item) {
                 return item.earnings;

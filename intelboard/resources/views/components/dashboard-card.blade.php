@@ -1,27 +1,43 @@
-<div>
-    <div class="card custom-card widget-cardl {{ $color ?? 'primary' }}">
-        <div class="card-body">
-            <div class="d-flex align-items-start justify-content-between mb-2">
-                <div class="flex-fill">
-                    <div class="mb-2">{{ $label }}</div>
-                    <h4 class="fw-semibold {{ $color ?? 'primary' }} mb-0">
-                        @if (!empty($is_money))
-                            ${{ number_format($value ?? 0, 2) }}
-                        @else
-                            {{ $value ?? 0 }}
-                        @endif
-                    </h4>
-                    @if (!empty($meta))
-                        <div class="text-muted">{{ $meta }}</div>
-                    @endif
-                </div>
+@props([
+    'title',
+    'value',
+    'icon' => null,
+    'color' => 'primary',
+    'hint' => null,
+    'href' => null,
+])
+
+@php
+    $cardClasses = "card custom-card widget-cardl {$color}";
+    $avatarClasses = "avatar avatar-md bg-{$color}";
+    $valueClasses = "fw-semibold {$color} mb-0";
+@endphp
+
+<div {{ $attributes->merge(['class' => $cardClasses]) }}>
+    <div class="card-body">
+        <div class="d-flex align-items-start justify-content-between mb-2">
+            <div class="flex-fill">
+                <div class="mb-2">{{ $title }}</div>
+                @if ($href)
+                    <a href="{{ $href }}" class="text-reset text-decoration-none">
+                        <h4 class="{{ $valueClasses }}">{{ $value }}</h4>
+                    </a>
+                @else
+                    <h4 class="{{ $valueClasses }}">{{ $value }}</h4>
+                @endif
+            </div>
+            @if ($icon)
                 <div>
-                    <span class="avatar avatar-md bg-{{ $color ?? 'primary' }}">
-                        <i class="{{ $icon ?? 'ri-dashboard-line' }} fs-5" aria-hidden="true"></i>
+                    <span class="{{ $avatarClasses }}">
+                        <i class="{{ $icon }} fs-5"></i>
                     </span>
                 </div>
-            </div>
-            <div class="text-muted">&nbsp;</div>
+            @endif
         </div>
+        @if ($hint)
+            <div class="text-muted">{{ $hint }}</div>
+        @else
+            <div class="text-muted">&nbsp;</div>
+        @endif
     </div>
 </div>
