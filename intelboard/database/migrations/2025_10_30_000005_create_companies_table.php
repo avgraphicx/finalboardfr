@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('subscription_items', function (Blueprint $table) {
-            $table->string('meter_id')->nullable()->after('stripe_price');
+        Schema::create('companies', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id');
+            $table->string('logo')->nullable();
+            $table->string('company_name');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('subscription_items', function (Blueprint $table) {
-            $table->dropColumn('meter_id');
-        });
+        Schema::dropIfExists('companies');
     }
 };

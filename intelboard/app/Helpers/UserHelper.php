@@ -28,3 +28,39 @@ if (!function_exists('currentUser')) {
         ]);
     }
 }
+
+if (!function_exists('subscriptionPriceLabel')) {
+    function subscriptionPriceLabel(?string $priceId): ?string
+    {
+        if (!$priceId) {
+            return null;
+        }
+
+        $priceCatalog = config('services.stripe.prices', []);
+
+        $planLabels = [
+            'bronze' => __('messages.bronze') ?? 'Bronze',
+            'gold' => __('messages.gold') ?? 'Gold',
+            'diamond' => __('messages.diamond') ?? 'Diamond',
+        ];
+
+        $intervalLabels = [
+            'monthly' => __('messages.monthly') ?? 'Monthly',
+            'quarterly' => __('messages.quarterly') ?? 'Quarterly',
+            'semiannually' => __('messages.semiannually') ?? 'Semiannually',
+            'yearly' => __('messages.yearly') ?? 'Yearly',
+        ];
+
+        foreach ($priceCatalog as $planKey => $intervals) {
+            foreach ($intervals as $intervalKey => $configuredPrice) {
+                if ($configuredPrice === $priceId) {
+                    $planName = $planLabels[$planKey] ?? ucfirst($planKey);
+                    $intervalName = $intervalLabels[$intervalKey] ?? ucfirst($intervalKey);
+                    return "{$planName} - {$intervalName}";
+                }
+            }
+        }
+
+        return null;
+    }
+}

@@ -36,14 +36,16 @@
     @php
         $currentLocale = Session::get('locale', 'en');
         $switchLocale = $currentLocale === 'fr' ? 'en' : 'fr';
-        $switchFlag =
-            $switchLocale === 'fr'
-                ? asset('build/assets/images/flags/french_flag.jpg')
-                : asset('build/assets/images/flags/us_flag.jpg');
-        $currentFlag =
-            $currentLocale === 'fr'
-                ? asset('build/assets/images/flags/french_flag.jpg')
-                : asset('build/assets/images/flags/us_flag.jpg');
+        $switchFlag = $switchLocale === 'fr'
+            ? asset('build/assets/images/flags/french_flag.jpg')
+            : asset('build/assets/images/flags/us_flag.jpg');
+        $currentFlag = $currentLocale === 'fr'
+            ? asset('build/assets/images/flags/french_flag.jpg')
+            : asset('build/assets/images/flags/us_flag.jpg');
+        $priceMap = config('services.stripe.prices', []);
+        $priceForPlan = static function (string $plan, string $interval) use ($priceMap) {
+            return data_get($priceMap, "{$plan}.{$interval}") ?? data_get($priceMap, "{$plan}.monthly");
+        };
     @endphp
     <div class="row text-center mt-3">
         <a class="landing-lang-switcher nav-link p-0 me-2" href="{{ route('set.locale', $switchLocale) }}"
@@ -152,7 +154,7 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscribe.view', ['price_id' => 'price_1PQSfHRpS4YVz6cW2g5eYxkj']) }}"
+                                                <a href="{{ route('subscribe.view', ['price_id' => $priceForPlan('bronze', 'monthly')]) }}"
                                                     class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
                                             </div>
                                         </div>
@@ -199,7 +201,7 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscribe.view', ['price_id' => config('services.stripe.prices.bronze_monthly', 'price_1SMxsiETu0vpttZp0J2cHWl6')]) }}"
+                                                <a href="{{ route('subscribe.view', ['price_id' => $priceForPlan('gold', 'monthly')]) }}"
                                                     class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
                                             </div>
                                         </div>
@@ -245,7 +247,7 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscribe.view', ['price_id' => 'price_1PQSgBRpS4YVz6cW2sDxA2R1']) }}"
+                                                <a href="{{ route('subscribe.view', ['price_id' => $priceForPlan('diamond', 'monthly')]) }}"
                                                     class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
                                             </div>
                                         </div>
@@ -297,7 +299,7 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscribe.view', ['price_id' => 'price_1PQSfHRpS4YVz6cW1s9r7d1p']) }}"
+                                                <a href="{{ route('subscribe.view', ['price_id' => $priceForPlan('bronze', 'semiannually')]) }}"
                                                     class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
                                             </div>
                                         </div>
@@ -344,7 +346,7 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscribe.view', ['price_id' => 'price_1PQSfhRpS4YVz6cWJqCgLz3o']) }}"
+                                                <a href="{{ route('subscribe.view', ['price_id' => $priceForPlan('gold', 'semiannually')]) }}"
                                                     class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
                                             </div>
                                         </div>
@@ -390,7 +392,7 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscribe.view', ['price_id' => 'price_1PQSgBRpS4YVz6cW2sDxA2R1']) }}"
+                                                <a href="{{ route('subscribe.view', ['price_id' => $priceForPlan('diamond', 'semiannually')]) }}"
                                                     class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
                                             </div>
                                         </div>
@@ -442,7 +444,7 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscribe.view', ['price_id' => 'price_1PQSfHRpS4YVz6cW1s9r7d1p']) }}"
+                                                <a href="{{ route('subscribe.view', ['price_id' => $priceForPlan('bronze', 'yearly')]) }}"
                                                     class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
                                             </div>
                                         </div>
@@ -489,7 +491,7 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscribe.view', ['price_id' => 'price_1PQSfhRpS4YVz6cWJqCgLz3o']) }}"
+                                                <a href="{{ route('subscribe.view', ['price_id' => $priceForPlan('gold', 'yearly')]) }}"
                                                     class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
                                             </div>
                                         </div>
@@ -535,7 +537,7 @@
                                                 </li>
                                             </ul>
                                             <div class="d-grid mt-auto">
-                                                <a href="{{ route('subscribe.view', ['price_id' => 'price_1PQSgBRpS4YVz6cW2sDxA2R1']) }}"
+                                                <a href="{{ route('subscribe.view', ['price_id' => $priceForPlan('diamond', 'yearly')]) }}"
                                                     class="btn btn-lg btn-primary">{{ __('messages.get_started') }}</a>
                                             </div>
                                         </div>

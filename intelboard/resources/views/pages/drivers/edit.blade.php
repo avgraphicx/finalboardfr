@@ -72,7 +72,8 @@
                                 <input type="number" step="0.01"
                                     class="form-control @error('default_percentage') is-invalid @enderror"
                                     id="default_percentage" name="default_percentage"
-                                    value="{{ old('default_percentage', $driver->default_percentage) }}">
+                                    value="{{ old('default_percentage', rtrim(rtrim(number_format($driver->default_percentage, 2, '.', ''), '0'), '.')) }}">
+
                                 @error('default_percentage')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -84,7 +85,8 @@
                                 <input type="number" step="0.01"
                                     class="form-control @error('default_rental_price') is-invalid @enderror"
                                     id="default_rental_price" name="default_rental_price"
-                                    value="{{ old('default_rental_price', $driver->default_rental_price) }}">
+                                    value="{{ old('default_rental_price', rtrim(rtrim(number_format($driver->default_rental_price, 2, '.', ''), '0'), '.')) }}">
+
                                 @error('default_rental_price')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -92,9 +94,10 @@
                         </div>
 
                         <div class="d-flex gap-2 justify-content-end">
-                            <a href="{{ route('drivers.show', $driver) }}"
-                                class="btn btn-secondary">{{ __('messages.cancel') ?? 'Cancel' }}</a>
-                            <button type="submit" class="btn btn-primary">{{ __('messages.update') ?? 'Update' }}</button>
+                            <a href="{{ route('drivers.show', $driver) }}" class="btn btn-danger"><i
+                                    class="ri-close-large-fill"></i> {{ __('messages.cancel') ?? 'Cancel' }}</a>
+                            <button type="submit" class="btn btn-primary">{{ __('messages.update') ?? 'Update' }}
+                                <i class="ri-refresh-line"></i></button>
                         </div>
                     </form>
                 </div>

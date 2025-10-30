@@ -21,33 +21,32 @@
             <div class="card custom-card">
                 <div class="card-body text-center p-4">
                     @php
-                        $nameParts = explode(' ', trim($user->full_name));
+                        $fullName = trim($user->full_name);
+                        $nameParts = array_values(array_filter(explode(' ', $fullName)));
                         $initials = '';
-                        foreach ($nameParts as $part) {
-                            if (!empty($part)) {
-                                $initials .= strtoupper(substr($part, 0, 1));
-                            }
+                        if (count($nameParts) === 1 && !empty($nameParts[0])) {
+                            $initials = strtoupper(substr($nameParts[0], 0, 2));
+                        } elseif (count($nameParts) > 1) {
+                            $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 1));
                         }
-                        $initials = substr($initials, 0, 2);
                     @endphp
                     @if ($user->logo)
                         <div class="position-relative d-inline-block mb-3">
-                            <img src="{{ asset($user->logo) }}"
-                                 alt="{{ $user->company_name ?? $user->full_name }}"
-                                 class="img-fluid"
-                                 style="max-width: 100%; height: auto; border-radius: 8px; max-height: 200px; object-fit: contain;">
+                            <img src="{{ asset($user->logo) }}" alt="{{ $user->company_name ?? $user->full_name }}"
+                                class="img-fluid"
+                                style="max-width: 100%; height: auto; border-radius: 8px; max-height: 200px; object-fit: contain;">
                             <span id="active"
-                                  class="badge rounded-pill
+                                class="badge rounded-pill
                             @if ($user->active == '0') bg-danger @endif
                             @if ($user->active == '1') bg-success @endif"
-                                  style="position: absolute; bottom: 10px; right: 10px;"></span>
+                                style="position: absolute; bottom: 10px; right: 10px;"></span>
                         </div>
                     @else
                         <span class="avatar avatar-xxl avatar-rounded bg-primary text-light">
                             <span class="avatar-text fw-bold fs-5"
-                                  style="color: white !important;">{{ $initials }}</span>
+                                style="color: white !important;">{{ $initials }}</span>
                             <span id="active"
-                                  class="badge rounded-pill
+                                class="badge rounded-pill
                             @if ($user->active == '0') bg-danger @endif
                             @if ($user->active == '1') bg-success @endif avatar-badge"></span>
                         </span>
@@ -70,19 +69,19 @@
             <div class="card custom-card">
                 <div class="card-body">
                     <!-- removed tab navigation to use a single form view -->
-                    @if($canAddSupervisor ?? false)
+                    @if ($canAddSupervisor ?? false)
                         <a href="#" id="createSupervisorBtn" class="btn btn-md form-control btn-success">
                             <i class="ri-user-add-fill me-2 fs-5"></i>{{ __('messages.add_supervisor') }}
                         </a>
                     @else
                         <button type="button" class="btn btn-md form-control btn-secondary" disabled
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="{{ __('messages.add_supervisor_not_allowed') }}">
+                            data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ __('messages.add_supervisor_not_allowed') }}">
                             <i class="ri-user-add-fill me-2 fs-5"></i>{{ __('messages.add_supervisor') }}
                         </button>
                         <small class="text-muted d-block mt-2 text-center">
-                            <i class="ri-information-line"></i> {{ __('messages.upgrade_to_add_supervisors') ?? 'Upgrade your plan to add supervisors' }}
+                            <i class="ri-information-line"></i>
+                            {{ __('messages.upgrade_to_add_supervisors') ?? 'Upgrade your plan to add supervisors' }}
                         </small>
                     @endif
                 </div>
@@ -92,8 +91,7 @@
         <!-- Main Content: Single combined form -->
         <div class="col-xl-9">
             <div class="card custom-card">
-                <form method="POST" action="{{ route('profile.update') }}" id="profileForm"
-                      enctype="multipart/form-data">
+                <form method="POST" action="{{ route('profile.update') }}" id="profileForm" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -102,8 +100,8 @@
                             <div class="col-12">
                                 <label for="full_name" class="form-label">{{ __('messages.full_name') }}</label>
                                 <input type="text" name="full_name" id="full_name" class="form-control"
-                                       placeholder="{{ __('messages.full_name') }}"
-                                       value="{{ old('full_name', $user->full_name) }}">
+                                    placeholder="{{ __('messages.full_name') }}"
+                                    value="{{ old('full_name', $user->full_name) }}">
                             </div>
                         </div>
 
@@ -111,54 +109,54 @@
                             <div class="col-xl-6">
                                 <label for="email" class="form-label">{{ __('messages.login_email_label') }} :</label>
                                 <input type="email" name="email" id="email" class="form-control"
-                                       placeholder="{{ __('messages.login_email_label') }}"
-                                       value="{{ old('email', $user->email) }}">
+                                    placeholder="{{ __('messages.login_email_label') }}"
+                                    value="{{ old('email', $user->email) }}">
                             </div>
                             <div class="col-xl-6">
                                 <label for="phone_number" class="form-label">{{ __('messages.phone_number') }} :</label>
                                 <input type="text" name="phone_number" id="phone_number" class="form-control"
-                                       placeholder="{{ __('messages.phone_number') }}"
-                                       value="{{ old('phone_number', $user->phone_number) }}">
+                                    placeholder="{{ __('messages.phone_number') }}"
+                                    value="{{ old('phone_number', $user->phone_number) }}">
                             </div>
                         </div>
 
                         <div class="row gy-4 mb-4">
                             <div class="col-xl-6">
                                 <label for="company_name"
-                                       class="form-label">{{ __('messages.company_name') ?? 'Company name' }} :</label>
+                                    class="form-label">{{ __('messages.company_name') ?? 'Company name' }} :</label>
                                 <input type="text" name="company_name" id="company_name" class="form-control"
-                                       placeholder="{{ __('messages.company_name') ?? 'Company name' }}"
-                                       value="{{ old('company_name', $user->company_name ?? '') }}">
+                                    placeholder="{{ __('messages.company_name') ?? 'Company name' }}"
+                                    value="{{ old('company_name', $user->company_name ?? '') }}">
                             </div>
                             <div class="col-xl-6">
                                 <label for="logo" class="form-label">{{ __('messages.logo') ?? 'Logo' }} :</label>
                                 <input type="file" name="logo" id="logo" class="form-control form-control-sm"
-                                       accept="image/*">
+                                    accept="image/*">
                             </div>
                         </div>
 
                         <div class="row gy-4 mb-4">
                             <div class="col-xl-6">
                                 <label for="language"
-                                       class="form-label">{{ __('messages.language_preference') ?? 'Language Preference' }}
+                                    class="form-label">{{ __('messages.language_preference') ?? 'Language Preference' }}
                                     :</label>
                                 <select class="form-control" id="language" name="language" required>
-                                    <option
-                                        value="en" @selected((old('language', $preferences?->language ?? 'en')) === 'en')>{{ __('messages.language_en') }}</option>
-                                    <option
-                                        value="fr" @selected((old('language', $preferences?->language ?? 'en')) === 'fr')>{{ __('messages.language_fr') }}</option>
+                                    <option value="en" @selected(old('language', $preferences?->language ?? 'en') === 'en')>{{ __('messages.language_en') }}
+                                    </option>
+                                    <option value="fr" @selected(old('language', $preferences?->language ?? 'en') === 'fr')>{{ __('messages.language_fr') }}
+                                    </option>
                                 </select>
                             </div>
 
                             <div class="col-xl-6">
                                 <label for="theme"
-                                       class="form-label">{{ __('messages.theme_preference') ?? 'Theme Preference' }}
+                                    class="form-label">{{ __('messages.theme_preference') ?? 'Theme Preference' }}
                                     :</label>
                                 <select class="form-control" id="theme" name="theme" required>
-                                    <option
-                                        value="light" @selected((old('theme', $preferences?->theme ?? 'light')) === 'light')>{{ __('messages.light_theme') ?? 'Light' }}</option>
-                                    <option
-                                        value="dark" @selected((old('theme', $preferences?->theme ?? 'light')) === 'dark')>{{ __('messages.dark_theme') ?? 'Dark' }}</option>
+                                    <option value="light" @selected(old('theme', $preferences?->theme ?? 'light') === 'light')>
+                                        {{ __('messages.light_theme') ?? 'Light' }}</option>
+                                    <option value="dark" @selected(old('theme', $preferences?->theme ?? 'light') === 'dark')>
+                                        {{ __('messages.dark_theme') ?? 'Dark' }}</option>
                                 </select>
                             </div>
                         </div>
@@ -168,12 +166,12 @@
                                 <label for="current_password" class="form-label">{{ __('messages.current_password') }}
                                     :</label>
                                 <input type="password" name="current_password" id="current_password"
-                                       class="form-control" placeholder="••••••••">
+                                    class="form-control" placeholder="••••••••">
                             </div>
                             <div class="col-xl-6">
                                 <label for="new_password" class="form-label">{{ __('messages.new_password') }} :</label>
                                 <input type="password" name="new_password" id="new_password" class="form-control"
-                                       placeholder="••••••••">
+                                    placeholder="••••••••">
                             </div>
                         </div>
                     </div>

@@ -21,7 +21,24 @@ return [
 
     'stripe' => [
         'prices' => [
-            'bronze_monthly' => env('STRIPE_BRONZE_MONTHLY_PRICE_ID'),
+            'bronze' => [
+                'monthly' => env('STRIPE_BRONZE_MONTHLY_PRICE_ID', 'price_1PQSfHRpS4YVz6cW2g5eYxkj'),
+                'quarterly' => env('STRIPE_BRONZE_QUARTERLY_PRICE_ID', 'price_1PQSfHRpS4YVz6cW2g5eYxkj'),
+                'semiannually' => env('STRIPE_BRONZE_SEMIANNUAL_PRICE_ID', 'price_1PQSfHRpS4YVz6cW2g5eYxkj'),
+                'yearly' => env('STRIPE_BRONZE_YEARLY_PRICE_ID', 'price_1PQSfHRpS4YVz6cW2g5eYxkj'),
+            ],
+            'gold' => [
+                'monthly' => env('STRIPE_GOLD_MONTHLY_PRICE_ID', 'price_1PQSfhRpS4YVz6cW3gQ8gohK'),
+                'quarterly' => env('STRIPE_GOLD_QUARTERLY_PRICE_ID', 'price_1PQSfhRpS4YVz6cW3gQ8gohK'),
+                'semiannually' => env('STRIPE_GOLD_SEMIANNUAL_PRICE_ID', 'price_1PQSfhRpS4YVz6cW3gQ8gohK'),
+                'yearly' => env('STRIPE_GOLD_YEARLY_PRICE_ID', 'price_1PQSfhRpS4YVz6cW3gQ8gohK'),
+            ],
+            'diamond' => [
+                'monthly' => env('STRIPE_DIAMOND_MONTHLY_PRICE_ID', 'price_1PQSgBRpS4YVz6cW2sDxA2R1'),
+                'quarterly' => env('STRIPE_DIAMOND_QUARTERLY_PRICE_ID', 'price_1PQSgBRpS4YVz6cW2sDxA2R1'),
+                'semiannually' => env('STRIPE_DIAMOND_SEMIANNUAL_PRICE_ID', 'price_1PQSgBRpS4YVz6cW2sDxA2R1'),
+                'yearly' => env('STRIPE_DIAMOND_YEARLY_PRICE_ID', 'price_1PQSgBRpS4YVz6cW2sDxA2R1'),
+            ],
         ],
     ],
 

@@ -132,14 +132,13 @@
             @php
                 // Generate user initials safely
                 $fullName = optional(currentUser())->full_name ?? (auth()->user()?->full_name ?? '');
-                $nameParts = explode(' ', trim($fullName));
+                $nameParts = array_values(array_filter(explode(' ', trim($fullName))));
                 $initials = '';
-                foreach ($nameParts as $part) {
-                    if (!empty($part)) {
-                        $initials .= strtoupper(substr($part, 0, 1));
-                    }
+                if (count($nameParts) === 1 && !empty($nameParts[0])) {
+                    $initials = strtoupper(substr($nameParts[0], 0, 2));
+                } elseif (count($nameParts) > 1) {
+                    $initials = strtoupper(substr($nameParts[0], 0, 1) . substr(end($nameParts), 0, 1));
                 }
-                $initials = substr($initials, 0, 2);
             @endphp
             <li class="header-element dropdown">
                 <a href="javascript:void(0);" class="header-link dropdown-toggle" id="mainHeaderProfile"
@@ -154,29 +153,35 @@
                 <div class="main-header-dropdown dropdown-menu pt-0 overflow-hidden header-profile-dropdown dropdown-menu-end"
                     aria-labelledby="mainHeaderProfile">
                     <div class="p-3 bg-primary text-fixed-white">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <p class="mb-0 fs-16">Profile</p>
-                            <a href="javascript:void(0);" class="text-fixed-white"><i
-                                    class="ti ti-settings-cog"></i></a>
-                        </div>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <div class="p-3">
                         <div class="d-flex align-items-start gap-2">
 
                             <div class="lh-1">
-                                <span class="avatar-text fw-bold fs-5"
-                                    style="color: white !important;">{{ $initials }}</span>
+                                {{-- <span class="avatar-text fw-bold fs-5"
+                                    style="color: white !important;">{{ $initials }}</span> --}}
                             </div>
                             <div>
-                                <span
-                                    class="d-block fw-semibold lh-1">{{ optional(currentUser())->full_name ?? (auth()->user()?->full_name ?? '') }}</span>
-                                <span class="text-muted fs-12">
-                                    {{ currentUser()?->currentSubscriptionPlan()?->name ?? 'No active plan' }}
+                                <span class="d-block fw-semibold lh-1 mb-2">
+                                    {{ optional(currentUser())->full_name ?? (auth()->user()?->full_name ?? '') }}
+                                </span>
+                                @php
+                                    $planLabel = currentUser()?->currentSubscriptionLabel() ?? '';
+                                    $planName = explode(' - ', $planLabel)[0] ?? '';
+                                    $planClass = strtolower($planName);
+                                @endphp
+                                <span class="fs-14 mt-2" style="color: white !important;">
+                                    <i class="ri-star-fill {{ $planClass }}"></i>
+                                    {{ $planLabel ?? 'No active plan' }}
                                 </span>
                             </div>
                         </div>
+                        {{-- <div class="d-flex align-items-center justify-content-between">
+                            <p class="mb-0 fs-16">Profile</p>
+                            <a href="javascript:void(0);" class="text-fixed-white"><i
+                                    class="ti ti-settings-cog"></i></a>
+                        </div> --}}
                     </div>
+                    <div class="dropdown-divider"></div>
+
                     <div class="dropdown-divider"></div>
                     <ul class="list-unstyled mb-0">
                         <li>
@@ -197,7 +202,7 @@
                             <ul class="list-unstyled mb-0 sub-list">
                                 <li>
                                     <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);"><i
-                                            class="ti ti-lifebuoy me-2 fs-18"></i>Support</a>
+                                            class="ti ti-lifebuoy me-2 fs-18"></i>{{ __('messages.support') }}</a>
                                 </li>
                                 {{-- <li>
                                     <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);"><i

@@ -8,7 +8,7 @@
 @endphp
 
 @if (collect($flashMessages)->filter()->isNotEmpty() || $errors->any())
-    <div class="container mt-3">
+    {{-- <div class="container mt-3">
         @foreach ($flashMessages as $type => $message)
             @if ($message)
                 <div class="alert alert-{{ $type === 'error' ? 'danger' : $type }} alert-dismissible fade show" role="alert">
@@ -28,6 +28,5 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-    </div>
+    </div> --}}
 @endif
-

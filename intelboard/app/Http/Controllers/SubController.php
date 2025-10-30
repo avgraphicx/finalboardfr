@@ -37,10 +37,22 @@ class SubController extends Controller
         $priceId = $request->price_id;
 
         try {
-            $user->newSubscription('default', $priceId)->create($paymentMethod);
-            return redirect()->route('index')->with('success', 'Subscription successful!');
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
+            $subscription = $user->newSubscription('default', $priceId)->create($paymentMethod);
+
+            return view('pages.subscribe-result', [
+                'status' => 'success',
+                'message' => __('messages.subscription_success') ?? 'Subscription successful!',
+                'subscription' => $subscription,
+                'redirect_url' => route('index'),
+                'redirect_delay' => 5,
+            ]);
+        } catch (\Throwable $e) {
+            return view('pages.subscribe-result', [
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'redirect_url' => route('subscribe.view', ['price_id' => $priceId]),
+                'redirect_delay' => 5,
+            ]);
         }
     }
 

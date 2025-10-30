@@ -2,7 +2,7 @@
 
 @section('content')
     <!-- Start::page-header -->
-    <div class="page-header-breadcrumb mb-3">
+    <div class="page-header-breadcrumb mb-3 mt-4">
         <div class="d-flex align-center justify-content-between flex-wrap">
             <h1 class="page-title fw-medium fs-18 mb-0">{{ __('messages.add_driver') ?? 'Add Driver' }}</h1>
             <ol class="breadcrumb mb-0">
@@ -44,6 +44,16 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="phone_number"
+                                class="form-label">{{ __('messages.phone_number') ?? 'Phone Number' }}</label>
+                            <input type="text" class="form-control @error('phone_number') is-invalid @enderror"
+                                id="phone_number" name="phone_number" value="{{ old('phone_number') }}">
+                            @error('phone_number')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
                             <label for="license_number"
                                 class="form-label">{{ __('messages.license_number') ?? 'License Number' }}</label>
                             <input type="text" class="form-control @error('license_number') is-invalid @enderror"
@@ -68,8 +78,8 @@
                                     class="form-label">{{ __('messages.default_percentage') ?? 'Default %' }}</label>
                                 <input type="number" step="0.01"
                                     class="form-control @error('default_percentage') is-invalid @enderror"
-                                    id="default_percentage" name="default_percentage"
-                                    value="{{ old('default_percentage', 0) }}">
+                                    id="default_percentage" name="default_percentage" placeholder="25" value="25">
+                                {{-- value="{{ old('default_percentage', 0) }}"> --}}
                                 @error('default_percentage')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -80,8 +90,8 @@
                                     class="form-label">{{ __('messages.default_rental_price') ?? 'Default Rental Price' }}</label>
                                 <input type="number" step="0.01"
                                     class="form-control @error('default_rental_price') is-invalid @enderror"
-                                    id="default_rental_price" name="default_rental_price"
-                                    value="{{ old('default_rental_price', 0) }}">
+                                    id="default_rental_price" name="default_rental_price" placeholder="60" value="60">
+                                {{-- value="{{ old('default_rental_price', 0) }}"> --}}
                                 @error('default_rental_price')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -89,9 +99,10 @@
                         </div>
 
                         <div class="d-flex gap-2 justify-content-end">
-                            <a href="{{ route('drivers.index') }}"
-                                class="btn btn-secondary">{{ __('messages.cancel') ?? 'Cancel' }}</a>
-                            <button type="submit" class="btn btn-primary">{{ __('messages.create') ?? 'Create' }}</button>
+                            <a href="{{ route('drivers.index') }}" class="btn btn-danger"><i
+                                    class="ri-close-large-fill"></i> {{ __('messages.cancel') ?? 'Cancel' }}</a>
+                            <button type="submit" class="btn btn-primary">{{ __('messages.create_driver') ?? 'Create' }}
+                                <i class="ri-add-large-fill"></i></button>
                         </div>
                     </form>
                 </div>

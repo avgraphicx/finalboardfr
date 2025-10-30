@@ -132,16 +132,17 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::get('profile/login-activity', [ProfileController::class, 'loginActivity'])->name('profile.login-activity');
 
     /******** Drivers Management ********/
+    Route::middleware(['subscription.limit:driver'])->group(function () {
+        Route::get('drivers/create', [DriverController::class, 'create'])->name('drivers.create');
+        Route::post('drivers', [DriverController::class, 'store'])->name('drivers.store');
+    });
+
     Route::delete('drivers/bulk-destroy', [DriverController::class, 'bulkDestroy'])->name('drivers.bulkDestroy');
     Route::get('drivers/{driver}/invoices-data', [DriverController::class, 'invoicesData'])->name('drivers.invoices-data');
     Route::get('drivers/check-limit', [DriverController::class, 'checkLimit'])->name('drivers.check-limit');
 
     // Driver resource routes with subscription limit on create/store
     Route::resource('drivers', DriverController::class)->except(['create', 'store']);
-    Route::middleware(['subscription.limit:driver'])->group(function () {
-        Route::get('drivers/create', [DriverController::class, 'create'])->name('drivers.create');
-        Route::post('drivers', [DriverController::class, 'store'])->name('drivers.store');
-    });
 
     Route::get('drivers/data', [DriverController::class, 'getData'])->name('drivers.data');
     Route::patch('drivers/{driver}/toggle-active', [DriverController::class, 'toggleActive'])->name('drivers.toggle-active');
@@ -190,5 +191,17 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
         // Audit Logs
         Route::resource('audits', AuditLogController::class)->only(['index', 'show']);
         Route::get('audits/export/csv', [AuditLogController::class, 'export'])->name('audits.export');
+    });
+});
+
+
+Route::prefix('backend')->name('backend.')->group(function () {
+    Route::get('login', [\App\Http\Controllers\Backend\AuthController::class, 'showLogin'])->name('login');
+    Route::post('login', [\App\Http\Controllers\Backend\AuthController::class, 'login'])->name('login.submit');
+    Route::post('logout', [\App\Http\Controllers\Backend\AuthController::class, 'logout'])->name('logout');
+
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        Route::get('dashboard', [\App\Http\Controllers\Backend\DashboardController::class, 'index'])->name('dashboard');
+        Route::resource('users', \App\Http\Controllers\Backend\UserController::class)->except(['show', 'create', 'store']);
     });
 });

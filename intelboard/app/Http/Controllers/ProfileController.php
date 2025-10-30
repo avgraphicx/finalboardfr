@@ -62,6 +62,7 @@ class ProfileController extends Controller
         ]);
 
         // Update basic user fields
+        $user->name = $validated['full_name']; // Also set name for legacy compatibility
         $user->full_name = $validated['full_name'];
         $user->email = $validated['email'];
         $user->phone_number = $validated['phone_number'] ?? $user->phone_number;

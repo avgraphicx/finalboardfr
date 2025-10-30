@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('subscription_items', function (Blueprint $table) {
-            $table->string('meter_event_name')->nullable()->after('quantity');
+        Schema::create('user_preferences', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id');
+            $table->string('language', 5)->default('EN');
+            $table->enum('theme', ['light', 'dark'])->default('light');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('subscription_items', function (Blueprint $table) {
-            $table->dropColumn('meter_event_name');
-        });
+        Schema::dropIfExists('user_preferences');
     }
 };

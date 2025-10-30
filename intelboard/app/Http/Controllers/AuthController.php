@@ -61,14 +61,15 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'full_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
             'phone' => ['nullable', 'string', 'max:20'],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'name' => $request->full_name, // Also set name for legacy compatibility
+            'full_name' => $request->full_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'phone_number' => $request->phone,
@@ -97,25 +98,16 @@ class AuthController extends Controller
      */
     private function getPriceId($plan, $interval)
     {
-        $prices = [
-            'bronze' => [
-                'monthly' => 'price_1PQSfHRpS4YVz6cW2g5eYxkj',
-                'quarterly' => 'price_...',
-                'yearly' => 'price_...',
-            ],
-            'gold' => [
-                'monthly' => 'price_1PQSfhRpS4YVz6cW3gQ8gohK',
-                'quarterly' => 'price_...',
-                'yearly' => 'price_...',
-            ],
-            'diamond' => [
-                'monthly' => 'price_1PQSgBRpS4YVz6cW2sDxA2R1',
-                'quarterly' => 'price_...',
-                'yearly' => 'price_...',
-            ],
-        ];
+        $prices = config('services.stripe.prices', []);
 
-        return $prices[$plan][$interval] ?? null;
+        $normalizedInterval = match ($interval) {
+            'semiannual' => 'semiannually',
+            'annual' => 'yearly',
+            default => $interval,
+        };
+
+        return data_get($prices, "{$plan}.{$normalizedInterval}")
+            ?? data_get($prices, "{$plan}.monthly");
     }
 
     /**
@@ -150,8 +142,8 @@ class AuthController extends Controller
 
             // 1. Check if user exists by google_id and is active
             $user = User::where('google_id', $googleId)
-                        ->where('active', true)
-                        ->first();
+                ->where('active', true)
+                ->first();
 
             if ($user) {
                 Auth::login($user, true);
@@ -161,8 +153,8 @@ class AuthController extends Controller
 
             // 2. Check if user exists by email and is active (Link existing account)
             $user = User::where('email', $email)
-                        ->where('active', true)
-                        ->first();
+                ->where('active', true)
+                ->first();
 
             if ($user) {
                 // Link Google ID to existing user
@@ -175,12 +167,11 @@ class AuthController extends Controller
             // 3. New user: Store details in session and redirect to registration completion
             session(['google_user' => [
                 'google_id' => $googleId,
-                'name' => $googleUser->getName(),
+                'full_name' => $googleUser->getName(),
                 'email' => $email
             ]]);
 
             return redirect()->route('register.complete');
-
         } catch (\Throwable $e) {
             return redirect()
                 ->route('login')

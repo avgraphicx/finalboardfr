@@ -191,4 +191,21 @@ class User extends Authenticatable
     {
         return $this->currentCashierSubscription()?->plan;
     }
+
+    /**
+     * Human readable name for the current active plan.
+     */
+    public function currentSubscriptionLabel(): ?string
+    {
+        $plan = $this->currentSubscriptionPlan();
+        if ($plan && !empty($plan->name)) {
+            return $plan->name;
+        }
+
+        $priceId = $this->currentCashierSubscription()?->stripe_price;
+
+        return function_exists('subscriptionPriceLabel')
+            ? subscriptionPriceLabel($priceId)
+            : $priceId;
+    }
 }

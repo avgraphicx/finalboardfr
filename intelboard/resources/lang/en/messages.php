@@ -167,6 +167,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'profile' => 'Profile',
+    'support' => 'Support',
     'subscription' => 'Subscription',
     'until' => 'Until',
     'save_changes' => 'Save changes',
@@ -223,6 +224,8 @@ return [
     |--------------------------------------------------------------------------
     */
     'drivers' => 'Drivers',
+    'driver_details' => 'Driver Details',
+    'create_driver' => 'Create Driver',
     'total_drivers' => 'Total Drivers',
     'active_drivers' => 'Active Drivers',
     'top_driver_days' => 'Driver / Days',
@@ -239,7 +242,7 @@ return [
     'confirm_delete_driver' => 'Are you sure you want to delete this driver?',
     'back_to_drivers' => 'Back to drivers',
     'full_name' => 'Full name',
-
+    'driver_updated_successfully' => 'Driver updated successfully.',
     'driver_id' => 'Driver ID',
     'license_number' => 'Driving license number',
     'ssn' => 'SSN',
@@ -524,6 +527,8 @@ return [
     'top_driver_int' => 'Driver / Intelcom Invoices',
     'top_driver_own' => 'Driver / Your Invoices',
     'broker_earnings_by_week' => 'Your Weekly Earnings',
+    'weekly_stats' => 'Weekly Stats',
+    'no_payments_found' => 'No payments found yet.',
 
     /*
     |--------------------------------------------------------------------------
